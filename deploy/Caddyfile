@@ -1,0 +1,40 @@
+# Caddy: automatic HTTPS (Let's Encrypt), HTTP → HTTPS redirect, compression.
+
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Uploads are at most 20 MB; refuse anything larger early.
+	request_body {
+		max_size 25MB
+	}
+
+	# Generated photos/PDF: random, never-reused file names → cache forever.
+	handle /media/* {
+		root * /srv
+		@valid path_regexp ^/media/[A-Za-z0-9_-]{12,64}/(\d{2,4}w\.webp|og\.jpg|menukaart\.pdf)$
+		handle @valid {
+			header Cache-Control "public, max-age=31536000, immutable"
+			header X-Content-Type-Options nosniff
+			header Content-Security-Policy "default-src 'none'; sandbox"
+			file_server
+		}
+		respond 404
+	}
+
+	reverse_proxy app:3000
+
+	header -Server
+
+	# Access logs are kept for 14 days (see the privacy statement).
+	log {
+		output file /data/access.log {
+			roll_size 10MiB
+			roll_keep 5
+			roll_keep_for 336h
+		}
+	}
+}

@@ -1,0 +1,59 @@
+# Pizzeria Sarah — production stack on a single small VPS.
+#   docker compose up -d --build
+# Secrets live in .env next to this file (see .env.example), never in Git.
+services:
+  db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pizzeria_sarah
+      POSTGRES_USER: sarah
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Zet POSTGRES_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sarah -d pizzeria_sarah']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Not published to the internet: only reachable from the app container.
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://sarah:${POSTGRES_PASSWORD}@db:5432/pizzeria_sarah
+      MEDIA_DIR: /data/media
+      TRUST_PROXY_HEADERS: '1'
+    volumes:
+      - media:/data/media
+    # Only Caddy talks to the app.
+    expose:
+      - '3000'
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    environment:
+      DOMAIN: ${DOMAIN:-pizzaria-sarah.nl}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - media:/srv/media:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  db-data:
+  media:
+  caddy-data:
+  caddy-config:

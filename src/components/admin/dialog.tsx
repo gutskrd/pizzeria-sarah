@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { CloseIcon } from '@/components/ui/icons';
 
 type Props = {
@@ -23,6 +23,9 @@ const WIDTHS = { sm: 'sm:max-w-md', md: 'sm:max-w-xl', lg: 'sm:max-w-3xl', xl: '
  */
 export function Dialog({ open, onClose, title, description, children, footer, size = 'md', locked = false }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  const id = useId();
+  const titleId = `${id}-titel`;
+  const descriptionId = `${id}-omschrijving`;
 
   useEffect(() => {
     const dialog = ref.current;
@@ -34,8 +37,8 @@ export function Dialog({ open, onClose, title, description, children, footer, si
   return (
     <dialog
       ref={ref}
-      aria-labelledby="dialog-titel"
-      aria-describedby={description ? 'dialog-omschrijving' : undefined}
+      aria-labelledby={titleId}
+      aria-describedby={description ? descriptionId : undefined}
       onCancel={(e) => {
         e.preventDefault();
         if (!locked) onClose();
@@ -49,11 +52,11 @@ export function Dialog({ open, onClose, title, description, children, footer, si
         <div className="flex h-full max-h-[100dvh] flex-col sm:max-h-[90dvh]">
           <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
             <div className="min-w-0">
-              <h2 id="dialog-titel" className="font-display text-2xl leading-tight">
+              <h2 id={titleId} className="font-display text-2xl leading-tight">
                 {title}
               </h2>
               {description && (
-                <p id="dialog-omschrijving" className="mt-1 text-[0.95rem] text-muted">
+                <p id={descriptionId} className="mt-1 text-[0.95rem] text-muted">
                   {description}
                 </p>
               )}

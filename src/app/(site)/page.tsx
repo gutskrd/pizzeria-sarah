@@ -210,19 +210,41 @@ export default async function HomePage() {
               Bekijk alle foto&apos;s <ArrowRightIcon size={18} />
             </Link>
           </div>
-          <ul className="mt-10 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4 md:grid-rows-2">
-            {gallery.map((img, i) => (
-              <li key={img.id} className={`overflow-hidden rounded-sm bg-line ${i === 0 ? 'col-span-2 row-span-2' : ''} ${i > 4 ? 'hidden md:block' : ''}`}>
-                <Link href="/galerij" className="group block h-full">
-                  <Picture
-                    image={img}
-                    sizes={i === 0 ? '(min-width: 768px) 50vw, 100vw' : '(min-width: 768px) 25vw, 50vw'}
-                    className="aspect-square h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {gallery.length >= 5 ? (
+            // Mosaic: one large photo and four smaller ones.
+            <ul className="mt-10 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4 md:grid-rows-2">
+              {gallery.slice(0, 5).map((img, i) => (
+                <li key={img.id} className={`overflow-hidden rounded-sm bg-line ${i === 0 ? 'col-span-2 row-span-2' : ''} ${i === 4 ? 'hidden md:block' : ''}`}>
+                  <Link href="/galerij" className="group block h-full" aria-label={`Bekijk alle foto's${img.alt ? `: ${img.alt}` : ''}`}>
+                    <Picture
+                      image={img}
+                      sizes={i === 0 ? '(min-width: 768px) 50vw, 100vw' : '(min-width: 768px) 25vw, 50vw'}
+                      alt=""
+                      className="aspect-square h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            // Few photos: an even row that never looks half-empty.
+            <ul
+              className={`mt-10 grid gap-2 sm:gap-3 ${gallery.length === 1 ? 'grid-cols-1' : gallery.length === 2 ? 'grid-cols-2' : gallery.length === 3 ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}
+            >
+              {gallery.map((img, i) => (
+                <li key={img.id} className={`overflow-hidden rounded-sm bg-line ${gallery.length === 3 && i === 2 ? 'col-span-2 md:col-span-1' : ''}`}>
+                  <Link href="/galerij" className="group block h-full" aria-label={`Bekijk alle foto's${img.alt ? `: ${img.alt}` : ''}`}>
+                    <Picture
+                      image={img}
+                      sizes={gallery.length === 1 ? '100vw' : '(min-width: 768px) 33vw, 50vw'}
+                      alt=""
+                      className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] ${gallery.length === 1 ? 'aspect-[16/9]' : 'aspect-[4/3]'}`}
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
 

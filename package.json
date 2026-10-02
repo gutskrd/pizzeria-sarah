@@ -18,7 +18,8 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "admin:create": "tsx scripts/create-admin.ts",
-    "media:import-legacy": "tsx scripts/import-legacy-media.ts"
+    "media:import-legacy": "tsx scripts/import-legacy-media.ts",
+    "build:scripts": "esbuild scripts/migrate.ts scripts/seed.ts scripts/create-admin.ts scripts/import-legacy-media.ts --bundle --platform=node --format=esm --target=node22 --outdir=scripts-dist --out-extension:.js=.mjs --external:sharp --external:@node-rs/argon2 --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\""
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -35,12 +36,14 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "drizzle-kit": "^0.31.11",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.8",
     "prettier": "^3.9.9",

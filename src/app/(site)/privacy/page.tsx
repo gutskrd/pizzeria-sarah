@@ -10,7 +10,7 @@ export default async function PrivacyPage() {
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Privacyverklaring', path: '/privacy' }])} />
-      <PageHeader eyebrow={s.businessName} title={"Privacy\u00ADverklaring"} />
+      <PageHeader eyebrow={s.businessName} title={'Privacy\u00ADverklaring'} />
       <div className="container-site py-14 md:py-20">
         <div className="prose-site max-w-3xl text-[1.05rem] leading-relaxed text-ink-soft">
           <p>

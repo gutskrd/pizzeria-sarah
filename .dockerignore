@@ -7,3 +7,8 @@ playwright-report
 .env
 .env.*
 !.env.example
+.next-test
+scripts-dist
+tests
+coverage
+*.log

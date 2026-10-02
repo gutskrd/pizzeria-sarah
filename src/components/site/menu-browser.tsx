@@ -40,10 +40,16 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
     return () => observer.disconnect();
   }, [filtered]);
 
-  // Keep the active chip visible in the horizontal category bar.
+  // Keep the active chip visible in the horizontal category bar (horizontal scroll only,
+  // so the page itself never jumps).
   useEffect(() => {
-    const chip = navRef.current?.querySelector<HTMLElement>(`[data-chip="${active}"]`);
-    chip?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+    const nav = navRef.current;
+    const chip = nav?.querySelector<HTMLElement>(`[data-chip="${active}"]`);
+    if (!nav || !chip) return;
+    const left = chip.offsetLeft - 16;
+    const right = chip.offsetLeft + chip.offsetWidth + 16;
+    if (left < nav.scrollLeft) nav.scrollTo({ left, behavior: 'smooth' });
+    else if (right > nav.scrollLeft + nav.clientWidth) nav.scrollTo({ left: right - nav.clientWidth, behavior: 'smooth' });
   }, [active]);
 
   return (
@@ -71,7 +77,7 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
               </button>
             )}
           </label>
-          <nav ref={navRef} aria-label="Categorieën" className="-mx-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <nav ref={navRef} aria-label="Categorieën" className="relative -mx-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <ul className="flex gap-1.5 px-1">
               {filtered.map((c) => (
                 <li key={c.id} className="shrink-0">
