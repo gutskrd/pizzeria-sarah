@@ -7,7 +7,7 @@ import { toPickedImage } from '@/lib/admin/images';
 
 export const metadata = { title: 'Aanbiedingen – Beheer' };
 
-export default async function AdminOffersPage() {
+export default async function AdminOffersPage({ searchParams }: { searchParams: Promise<{ aanbieding?: string }> }) {
   await requireAdmin();
   const rows = await db().select().from(schema.offers).orderBy(asc(schema.offers.sortOrder), desc(schema.offers.createdAt));
   const ids = rows.map((r) => r.imageId).filter((x): x is string => Boolean(x));
@@ -23,5 +23,6 @@ export default async function AdminOffersPage() {
     endsOn: r.endsOn,
     isVisible: r.isVisible,
   }));
-  return <OffersEditor offers={offers} today={todayInAmsterdam()} />;
+  const { aanbieding } = await searchParams;
+  return <OffersEditor offers={offers} today={todayInAmsterdam()} openOffer={aanbieding} />;
 }

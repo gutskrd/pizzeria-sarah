@@ -22,10 +22,13 @@ import {
   TrashIcon,
 } from '@/components/ui/icons';
 import type { AdminImage } from '@/lib/admin/types';
+import { useCleanUrl } from '@/components/admin/use-clean-url';
 import { PhotoDetailsDialog } from './photo-details-dialog';
 import { UploadDialog } from './upload-dialog';
 
-type Filter = 'all' | 'visible' | 'hidden' | 'featured' | 'used';
+type Filter = 'all' | 'visible' | 'hidden' | 'featured' | 'used' | 'undescribed';
+
+export const isUndescribed = (img: AdminImage) => img.isVisible && (img.altText.trim() === '' || /^foto van /i.test(img.altText));
 
 const FILTERS: Array<{ key: Filter; label: string }> = [
   { key: 'all', label: 'Alle' },
@@ -33,6 +36,7 @@ const FILTERS: Array<{ key: Filter; label: string }> = [
   { key: 'hidden', label: 'Verborgen' },
   { key: 'featured', label: 'Uitgelicht' },
   { key: 'used', label: 'In gebruik' },
+  { key: 'undescribed', label: 'Zonder beschrijving' },
 ];
 
 function matches(img: AdminImage, filter: Filter) {
@@ -45,17 +49,32 @@ function matches(img: AdminImage, filter: Filter) {
       return img.isFeatured;
     case 'used':
       return img.usages.length > 0;
+    case 'undescribed':
+      return isUndescribed(img);
     default:
       return true;
   }
 }
 
-export function PhotoLibrary({ images: initial, trashCount, openUpload = false }: { images: AdminImage[]; trashCount: number; openUpload?: boolean }) {
+export function PhotoLibrary({
+  images: initial,
+  trashCount,
+  openUpload = false,
+  openPhoto,
+  initialFilter,
+}: {
+  images: AdminImage[];
+  trashCount: number;
+  openUpload?: boolean;
+  openPhoto?: string;
+  initialFilter?: string;
+}) {
   const [images, setImages] = useState(initial);
   const [syncedFrom, setSyncedFrom] = useState(initial);
-  const [filter, setFilter] = useState<Filter>('all');
+  const [filter, setFilter] = useState<Filter>(initialFilter === 'zonder-beschrijving' ? 'undescribed' : 'all');
   const [reorder, setReorder] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(openPhoto && initial.some((i) => i.id === openPhoto) ? openPhoto : null);
+  useCleanUrl(['foto', 'toevoegen', 'filter']);
   const [uploadOpen, setUploadOpen] = useState(openUpload);
   const [droppedFiles, setDroppedFiles] = useState<File[] | null>(null);
   const [pageDrag, setPageDrag] = useState(false);
@@ -192,6 +211,7 @@ export function PhotoLibrary({ images: initial, trashCount, openUpload = false }
             <div className="flex gap-2">
               {FILTERS.map((f) => {
                 const count = images.filter((i) => matches(i, f.key)).length;
+                if (f.key === 'undescribed' && count === 0 && filter !== f.key) return null;
                 return (
                   <button
                     key={f.key}

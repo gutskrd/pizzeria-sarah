@@ -6,7 +6,7 @@ import { db, schema } from '@/lib/db';
 
 export const metadata = { title: "Foto's – Beheer" };
 
-export default async function PhotosPage({ searchParams }: { searchParams: Promise<{ toevoegen?: string }> }) {
+export default async function PhotosPage({ searchParams }: { searchParams: Promise<{ toevoegen?: string; foto?: string; filter?: string }> }) {
   await requireAdmin();
   const [images, [trash]] = await Promise.all([
     listAdminImages(),
@@ -15,6 +15,6 @@ export default async function PhotosPage({ searchParams }: { searchParams: Promi
       .from(schema.images)
       .where(isNotNull(schema.images.deletedAt)),
   ]);
-  const { toevoegen } = await searchParams;
-  return <PhotoLibrary images={images} trashCount={trash?.count ?? 0} openUpload={toevoegen === '1'} />;
+  const { toevoegen, foto, filter } = await searchParams;
+  return <PhotoLibrary images={images} trashCount={trash?.count ?? 0} openUpload={toevoegen === '1'} openPhoto={foto} initialFilter={filter} />;
 }

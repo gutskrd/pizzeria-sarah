@@ -26,3 +26,9 @@ export const terminateOtherSessions = adminAction(z.object({}), async (_input, c
       count === 0 ? 'Er waren geen andere apparaten ingelogd.' : count === 1 ? '1 ander apparaat is uitgelogd.' : `${count} andere apparaten zijn uitgelogd.`,
   };
 });
+
+export const markNotificationsSeen = adminAction(z.object({}), async (_input, ctx) => {
+  const { markAlertsSeen } = await import('@/lib/admin/status');
+  await markAlertsSeen(ctx.user.id);
+  return { ok: true, message: 'Meldingen gemarkeerd als gezien.' };
+});

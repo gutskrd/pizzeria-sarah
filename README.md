@@ -5,7 +5,10 @@ website for Pizzeria Sarah (grillroom, pizzeria and takeaway in Dodewaard, since
 1995) plus a private, Dutch admin panel built for the owner.
 
 - **Public site:** `/`, `/menukaart`, `/over-ons`, `/galerij`, `/contact`, `/privacy`, `/voorwaarden`
-- **Admin:** `/admin`: dashboard, website texts, menu, photos, opening hours, messages, offers, signed-in devices, settings
+- **Admin:** `/admin`: dashboard, website texts, menu, photos, opening hours, messages, offers, activity history, signed-in devices, settings
+- **Admin extras:** live clock with open/closed countdown, notification bubbles in the navigation (live, polled every 30 s),
+  notification centre, unread count in the tab title, ⌘K/Ctrl+K command palette with search, one-tap "Vandaag sluiten",
+  inbox search and bulk actions, phone tab bar
 - **Owner's guide (Dutch):** [`docs/HANDLEIDING.md`](docs/HANDLEIDING.md)
 
 > Technical documentation is in English; everything the owner and customers see is Dutch.

@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import sharp from 'sharp';
 import { expectNoHorizontalOverflow, outbox, waitForMail, WIDTHS } from './helpers';
 
@@ -20,12 +20,22 @@ async function toast(page: Page, text: string | RegExp) {
 
 const dialog = (page: Page) => page.locator('dialog[open]').last();
 
+/** Sets a time field the way a time picker does (fill() does not trigger React's change event on time inputs). */
+async function setTime(input: Locator, value: string) {
+  await input.page().locator('html[data-admin-ready="1"]').waitFor({ state: 'attached' });
+  await input.evaluate((el: HTMLInputElement, v: string) => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, v);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }, value);
+}
+
 test.describe.serial('Beheer', () => {
   test('dashboard beantwoordt “Is alles goed?”', async ({ page }) => {
     await page.goto('/admin');
     await expect(page.getByRole('heading', { name: 'Is alles goed?' })).toBeVisible();
-    await expect(page.getByText('De website is online')).toBeVisible();
-    await expect(page.getByText('De menukaart is nog leeg')).toBeVisible();
+    const checks = page.locator('section[aria-labelledby="status-titel"]');
+    await expect(checks.getByText('De website is online')).toBeVisible();
+    await expect(checks.getByText('De menukaart is nog leeg')).toBeVisible();
     const quick = page.locator('section[aria-labelledby="snel-titel"]');
     for (const label of ['Foto toevoegen', 'Menukaart aanpassen', 'Openingstijden wijzigen', 'Bericht bekijken', 'Website bekijken']) {
       await expect(quick.getByRole('link', { name: label })).toBeVisible();
@@ -47,6 +57,7 @@ test.describe.serial('Beheer', () => {
     await dialog(page).getByLabel('Prijs', { exact: true }).fill('12,50');
     await dialog(page).getByLabel('Beschrijving').fill('Tomatensaus en kaas');
     await dialog(page).getByRole('button', { name: 'Opslaan' }).click();
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
     await toast(page, 'Gerecht toegevoegd.');
 
     await page.getByRole('button', { name: 'Gerecht toevoegen' }).click();
@@ -58,6 +69,7 @@ test.describe.serial('Beheer', () => {
     await dialog(page).getByLabel('Naam van prijs 2').fill('Groot');
     await dialog(page).getByLabel('Prijs 2', { exact: true }).fill('13,5');
     await dialog(page).getByRole('button', { name: 'Opslaan' }).click();
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
     await toast(page, 'Gerecht toegevoegd.');
 
     await page.goto('/menukaart');
@@ -233,8 +245,8 @@ test.describe.serial('Beheer', () => {
     await page.goto('/admin/openingstijden');
     const monday = page.getByRole('radiogroup', { name: 'Maandag: open of gesloten' });
     await monday.getByRole('radio', { name: 'Open' }).click();
-    await page.getByLabel('Maandag open vanaf').fill('17:00');
-    await page.getByLabel('Maandag open tot').fill('21:30');
+    await setTime(page.getByLabel('Maandag open vanaf'), '17:00');
+    await setTime(page.getByLabel('Maandag open tot'), '21:30');
     await expect(page.getByText('Je hebt wijzigingen die nog niet zijn opgeslagen.')).toBeVisible();
     await page.getByRole('button', { name: 'Openingstijden opslaan' }).click();
     await toast(page, 'Openingstijden bijgewerkt.');
@@ -244,10 +256,8 @@ test.describe.serial('Beheer', () => {
 
     // Invalid order is refused
     await page.goto('/admin/openingstijden');
-    // Type like a person would (fill() on a time field does not trigger React's change event).
-    await page.getByLabel('Dinsdag open tot').click({ position: { x: 12, y: 20 } });
-    await page.keyboard.type('1500');
-    await expect(page.getByText(/^De sluitingstijd \(\d\d:\d\d\) moet na de openingstijd \(16:00\) liggen\.$/)).toBeVisible();
+    await setTime(page.getByLabel('Dinsdag open tot'), '15:00');
+    await expect(page.getByText('De sluitingstijd (15:00) moet na de openingstijd (16:00) liggen.')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Openingstijden opslaan' })).toBeDisabled();
     await page.getByRole('button', { name: 'Annuleren' }).click();
 
@@ -321,6 +331,7 @@ test.describe.serial('Beheer', () => {
     await dialog(page).getByLabel('Titel').fill('Testactie vandaag');
     await dialog(page).getByLabel('Prijs of korting').fill('€ 10,00');
     await dialog(page).getByRole('button', { name: 'Opslaan' }).click();
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
     await toast(page, 'Aanbieding toegevoegd.');
 
     await page.getByRole('button', { name: 'Aanbieding toevoegen' }).click();
@@ -329,6 +340,7 @@ test.describe.serial('Beheer', () => {
       .getByLabel('Vanaf')
       .fill(new Date(Date.now() + 20 * 86_400_000).toISOString().slice(0, 10));
     await dialog(page).getByRole('button', { name: 'Opslaan' }).click();
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
     await toast(page, 'Aanbieding toegevoegd.');
     await expect(page.getByText('Gepland')).toBeVisible();
 
@@ -383,6 +395,143 @@ test.describe.serial('Beheer', () => {
     await toast(page, 'Wijzigingen opgeslagen.');
   });
 
+  test('meldingen: bubbel bij Berichten, tabbladtitel en meldingencentrum', async ({ page, browser }) => {
+    const visitor = await browser.newContext();
+    const v = await visitor.newPage();
+    await v.goto('/contact');
+    await v.getByLabel('Naam', { exact: true }).fill('Lotte Visser');
+    await v.getByLabel('E-mailadres').fill('lotte@example.com');
+    await v.getByLabel('Onderwerp').fill('Afhalen om 17 uur');
+    await v.getByLabel('Bericht', { exact: true }).fill('Kan ik om 17:00 een pizza komen afhalen?');
+    await v.waitForTimeout(3200);
+    await v.getByRole('button', { name: 'Bericht versturen' }).click();
+    await expect(v.getByRole('status')).toContainText('Bedankt');
+    await visitor.close();
+
+    await page.goto('/admin');
+    const nav = page.getByRole('navigation', { name: 'Beheermenu' }).first();
+    const berichten = nav.getByRole('link', { name: /Berichten/ });
+    await expect(berichten).toContainText('1');
+    await expect(berichten.getByText('1 ongelezen bericht')).toBeAttached();
+    await expect(page).toHaveTitle(/^\(1\) /);
+
+    await page
+      .getByRole('button', { name: /^Meldingen/ })
+      .first()
+      .click();
+    const panel = page.getByRole('dialog', { name: 'Meldingen' });
+    await expect(panel.getByText('Nieuw bericht van Lotte Visser')).toBeVisible();
+    await panel.getByText('Nieuw bericht van Lotte Visser').click();
+    await expect(page).toHaveURL(/\/admin\/berichten\/[0-9a-f-]{36}$/);
+    await expect(page.getByRole('heading', { name: 'Afhalen om 17 uur' })).toBeVisible();
+
+    // Opening the message clears the bubble and the title count.
+    await page.goto('/admin');
+    await expect(
+      page
+        .getByRole('navigation', { name: 'Beheermenu' })
+        .first()
+        .getByRole('link', { name: /Berichten/ }),
+    ).not.toContainText(/\d/);
+    await expect(page).not.toHaveTitle(/^\(\d+\) /);
+  });
+
+  test('live klok en openingsstatus in de bovenbalk', async ({ page }) => {
+    await page.goto('/admin/menukaart');
+    await expect(page.getByLabel(/^Het is \d{2}:\d{2}$/).first()).toBeVisible();
+    await expect(page.getByText(/^(Nu open|Nu gesloten|Gesloten)/).first()).toBeVisible();
+  });
+
+  test('zoeken met Ctrl+K: gerecht vinden en direct bewerken', async ({ page }) => {
+    await page.goto('/admin');
+    await page.locator('html[data-admin-ready="1"]').waitFor({ state: 'attached' });
+    await page.keyboard.press('Control+k');
+    const box = page.getByRole('combobox', { name: /Zoek een pagina/ });
+    await expect(box).toBeFocused();
+    await box.fill('Margherita');
+    await expect(page.getByRole('option', { name: /Testpizza Margherita/ })).toBeVisible();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/admin\/menukaart/);
+    await expect(dialog(page).getByRole('heading', { name: 'Gerecht bewerken' })).toBeVisible();
+    await expect(dialog(page).getByLabel('Naam')).toHaveValue('Testpizza Margherita');
+    await dialog(page).getByRole('button', { name: 'Annuleren' }).click();
+
+    // Pages and actions are found too.
+    await page.keyboard.press('Control+k');
+    await page.getByRole('combobox', { name: /Zoek een pagina/ }).fill('apparaten');
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/admin\/apparaten$/);
+  });
+
+  test('vandaag sluiten met één klik, en weer ongedaan maken', async ({ page }) => {
+    await page.goto('/admin');
+    await page.locator('html[data-admin-ready="1"]').waitFor({ state: 'attached' });
+    const today = page.locator('section[aria-labelledby="vandaag-titel"]');
+    const closeButton = today.getByRole('button', { name: 'Vandaag sluiten' });
+    if ((await closeButton.count()) === 0) test.skip(true, 'Vandaag is de zaak volgens de vaste tijden al gesloten.');
+    await closeButton.click();
+    await dialog(page).getByRole('button', { name: 'Onverwacht gesloten' }).click();
+    await dialog(page).getByRole('button', { name: 'Vandaag sluiten' }).click();
+    await toast(page, 'vandaag gesloten');
+    await expect(today.getByText('Vandaag gesloten: Onverwacht gesloten')).toBeVisible();
+
+    await page.goto('/');
+    await expect(page.getByText('Vandaag gesloten (Onverwacht gesloten)').first()).toBeVisible();
+
+    await page.goto('/admin');
+    await page.locator('section[aria-labelledby="vandaag-titel"]').getByRole('button', { name: 'Toch open vandaag' }).click();
+    await toast(page, 'vaste openingstijden');
+    await page.goto('/');
+    await expect(page.getByText('Vandaag gesloten (Onverwacht gesloten)')).toHaveCount(0);
+  });
+
+  test('berichten: zoeken, selecteren en in één keer als gelezen markeren', async ({ page }) => {
+    await page.goto('/admin/berichten?status=archived');
+    await page
+      .getByLabel(/Selecteer bericht van Jan de Vries/)
+      .first()
+      .check();
+    await expect(page.getByRole('toolbar', { name: 'Acties voor geselecteerde berichten' })).toContainText('1 geselecteerd');
+    await page.getByRole('toolbar').getByRole('button', { name: 'Ongelezen' }).click();
+    await toast(page, 'gemarkeerd als ongelezen');
+
+    await page.goto('/admin/berichten');
+    await page.getByRole('searchbox', { name: 'Zoek in berichten' }).fill('reservering');
+    await expect(page).toHaveURL(/zoek=reservering/);
+    await expect(page.getByRole('link', { name: /Jan de Vries/ }).first()).toBeVisible();
+    await page.getByRole('button', { name: 'Alles als gelezen markeren' }).click();
+    await toast(page, 'gemarkeerd als gelezen');
+    await expect(
+      page
+        .getByRole('navigation', { name: 'Beheermenu' })
+        .first()
+        .getByRole('link', { name: /Berichten/ }),
+    ).not.toContainText(/\d/);
+  });
+
+  test('activiteit: volledige geschiedenis per dag, te filteren', async ({ page }) => {
+    await page.goto('/admin/activiteit');
+    await expect(page.getByRole('heading', { name: 'Vandaag', level: 2 })).toBeVisible();
+    await expect(page.getByText('Gerecht toegevoegd: Testpizza Margherita').first()).toBeVisible();
+    await page
+      .getByRole('navigation', { name: 'Filter op onderdeel' })
+      .getByRole('link', { name: /Openingstijden/ })
+      .click();
+    await expect(page).toHaveURL(/gebied=openingstijden/);
+    await expect(page.getByText('Openingstijden gewijzigd').first()).toBeVisible();
+    await expect(page.getByText('Gerecht toegevoegd: Testpizza Margherita')).toHaveCount(0);
+  });
+
+  test('telefoon: tabbalk met bubbels', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/admin');
+    const tabs = page.getByRole('navigation', { name: 'Snelmenu' });
+    await expect(tabs.getByRole('link', { name: /Overzicht/ })).toHaveAttribute('aria-current', 'page');
+    await tabs.getByRole('link', { name: /Menukaart/ }).click();
+    await expect(page).toHaveURL(/\/admin\/menukaart$/);
+    await expectNoHorizontalOverflow(page);
+  });
+
   test('recente wijzigingen staan op het dashboard', async ({ page }) => {
     await page.goto('/admin');
     const recent = page.getByRole('region', { name: 'Recente wijzigingen' }).or(page.locator('section[aria-labelledby="wijzigingen-titel"]'));
@@ -392,7 +541,18 @@ test.describe.serial('Beheer', () => {
   for (const width of WIDTHS) {
     test(`beheer zonder horizontale scroll op ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      for (const p of ['', '/website', '/menukaart', '/fotos', '/openingstijden', '/berichten', '/aanbiedingen', '/apparaten', '/instellingen']) {
+      for (const p of [
+        '',
+        '/website',
+        '/menukaart',
+        '/fotos',
+        '/openingstijden',
+        '/berichten',
+        '/aanbiedingen',
+        '/activiteit',
+        '/apparaten',
+        '/instellingen',
+      ]) {
         await page.goto(`/admin${p}`);
         await expectNoHorizontalOverflow(page);
       }

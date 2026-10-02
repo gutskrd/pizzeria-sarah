@@ -1,6 +1,6 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { and, eq, gte, lte } from 'drizzle-orm';
 import { z } from 'zod';
 import { adminAction, UserError } from '@/lib/admin/action';
 import { invalidatePublicContent } from '@/lib/content/cache';
@@ -108,4 +108,39 @@ export const deleteException = adminAction(z.object({ id: z.uuid() }), async ({ 
   await logActivity(ctx.user.id, 'openingstijden', `Afwijking verwijderd: ${row.label}`);
   invalidatePublicContent();
   return { ok: true, message: 'Afwijking verwijderd.' };
+});
+
+/** One-tap closure for today (e.g. an unexpected closure), shown on the website at once. */
+export const closeToday = adminAction(
+  z.object({ label: z.string().trim().min(1, 'Geef een korte reden, bijvoorbeeld Tijdelijk gesloten.').max(80, 'Maximaal 80 tekens.') }),
+  async ({ label }, ctx) => {
+    const { todayInAmsterdam } = await import('@/lib/format');
+    const today = todayInAmsterdam();
+    const [existing] = await db()
+      .select({ label: schema.openingExceptions.label })
+      .from(schema.openingExceptions)
+      .where(and(lte(schema.openingExceptions.startsOn, today), gte(schema.openingExceptions.endsOn, today)))
+      .limit(1);
+    if (existing) throw new UserError(`Voor vandaag staat al een afwijking: ${existing.label}. Pas die aan bij Openingstijden.`);
+    const [row] = await db()
+      .insert(schema.openingExceptions)
+      .values({ startsOn: today, endsOn: today, isClosed: true, label })
+      .returning({ id: schema.openingExceptions.id });
+    await logActivity(ctx.user.id, 'openingstijden', `Vandaag gesloten: ${label}`);
+    invalidatePublicContent();
+    return { ok: true, message: 'Op de website staat nu: vandaag gesloten.', data: { id: row!.id } };
+  },
+);
+
+export const reopenToday = adminAction(z.object({ id: z.uuid() }), async ({ id }, ctx) => {
+  const { todayInAmsterdam } = await import('@/lib/format');
+  const today = todayInAmsterdam();
+  const rows = await db()
+    .delete(schema.openingExceptions)
+    .where(and(eq(schema.openingExceptions.id, id), eq(schema.openingExceptions.startsOn, today), eq(schema.openingExceptions.endsOn, today)))
+    .returning({ id: schema.openingExceptions.id });
+  if (!rows.length) throw new UserError('Deze sluiting kan hier niet ongedaan worden gemaakt. Pas hem aan bij Openingstijden.');
+  await logActivity(ctx.user.id, 'openingstijden', 'Vandaag weer geopend');
+  invalidatePublicContent();
+  return { ok: true, message: 'De vaste openingstijden van vandaag gelden weer.' };
 });

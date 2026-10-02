@@ -4,6 +4,8 @@ import { terminateOtherSessions, terminateSession } from '@/app/admin/(panel)/ap
 import { useConfirm } from '@/components/admin/confirm';
 import { PageTitle } from '@/components/admin/page-title';
 import { useAdminAction } from '@/components/admin/use-admin-action';
+import { MarkSecuritySeen } from '@/components/admin/mark-seen';
+import { useLive } from '@/components/admin/shell/live-provider';
 import { DevicesIcon, PinIcon, ShieldIcon } from '@/components/ui/icons';
 
 export type DeviceSession = {
@@ -63,9 +65,12 @@ export function DevicesView({ sessions, events }: { sessions: DeviceSession[]; e
   const { run } = useAdminAction();
   const confirm = useConfirm();
   const others = sessions.filter((s) => !s.isCurrent);
+  const { status } = useLive();
+  const pendingSecurity = status.notifications.some((n) => n.kind === 'security');
 
   return (
     <>
+      <MarkSecuritySeen pending={pendingSecurity} />
       <PageTitle
         title="Ingelogde apparaten"
         description="Hier zie je op welke apparaten je bent ingelogd. Herken je een apparaat niet? Beëindig dan de sessie en wijzig je wachtwoord."

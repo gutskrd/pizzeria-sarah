@@ -18,6 +18,7 @@ const PAGES = [
   '/admin/aanbiedingen',
   '/admin/apparaten',
   '/admin/instellingen',
+  '/admin/activiteit',
 ];
 
 for (const path of PAGES) {

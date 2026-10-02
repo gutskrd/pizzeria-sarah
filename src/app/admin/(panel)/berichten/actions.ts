@@ -1,6 +1,6 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { and, eq, inArray, ne } from 'drizzle-orm';
 import { z } from 'zod';
 import { adminAction, UserError } from '@/lib/admin/action';
 import { db, schema } from '@/lib/db';
@@ -70,4 +70,37 @@ export const deleteMessage = adminAction(z.object({ id: z.uuid() }), async ({ id
   if (!row) throw new UserError('Dit bericht bestaat niet meer.');
   await logActivity(ctx.user.id, 'berichten', 'Bericht verwijderd');
   return { ok: true, message: 'Bericht verwijderd.' };
+});
+
+export const bulkMessageAction = adminAction(
+  z.object({ ids: z.array(z.uuid()).min(1).max(500), action: z.enum(['read', 'new', 'archived', 'delete']) }),
+  async ({ ids, action }, ctx) => {
+    if (action === 'delete') {
+      const rows = await db().delete(schema.messages).where(inArray(schema.messages.id, ids)).returning({ id: schema.messages.id });
+      await logActivity(ctx.user.id, 'berichten', rows.length === 1 ? 'Bericht verwijderd' : `${rows.length} berichten verwijderd`);
+      return { ok: true, message: rows.length === 1 ? 'Bericht verwijderd.' : `${rows.length} berichten verwijderd.` };
+    }
+    const rows = await db()
+      .update(schema.messages)
+      .set({ status: action, ...(action === 'read' ? { readAt: new Date() } : {}) })
+      .where(and(inArray(schema.messages.id, ids), action === 'read' ? eq(schema.messages.status, 'new') : ne(schema.messages.status, action)))
+      .returning({ id: schema.messages.id });
+    const n = rows.length;
+    const word = n === 1 ? 'bericht' : 'berichten';
+    const message =
+      action === 'read' ? `${n} ${word} gemarkeerd als gelezen.` : action === 'new' ? `${n} ${word} gemarkeerd als ongelezen.` : `${n} ${word} gearchiveerd.`;
+    return { ok: true, message };
+  },
+);
+
+export const markAllMessagesRead = adminAction(z.object({}), async () => {
+  const rows = await db()
+    .update(schema.messages)
+    .set({ status: 'read', readAt: new Date() })
+    .where(eq(schema.messages.status, 'new'))
+    .returning({ id: schema.messages.id });
+  return {
+    ok: true,
+    message: rows.length ? `${rows.length} ${rows.length === 1 ? 'bericht' : 'berichten'} gemarkeerd als gelezen.` : 'Er waren geen ongelezen berichten.',
+  };
 });

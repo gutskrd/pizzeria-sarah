@@ -7,7 +7,7 @@ import { normalizeTime, type WeekDay } from '@/lib/opening-hours';
 
 export const metadata = { title: 'Openingstijden – Beheer' };
 
-export default async function AdminHoursPage() {
+export default async function AdminHoursPage({ searchParams }: { searchParams: Promise<{ afwijking?: string }> }) {
   await requireAdmin();
   const today = todayInAmsterdam();
   const d = db();
@@ -42,5 +42,6 @@ export default async function AdminHoursPage() {
     label: e.label,
     periods: exceptionPeriods.filter((p) => p.exceptionId === e.id).map((p) => ({ opens: normalizeTime(p.opensAt), closes: normalizeTime(p.closesAt) })),
   }));
-  return <HoursEditor weekly={weekly} exceptions={list} today={today} />;
+  const { afwijking } = await searchParams;
+  return <HoursEditor weekly={weekly} exceptions={list} today={today} openException={afwijking} />;
 }

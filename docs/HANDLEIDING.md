@@ -17,11 +17,32 @@ Je wordt pas uitgelogd als je een maand lang niet in het beheer bent geweest, of
 
 **Wachtwoord vergeten?** Klik op het inlogscherm op *Wachtwoord vergeten?* en volg de link in de e-mail.
 
-## Dashboard: “Is alles goed?”
+## Dashboard
 
-Het eerste scherm laat zien of alles in orde is: of de zaak nu open is, of er nieuwe berichten
-zijn, of de menukaart en foto's gevuld zijn. Een geel uitroepteken betekent: even naar kijken.
-Met **Snel naar** ga je direct naar de meestgebruikte onderdelen.
+- **Vandaag**: de klok, of de zaak nu open is en hoe lang nog (*sluit over 1 u 12 min*), en een balk
+  met de openingstijden van vandaag.
+- **Vandaag sluiten**: ben je onverwacht dicht? Eén tik, en op de website staat meteen *Vandaag gesloten*.
+  Toch open? Tik op **Toch open vandaag**. Morgen gelden vanzelf weer de vaste tijden.
+- Kerncijfers (nieuwe berichten, gerechten, foto's, aanbiedingen), de **komende 7 dagen**, een grafiek
+  met berichten per dag, en **Is alles goed?**: een geel uitroepteken betekent even naar kijken.
+
+## Meldingen en bolletjes
+
+- Een **rood bolletje met een getal** in het menu betekent: er wacht iets op je, bijvoorbeeld
+  *Berichten 3* = drie ongelezen berichten. Het getal staat ook in het tabblad van je browser: *(3) Beheer*.
+- **Geel**: iets kan beter (bijvoorbeeld foto's zonder beschrijving, gerechten zonder prijs).
+  **Blauw**: ter info (bijvoorbeeld een sluiting deze week). **Grijs**: hoeveel er actief is.
+- De **bel** rechtsboven toont alle meldingen op een rij. Ze verdwijnen vanzelf zodra ze zijn opgelost.
+- Komt er een bericht binnen terwijl je in het beheer bezig bent, dan zie je dat meteen onderin.
+
+## Zoeken en snel naar
+
+Druk op **Ctrl + K** (op een Mac **⌘ + K**) of tik op het vergrootglas. Typ bijvoorbeeld een gerecht,
+een naam uit een bericht of *vandaag sluiten*, en druk op Enter.
+
+## Activiteit
+
+Onder **Activiteit** zie je alle wijzigingen aan de website, per dag, en kun je filteren op onderdeel.
 
 ## Foto's
 
@@ -62,7 +83,8 @@ Met **Snel naar** ga je direct naar de meestgebruikte onderdelen.
 ## Berichten
 
 Berichten van het contactformulier komen hier binnen; je krijgt er ook een e-mail van.
-Nieuwe berichten zijn rood gemarkeerd. Met **Beantwoorden** stuur je direct een e-mail terug.
+Nieuwe berichten zijn rood gemarkeerd. Zoek op naam of tekst, vink meerdere berichten aan om ze in één
+keer als gelezen te markeren of te archiveren, of gebruik **Alles als gelezen markeren**. Met **Beantwoorden** stuur je direct een e-mail terug.
 Reageert de klant, dan komt dat in je eigen mailbox. Klaar met een bericht? **Archiveren**.
 
 ## Aanbiedingen

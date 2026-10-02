@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { computeStatus, isoWeekday, resolveDay, toLocalMoment, upcomingExceptions, validatePeriods, weekRows, type Schedule } from './index';
+import {
+  computeStatus,
+  formatCountdown,
+  isoWeekday,
+  nextChange,
+  resolveDay,
+  toLocalMoment,
+  upcomingDays,
+  upcomingExceptions,
+  validatePeriods,
+  weekRows,
+  type Schedule,
+} from './index';
 
 const regular: Schedule = {
   weekly: [
@@ -129,4 +141,33 @@ describe('validatePeriods', () => {
       ]),
     ).toMatch(/overlappen/));
   it('rejects bad format', () => expect(validatePeriods([{ opens: '25:00', closes: '26:00' }])).toMatch(/geldige tijd/));
+});
+
+describe('nextChange', () => {
+  it('counts down to closing time while open', () => {
+    expect(nextChange(regular, at('2026-10-06T16:48:00Z'))).toEqual({ type: 'closes', minutes: 72, time: '20:00', date: '2026-10-06' });
+  });
+  it('counts down to opening later today', () => {
+    expect(nextChange(regular, at('2026-10-06T13:30:00Z'))).toMatchObject({ type: 'opens', minutes: 30, time: '16:00' });
+  });
+  it('skips closed days', () => {
+    // Sunday 21:00 → Tuesday 16:00 = 3 h + 24 h + 16 h = 43 h
+    expect(nextChange(regular, at('2026-10-11T19:00:00Z'))).toMatchObject({ type: 'opens', minutes: 43 * 60, date: '2026-10-13' });
+  });
+  it('formats countdowns in Dutch', () => {
+    expect(formatCountdown(1)).toBe('zo meteen');
+    expect(formatCountdown(35)).toBe('over 35 min');
+    expect(formatCountdown(72)).toBe('over 1 u 12 min');
+    expect(formatCountdown(120)).toBe('over 2 uur');
+    expect(formatCountdown(43 * 60)).toBe('over 2 dagen');
+  });
+  it('lists the coming week with exceptions', () => {
+    const schedule: Schedule = { ...regular, exceptions: [{ startsOn: '2026-10-07', endsOn: '2026-10-07', isClosed: true, label: 'Vakantie', periods: [] }] };
+    const days = upcomingDays(schedule, at('2026-10-06T10:00:00Z'), 3);
+    expect(days.map((d) => [d.date, d.periods.length, d.label, d.isToday])).toEqual([
+      ['2026-10-06', 1, null, true],
+      ['2026-10-07', 0, 'Vakantie', false],
+      ['2026-10-08', 1, null, false],
+    ]);
+  });
 });

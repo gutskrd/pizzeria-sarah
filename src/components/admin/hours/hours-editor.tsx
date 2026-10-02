@@ -7,6 +7,7 @@ import { Dialog } from '@/components/admin/dialog';
 import { Field } from '@/components/admin/fields';
 import { PageTitle } from '@/components/admin/page-title';
 import { useAdminAction } from '@/components/admin/use-admin-action';
+import { useCleanUrl } from '@/components/admin/use-clean-url';
 import { useUnsavedChanges } from '@/components/admin/use-unsaved-changes';
 import { CalendarIcon, EditIcon, PlusIcon, TrashIcon } from '@/components/ui/icons';
 import { formatCalendarDate } from '@/lib/format';
@@ -16,11 +17,22 @@ export type AdminException = ScheduleException & { id: string };
 
 const DEFAULT_PERIOD: Period = { opens: '16:00', closes: '20:00' };
 
-export function HoursEditor({ weekly, exceptions, today }: { weekly: WeekDay[]; exceptions: AdminException[]; today: string }) {
+export function HoursEditor({
+  weekly,
+  exceptions,
+  today,
+  openException,
+}: {
+  weekly: WeekDay[];
+  exceptions: AdminException[];
+  today: string;
+  openException?: string;
+}) {
   const [days, setDays] = useState<WeekDay[]>(weekly);
   const [syncedFrom, setSyncedFrom] = useState(weekly);
   const [saving, setSaving] = useState(false);
-  const [exceptionDialog, setExceptionDialog] = useState<{ exception: AdminException | null } | null>(null);
+  const [exceptionDialog, setExceptionDialog] = useState<{ exception: AdminException | null } | null>(openException === 'nieuw' ? { exception: null } : null);
+  useCleanUrl(['afwijking']);
   const { run } = useAdminAction();
   const confirm = useConfirm();
 
@@ -193,7 +205,7 @@ export function HoursEditor({ weekly, exceptions, today }: { weekly: WeekDay[]; 
       </section>
 
       {dirty && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] backdrop-blur lg:left-64">
+        <div className="fixed inset-x-0 bottom-16 z-30 border-t border-line bg-white px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] lg:bottom-0 lg:left-[17rem]">
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2">
             <p className="text-[0.95rem] font-medium">Je hebt wijzigingen die nog niet zijn opgeslagen.</p>
             <div className="flex gap-2">

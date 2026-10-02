@@ -39,16 +39,26 @@ import {
 } from '@/components/ui/icons';
 import type { AdminMenuCategory, AdminMenuItem } from '@/lib/admin/types';
 import { formatPrice } from '@/lib/format';
+import { useCleanUrl } from '@/components/admin/use-clean-url';
 import { MenuItemDialog } from './item-dialog';
 
 type Pdf = { url: string; updatedAt: string; bytes: number } | null;
 
-export function MenuEditor({ categories: initial, pdf }: { categories: AdminMenuCategory[]; pdf: Pdf }) {
+export function MenuEditor({ categories: initial, pdf, openItem }: { categories: AdminMenuCategory[]; pdf: Pdf; openItem?: string }) {
   const [categories, setCategories] = useState(initial);
   const [syncedFrom, setSyncedFrom] = useState(initial);
   const [sortingCategories, setSortingCategories] = useState(false);
-  const [categoryDialog, setCategoryDialog] = useState<{ category: AdminMenuCategory | null } | null>(null);
-  const [itemDialog, setItemDialog] = useState<{ item: AdminMenuItem | null; categoryId: string } | null>(null);
+  // Deep links from the command palette: ?gerecht=<id> or ?gerecht=nieuw
+  const [categoryDialog, setCategoryDialog] = useState<{ category: AdminMenuCategory | null } | null>(() =>
+    openItem === 'nieuw' && initial.length === 0 ? { category: null } : null,
+  );
+  const [itemDialog, setItemDialog] = useState<{ item: AdminMenuItem | null; categoryId: string } | null>(() => {
+    if (!openItem) return null;
+    if (openItem === 'nieuw') return initial[0] ? { item: null, categoryId: initial[0].id } : null;
+    const item = initial.flatMap((c) => c.items).find((i) => i.id === openItem);
+    return item ? { item, categoryId: item.categoryId } : null;
+  });
+  useCleanUrl(['gerecht']);
   const { run } = useAdminAction();
 
   if (initial !== syncedFrom) {
@@ -205,7 +215,7 @@ function CategoryCard({
   };
 
   return (
-    <section className="admin-card overflow-hidden" aria-labelledby={`cat-${category.id}`}>
+    <section id={`categorie-${category.id}`} className="admin-card scroll-mt-28 overflow-hidden" aria-labelledby={`cat-${category.id}`}>
       <div className="flex flex-wrap items-center gap-2 border-b border-line bg-white px-3 py-2.5 sm:px-4">
         <button
           type="button"

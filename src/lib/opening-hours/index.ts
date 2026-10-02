@@ -271,3 +271,59 @@ export function statusSnapshot(schedule: Schedule, at: Date): StatusSnapshot {
   const s = computeStatus(schedule, at);
   return { isOpenNow: s.isOpenNow, headline: s.headline, detail: s.detail, todayHours: s.todayHours };
 }
+
+/* ───────────── Live countdown (admin clock) ───────────── */
+
+export type NextChange = {
+  /** What happens next: the shop closes, or opens. */
+  type: 'closes' | 'opens';
+  /** Minutes from now until that moment. */
+  minutes: number;
+  /** "20:00" */
+  time: string;
+  /** Calendar date of the change (YYYY-MM-DD). */
+  date: string;
+};
+
+/** The next opening or closing moment, looking ahead up to 90 days. */
+export function nextChange(schedule: Schedule, instant: Date): NextChange | null {
+  const now = toLocalMoment(instant);
+  for (let offset = 0; offset <= LOOKAHEAD_DAYS; offset++) {
+    const date = addDays(now.date, offset);
+    const day = resolveDay(schedule, date);
+    for (const p of day.periods) {
+      const opens = toMinutes(p.opens) + offset * 1440;
+      const closes = toMinutes(p.closes) + offset * 1440;
+      if (offset === 0 && now.minutes >= toMinutes(p.opens) && now.minutes < toMinutes(p.closes)) {
+        return { type: 'closes', minutes: closes - now.minutes, time: p.closes, date };
+      }
+      if (opens > now.minutes) return { type: 'opens', minutes: opens - now.minutes, time: p.opens, date };
+    }
+  }
+  return null;
+}
+
+/** "zo meteen", "over 35 min", "over 1 u 5 min", "over 3 dagen" */
+export function formatCountdown(minutes: number): string {
+  if (minutes <= 1) return 'zo meteen';
+  if (minutes < 60) return `over ${minutes} min`;
+  if (minutes < 24 * 60) {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m === 0 ? `over ${h} uur` : `over ${h} u ${m} min`;
+  }
+  const days = Math.round(minutes / 1440);
+  return days === 1 ? 'over 1 dag' : `over ${days} dagen`;
+}
+
+export type DayPlan = { date: string; weekday: number; periods: Period[]; label: string | null; isToday: boolean };
+
+/** The coming `count` days, including today, with exceptions applied. */
+export function upcomingDays(schedule: Schedule, instant: Date, count = 7): DayPlan[] {
+  const today = toLocalMoment(instant).date;
+  return Array.from({ length: count }, (_, i) => {
+    const date = addDays(today, i);
+    const day = resolveDay(schedule, date);
+    return { date, weekday: day.weekday, periods: day.periods, label: day.exception?.label ?? null, isToday: i === 0 };
+  });
+}

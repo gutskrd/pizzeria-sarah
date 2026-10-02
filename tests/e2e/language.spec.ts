@@ -102,6 +102,7 @@ const PAGES = [
   '/admin/aanbiedingen',
   '/admin/apparaten',
   '/admin/instellingen',
+  '/admin/activiteit',
 ];
 
 test('geen Engelse teksten in de website of het beheer', async ({ page, browser }) => {

@@ -29,6 +29,8 @@ export const adminUsers = pgTable(
     name: text('name').notNull(),
     passwordHash: text('password_hash').notNull(),
     passwordChangedAt: timestamp('password_changed_at', { withTimezone: true }).notNull().defaultNow(),
+    /** Security alerts before this moment count as "seen" in the notification centre. */
+    alertsSeenAt: timestamp('alerts_seen_at', { withTimezone: true }).notNull().defaultNow(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

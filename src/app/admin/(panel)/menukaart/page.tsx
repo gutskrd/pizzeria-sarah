@@ -8,7 +8,7 @@ import { mediaUrl } from '@/lib/images/storage';
 
 export const metadata = { title: 'Menukaart – Beheer' };
 
-export default async function AdminMenuPage() {
+export default async function AdminMenuPage({ searchParams }: { searchParams: Promise<{ gerecht?: string }> }) {
   await requireAdmin();
   const d = db();
   const [categories, items, settings] = await Promise.all([
@@ -53,5 +53,6 @@ export default async function AdminMenuPage() {
 
   const s = settings[0];
   const pdf = s?.key && s.at ? { url: mediaUrl(s.key, 'menukaart.pdf'), updatedAt: s.at.toISOString(), bytes: s.bytes ?? 0 } : null;
-  return <MenuEditor categories={data} pdf={pdf} />;
+  const { gerecht } = await searchParams;
+  return <MenuEditor categories={data} pdf={pdf} openItem={gerecht} />;
 }

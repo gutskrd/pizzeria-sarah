@@ -44,6 +44,8 @@ const nextConfig: NextConfig = {
   // Separate build folder for the end-to-end test server, so it can run next to `npm run dev`.
   distDir: process.env.NEXT_DIST_DIR || '.next',
   poweredByHeader: false,
+  // No floating dev badge (keeps screenshots and accessibility checks clean).
+  devIndicators: false,
   reactStrictMode: true,
   images: { unoptimized: true },
   serverExternalPackages: ['sharp', '@node-rs/argon2'],

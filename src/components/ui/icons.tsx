@@ -276,3 +276,34 @@ export const CalendarIcon = (p: IconProps) => (
     <path d="M3 10h18M8 3v4M16 3v4" />
   </Svg>
 );
+export const BellIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9zM10 20a2 2 0 0 0 4 0" />
+  </Svg>
+);
+export const ActivityIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3 12h4l3-8 4 16 3-8h4" />
+  </Svg>
+);
+export const ChevronRightIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m9 6 6 6-6 6" />
+  </Svg>
+);
+export const ReturnIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9 10 4 15l5 5M20 4v7a4 4 0 0 1-4 4H4" />
+  </Svg>
+);
+export const DoorIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17M3 21h18M14 12h.01" />
+  </Svg>
+);
+export const KeyIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="8" cy="15" r="4" />
+    <path d="m10.8 12.2 8.2-8.2M17 6l2 2M15 8l2 2" />
+  </Svg>
+);

@@ -11,6 +11,7 @@ import { ImagePicker, type PickedImage } from '@/components/admin/photos/image-p
 import { useAdminAction } from '@/components/admin/use-admin-action';
 import { EditIcon, EyeIcon, EyeOffIcon, PlusIcon, TagIcon, TrashIcon } from '@/components/ui/icons';
 import { formatCalendarDate } from '@/lib/format';
+import { useCleanUrl } from './use-clean-url';
 
 export type AdminOffer = {
   id: string;
@@ -37,8 +38,13 @@ function period(offer: AdminOffer): string {
   return 'Geen einddatum';
 }
 
-export function OffersEditor({ offers, today }: { offers: AdminOffer[]; today: string }) {
-  const [editing, setEditing] = useState<{ offer: AdminOffer | null } | null>(null);
+export function OffersEditor({ offers, today, openOffer }: { offers: AdminOffer[]; today: string; openOffer?: string }) {
+  const [editing, setEditing] = useState<{ offer: AdminOffer | null } | null>(() => {
+    if (openOffer === 'nieuw') return { offer: null };
+    const offer = offers.find((o) => o.id === openOffer);
+    return offer ? { offer } : null;
+  });
+  useCleanUrl(['aanbieding']);
   const { run } = useAdminAction();
   const confirm = useConfirm();
   const active = offers.filter((o) => status(o, today).label.startsWith('Actief')).length;
