@@ -1,0 +1,17 @@
+node_modules/
+.next/
+.next-test/
+out/
+coverage/
+test-results/
+playwright-report/
+next-env.d.ts
+*.tsbuildinfo
+
+# Lokale gegevens: geüploade foto's, e-mail-outbox, back-ups
+data/
+
+# Geheimen
+.env
+.env.*
+!.env.example
