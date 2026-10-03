@@ -171,7 +171,7 @@ npm install
 npm run demo
 ```
 
-Then open **http://localhost:3000** (website) and **http://localhost:3000/admin** (beheer).
+Then open the addresses shown in the terminal: normally **http://localhost:3000** (website) and **http://localhost:3000/admin** (beheer). If a port is already in use on your computer, the demo picks the next free one (for the site and the database) and shows it.
 
 | Demo login |                            |
 | ---------- | -------------------------- |
@@ -184,7 +184,7 @@ contains the real menu and folder; changes you make stay in the demo database.
 Stop with Ctrl + C; remove the demo database with
 `docker compose -f docker-compose.demo.yml down -v`.
 No Docker? Point it at your own PostgreSQL:
-`DEMO_DATABASE_URL=postgres://user:pass@localhost:5432/dbname npm run demo`.
+`DEMO_DATABASE_URL=postgres://user:pass@localhost:5432/dbname npm run demo` (PowerShell: `$env:DEMO_DATABASE_URL="postgres://user:pass@localhost:5432/dbname"; npm run demo`).
 The demo account and password are for this local demo only; the script refuses
 to run in production.
 

@@ -14,6 +14,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
 
 const DEMO_LOGIN = { email: 'demo@pizzeria-sarah.test', password: 'Sarah-demo-2026!', name: 'Demo' };
 
@@ -22,10 +23,33 @@ if (process.env.NODE_ENV === 'production') {
   process.exit(1);
 }
 
-const PORT = process.env.PORT ?? '3000';
+/** True when nothing on this computer is using the port yet. */
+function isPortFree(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = createServer();
+    server.once('error', () => resolve(false));
+    server.once('listening', () => server.close(() => resolve(true)));
+    server.listen(port);
+  });
+}
+
+async function firstFreePort(candidates: number[]): Promise<number | null> {
+  for (const port of candidates) if (await isPortFree(port)) return port;
+  return null;
+}
+
+const range = (from: number, count: number) => Array.from({ length: count }, (_, i) => from + i);
+
+// The website port: 3000, or the next free one if something else already uses it.
+const wantedPort = process.env.PORT ? Number(process.env.PORT) : null;
+const sitePort = wantedPort ?? (await firstFreePort(range(3000, 20)));
+if (!sitePort) {
+  console.error('Geen vrije poort gevonden voor de website (3000–3019). Sluit andere programma’s en probeer opnieuw.');
+  process.exit(1);
+}
+const PORT = String(sitePort);
 const ownDatabase = process.env.DEMO_DATABASE_URL;
-const databaseUrl = ownDatabase ?? 'postgres://demo:demo@127.0.0.1:5433/pizzeria_sarah_demo';
-if (!/@(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(databaseUrl)) {
+if (ownDatabase && !/@(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(ownDatabase)) {
   console.error('DEMO_DATABASE_URL moet naar een database op deze computer wijzen (localhost).');
   process.exit(1);
 }
@@ -38,7 +62,7 @@ if (!existsSync(secretFile)) writeFileSync(secretFile, randomBytes(48).toString(
 const env: NodeJS.ProcessEnv = {
   ...process.env,
   NODE_ENV: 'development',
-  DATABASE_URL: databaseUrl,
+  DATABASE_URL: ownDatabase ?? '',
   AUTH_SECRET: readFileSync(secretFile, 'utf8').trim(),
   SITE_URL: `http://localhost:${PORT}`,
   MEDIA_DIR: './data/demo-media',
@@ -60,10 +84,41 @@ function step(title: string) {
 
 if (!ownDatabase) {
   step('Demo-database starten (Docker)…');
-  if (!run('docker', ['compose', '-f', 'docker-compose.demo.yml', 'up', '-d', '--wait'])) {
+  // Use the port from last time (the data lives in a Docker volume), else the first free one.
+  // Docker sometimes holds a port that still looks free, so a refused port is skipped too.
+  const portFile = 'data/demo-db-port.txt';
+  const previous = existsSync(portFile) ? Number(readFileSync(portFile, 'utf8')) : null;
+  const candidates = [...new Set([...(previous ? [previous] : []), ...range(5433, 15)])];
+  let started = false;
+  for (const port of candidates) {
+    if (!(await isPortFree(port))) continue;
+    env.DEMO_DB_PORT = String(port);
+    const result = spawnSync('docker', ['compose', '-f', 'docker-compose.demo.yml', 'up', '-d', '--wait'], {
+      env,
+      encoding: 'utf8',
+      shell: process.platform === 'win32',
+    });
+    const output = `${result.stdout ?? ''}${result.stderr ?? ''}`;
+    if (result.status === 0) {
+      writeFileSync(portFile, String(port));
+      env.DATABASE_URL = `postgres://demo:demo@127.0.0.1:${port}/pizzeria_sarah_demo`;
+      console.log(`Demo-database draait (poort ${port}).`);
+      started = true;
+      break;
+    }
+    if (/already allocated|address already in use|port is already/i.test(output)) {
+      console.log(`Poort ${port} is bezet, volgende proberen…`);
+      continue;
+    }
+    console.error(output.trim());
+    break;
+  }
+  if (!started) {
     console.error(
-      '\nDocker lukt niet. Start Docker Desktop en probeer opnieuw, of gebruik je eigen PostgreSQL:\n' +
-        '  DEMO_DATABASE_URL=postgres://gebruiker:wachtwoord@localhost:5432/databasenaam npm run demo',
+      '\nDe demo-database kon niet starten. Controleer of Docker Desktop draait en probeer opnieuw.\n' +
+        'Of gebruik je eigen PostgreSQL:\n' +
+        '  PowerShell:  $env:DEMO_DATABASE_URL="postgres://gebruiker:wachtwoord@localhost:5432/databasenaam"; npm run demo\n' +
+        '  macOS/Linux: DEMO_DATABASE_URL=postgres://gebruiker:wachtwoord@localhost:5432/databasenaam npm run demo',
     );
     process.exit(1);
   }
