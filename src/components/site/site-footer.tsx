@@ -4,8 +4,9 @@ import { telHref } from '@/lib/format';
 import { weekRows, type Schedule } from '@/lib/opening-hours';
 import { DeveloperCredit } from './developer-credit';
 import { NAV_ITEMS } from './nav-items';
+import { SectionLink } from './section-link';
 
-export function SiteFooter({ settings, schedule, now }: { settings: SiteSettings; schedule: Schedule; now: Date }) {
+export function SiteFooter({ settings, schedule, now, hasGallery }: { settings: SiteSettings; schedule: Schedule; now: Date; hasGallery: boolean }) {
   const rows = weekRows(schedule, now);
   // Compact: group consecutive days with identical hours ("Dinsdag t/m zondag").
   const groups: Array<{ from: string; to: string; hours: string }> = [];
@@ -41,11 +42,11 @@ export function SiteFooter({ settings, schedule, now }: { settings: SiteSettings
         <nav aria-label="Footer">
           <h2 className="font-sans text-sm font-semibold uppercase tracking-wider text-paper/60">Website</h2>
           <ul className="mt-3 space-y-1">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="inline-flex min-h-9 items-center text-paper/90 hover:text-white hover:underline">
+            {NAV_ITEMS.filter((item) => item.id !== 'galerij' || hasGallery).map((item) => (
+              <li key={item.id}>
+                <SectionLink section={item.id} className="inline-flex min-h-9 items-center text-paper/90 hover:text-white hover:underline">
                   {item.label}
-                </Link>
+                </SectionLink>
               </li>
             ))}
           </ul>

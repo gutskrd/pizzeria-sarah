@@ -918,3 +918,14 @@
     transform: rotate(8deg) scale(1.08);
   }
 }
+
+/* Sections that receive focus after a menu click show no outline (keyboard focus still moves there). */
+.site-theme section[tabindex='-1']:focus {
+  outline: none;
+}
+/* The story under "Over ons" opens gently. */
+@media (prefers-reduced-motion: no-preference) {
+  .about-story[open] > div {
+    animation: reveal 450ms var(--ease-out-soft) both;
+  }
+}

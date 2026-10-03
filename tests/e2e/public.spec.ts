@@ -62,16 +62,34 @@ test.describe('Publieke pagina’s', () => {
     await expect(mobileNav).toBeHidden();
     await page.getByRole('button', { name: 'Menu openen' }).click();
     await mobileNav.getByRole('link', { name: 'Menukaart' }).click();
-    await expect(page).toHaveURL(/\/menukaart$/);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Menukaart');
+    await expect(mobileNav).toBeHidden();
+    await expect(page).toHaveURL(/\/#menukaart$/);
+    // The page glides to the menu section, right below the header.
+    await expect.poll(() => page.evaluate(() => Math.round(document.getElementById('menukaart')!.getBoundingClientRect().top))).toBeLessThan(120);
+    await expect(page.getByRole('heading', { name: 'Menukaart', level: 2 })).toBeInViewport();
   });
 
-  test('desktopnavigatie bevat alle hoofdpagina’s', async ({ page }) => {
+  test('desktopnavigatie scrolt naar de onderdelen en volgt mee', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/');
     const nav = page.getByRole('navigation', { name: 'Hoofdmenu' });
-    for (const label of ['Home', 'Menukaart', 'Over ons', 'Galerij', 'Contact']) await expect(nav.getByRole('link', { name: label })).toBeVisible();
-    await expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
+    for (const label of ['Home', 'Menukaart', 'Over ons', 'Contact']) await expect(nav.getByRole('link', { name: label, exact: true })).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'location');
+    for (const [label, id] of [
+      ['Contact', 'contact'],
+      ['Over ons', 'over-ons'],
+      ['Menukaart', 'menukaart'],
+    ]) {
+      await nav.getByRole('link', { name: label, exact: true }).click();
+      await expect(page).toHaveURL(new RegExp(`/#${id}$`));
+      await expect.poll(() => page.evaluate((i) => Math.round(document.getElementById(i)!.getBoundingClientRect().top), id)).toBeLessThan(120);
+      await expect(nav.getByRole('link', { name: label, exact: true })).toHaveAttribute('aria-current', 'location');
+    }
+    // From another page, a menu item goes to that part of the homepage.
+    await page.goto('/privacy');
+    await nav.getByRole('link', { name: 'Contact', exact: true }).click();
+    await expect(page).toHaveURL(/\/#contact$/);
+    await expect(page.locator('#contact-titel')).toBeInViewport();
   });
 
   test('homepage toont openingsstatus, telefoon en route', async ({ page }) => {

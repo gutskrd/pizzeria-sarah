@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PhoneIcon, RouteIcon } from '@/components/ui/icons';
+import { SectionLink } from './section-link';
 import { statusSnapshot, type Schedule, type StatusSnapshot } from '@/lib/opening-hours';
 
 /** "Nu open", "Vandaag 16:00" or "Gesloten": short enough for a phone. */
@@ -72,9 +72,9 @@ export function MobileOrderBar({
           </a>
         ) : (
           !onMenu && (
-            <Link href="/menukaart" className="btn btn-outline !min-h-11 !px-3.5 !text-sm">
+            <SectionLink section="menukaart" className="btn btn-outline !min-h-11 !px-3.5 !text-sm">
               Menukaart
-            </Link>
+            </SectionLink>
           )
         )}
         <a href={phoneHref} className="btn btn-primary !min-h-11 !px-4 !text-sm">

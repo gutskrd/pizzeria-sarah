@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SectionLink } from './section-link';
 import type { PublicMenuCategory } from '@/lib/content/queries';
 import { formatPrice } from '@/lib/format';
 import { FoodIcon } from './food-icon';
@@ -16,8 +16,8 @@ export function CategoryTiles({ menu }: { menu: PublicMenuCategory[] }) {
         const from = lowestPrice(c);
         return (
           <li key={c.id} data-reveal style={{ '--reveal-i': i % 5 } as React.CSSProperties}>
-            <Link
-              href={`/menukaart#${c.slug}`}
+            <SectionLink
+              section={c.slug}
               className="zin-tile group flex h-full flex-col rounded-[4px] border border-line bg-white p-4 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-tomato/40 hover:shadow-[0_18px_36px_-20px_rgba(216,31,38,0.55)] sm:p-5"
             >
               <span className="zin-icon inline-flex size-12 items-center justify-center rounded-full bg-tomato-soft text-tomato transition-colors duration-300 group-hover:bg-tomato group-hover:text-white">
@@ -33,7 +33,7 @@ export function CategoryTiles({ menu }: { menu: PublicMenuCategory[] }) {
                   </>
                 )}
               </span>
-            </Link>
+            </SectionLink>
           </li>
         );
       })}

@@ -1,30 +1,37 @@
-import Link from 'next/link';
 import { HoursTable } from '@/components/site/hours-table';
 import { CategoryTiles } from '@/components/site/category-tiles';
 import { JsonLd } from '@/components/site/json-ld';
 import { LocationCard } from '@/components/site/location-card';
 import { MenuFolder } from '@/components/site/menu-folder';
+import { MenuBrowser } from '@/components/site/menu-browser';
 import { MenuItemRow } from '@/components/site/menu-item';
+import { GalleryGrid } from '@/components/site/gallery-grid';
+import { ContactForm } from '@/components/site/contact-form';
+import { SectionLink } from '@/components/site/section-link';
 import { OffersList } from '@/components/site/offers';
 import { OpeningStatus } from '@/components/site/opening-status';
 import { Picture } from '@/components/site/picture';
-import { ArrowRightIcon, DownloadIcon, MailIcon, PhoneIcon, PinIcon } from '@/components/ui/icons';
-import { getActiveOffers, getFeaturedMenuItems, getGalleryPreview, getHighlights, getMenu, getSchedule, getSettings } from '@/lib/content/queries';
+import { headers } from 'next/headers';
+import { ArrowRightIcon, DownloadIcon, InfoIcon, MailIcon, PhoneIcon, PinIcon } from '@/components/ui/icons';
+import { getActiveOffers, getFeaturedMenuItems, getGalleryImages, getHighlights, getMenu, getSchedule, getSettings } from '@/lib/content/queries';
+import { env } from '@/lib/env';
+import { issueFormToken } from '@/lib/security/crypto';
 import { telHref } from '@/lib/format';
 import { orderHint, statusSnapshot } from '@/lib/opening-hours';
-import { pageMetadata, restaurantJsonLd, websiteJsonLd } from '@/lib/seo';
+import { menuJsonLd, pageMetadata, restaurantJsonLd, websiteJsonLd } from '@/lib/seo';
 
 export const generateMetadata = () => pageMetadata('home');
 
 export default async function HomePage() {
-  const [settings, schedule, featured, menu, highlights, gallery, offers] = await Promise.all([
+  const [settings, schedule, featured, menu, highlights, gallery, offers, h] = await Promise.all([
     getSettings(),
     getSchedule(),
     getFeaturedMenuItems(6),
     getMenu(),
     getHighlights(),
-    getGalleryPreview(6),
+    getGalleryImages(),
     getActiveOffers(),
+    headers(),
   ]);
   const now = new Date();
   // The owner's own PDF, or else the one made automatically from the menu.
@@ -33,15 +40,20 @@ export default async function HomePage() {
   const status = statusSnapshot(schedule, now);
   const aboutImage = settings.aboutImage ?? gallery.find((g) => g.id !== settings.heroImage?.id) ?? null;
   const showGallery = settings.showGalleryOnHome && gallery.length > 0;
+  const story = settings.aboutStory
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
   const showFeatured = settings.showFeaturedMenuOnHome && featured.length > 0;
 
   return (
     <>
       <JsonLd data={restaurantJsonLd(settings, schedule, menu)} />
       <JsonLd data={websiteJsonLd(settings)} />
+      {menu.length > 0 && <JsonLd data={menuJsonLd(menu)} />}
 
       {/* ───────── Hero ───────── */}
-      <section className="on-dark relative isolate overflow-hidden bg-char text-white" aria-labelledby="hero-titel">
+      <section id="home" className="on-dark relative isolate overflow-hidden bg-char text-white" aria-labelledby="hero-titel">
         {settings.heroImage ? (
           <>
             <Picture image={settings.heroImage} sizes="100vw" priority className="absolute inset-0 -z-20 h-full w-full object-cover" />
@@ -71,9 +83,9 @@ export default async function HomePage() {
               <a href={phoneHref} className="btn btn-primary">
                 <PhoneIcon size={18} /> Bel {settings.phoneDisplay}
               </a>
-              <Link href="/menukaart" className="btn btn-outline">
+              <SectionLink section="menukaart" className="btn btn-outline">
                 Menukaart <ArrowRightIcon size={18} />
-              </Link>
+              </SectionLink>
             </div>
             <div className="reveal mt-8 [animation-delay:240ms]">
               <OpeningStatus schedule={schedule} initial={status} tone="dark" initialHint={orderHint(schedule, now)} />
@@ -94,9 +106,12 @@ export default async function HomePage() {
             <dt className="text-xs font-bold uppercase tracking-[0.1em] text-muted [font-stretch:85%]">Vandaag</dt>
             <dd className="mt-1 text-lg font-bold tabular-nums">{status.todayHours}</dd>
             <dd>
-              <a href="#openingstijden" className="text-sm font-semibold underline decoration-tomato decoration-2 underline-offset-4 hover:text-tomato-dark">
+              <SectionLink
+                section="contact"
+                className="text-sm font-semibold underline decoration-tomato decoration-2 underline-offset-4 hover:text-tomato-dark"
+              >
                 Alle openingstijden
-              </a>
+              </SectionLink>
             </dd>
           </div>
           {settings.street && (
@@ -127,33 +142,16 @@ export default async function HomePage() {
               </a>
             </dd>
             <dd>
-              <Link href="/contact" className="text-sm font-semibold underline decoration-tomato decoration-2 underline-offset-4 hover:text-tomato-dark">
+              <SectionLink
+                section="contact"
+                className="text-sm font-semibold underline decoration-tomato decoration-2 underline-offset-4 hover:text-tomato-dark"
+              >
                 Of stuur een bericht
-              </Link>
+              </SectionLink>
             </dd>
           </div>
         </dl>
       </section>
-
-      {/* ───────── Waar heb je zin in? ───────── */}
-      {menu.length > 1 && (
-        <section className="container-site pt-16 md:pt-20" aria-labelledby="zin-titel">
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between" data-reveal>
-            <div>
-              <h2 id="zin-titel" className="text-[2.4rem] md:text-6xl">
-                Waar heb je zin in?
-              </h2>
-              <p className="mt-2 text-lg text-ink-soft">Kies je favoriet, bekijk de gerechten en bel je bestelling door.</p>
-            </div>
-            <Link href="/menukaart" className="link-arrow self-start md:self-auto">
-              Hele menukaart <ArrowRightIcon size={18} />
-            </Link>
-          </div>
-          <div className="mt-8">
-            <CategoryTiles menu={menu} />
-          </div>
-        </section>
-      )}
 
       {/* ───────── Welkom en populaire gerechten ───────── */}
       <section className="container-site grid gap-12 py-16 md:py-24 lg:grid-cols-12 lg:gap-16" aria-labelledby="intro-titel">
@@ -163,9 +161,9 @@ export default async function HomePage() {
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-ink-soft">{settings.introText}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/menukaart" className="btn btn-primary">
+            <SectionLink section="menukaart" className="btn btn-primary">
               Hele menukaart <ArrowRightIcon size={18} />
-            </Link>
+            </SectionLink>
             {pdfUrl && (
               <a href={pdfUrl} className="btn btn-outline" download="menukaart-pizzeria-sarah.pdf">
                 <DownloadIcon size={18} /> Menukaart (PDF)
@@ -190,9 +188,9 @@ export default async function HomePage() {
               <ul className="flex flex-wrap gap-2" aria-label="Categorieën op de menukaart">
                 {menu.map((c) => (
                   <li key={c.id}>
-                    <Link href={`/menukaart#${c.slug}`} className="menu-banner text-lg hover:bg-tomato-dark">
+                    <SectionLink section={c.slug} className="menu-banner text-lg hover:bg-tomato-dark">
                       {c.name}
-                    </Link>
+                    </SectionLink>
                   </li>
                 ))}
               </ul>
@@ -211,8 +209,65 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ───────── Menukaart ───────── */}
+      <section id="menukaart" className="border-t border-line bg-white" aria-labelledby="menukaart-titel">
+        <div className="container-site pt-16 md:pt-24">
+          <div>
+            <div data-reveal>
+              <h2 id="menukaart-titel" className="text-[2.75rem] md:text-7xl">
+                Menukaart
+              </h2>
+              <p className="mt-4 max-w-2xl text-lg text-ink-soft md:text-xl">
+                Al onze gerechten en prijzen op een rij. Kies je favoriet en bel je bestelling door.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
+                <a href={phoneHref} className="btn btn-primary">
+                  <PhoneIcon size={18} /> Bel {settings.phoneDisplay}
+                </a>
+                {pdfUrl && (
+                  <a href={pdfUrl} className="btn btn-outline" type="application/pdf" download="menukaart-pizzeria-sarah.pdf">
+                    <DownloadIcon size={18} /> Download als PDF
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {menu.length > 1 && (
+            <div className="mt-14" aria-labelledby="zin-titel">
+              <h3 id="zin-titel" className="text-[1.9rem] uppercase md:text-4xl" data-reveal>
+                Waar heb je zin in?
+              </h3>
+              <div className="mt-5">
+                <CategoryTiles menu={menu} />
+              </div>
+            </div>
+          )}
+
+          <aside role="note" aria-labelledby="allergenen-titel" className="mt-12 flex gap-4 border-l-4 border-tomato bg-paper p-5 md:p-6">
+            <InfoIcon className="mt-0.5 shrink-0 text-tomato" size={24} />
+            <div>
+              <p id="allergenen-titel" className="font-bold">
+                Voedselallergie?
+              </p>
+              <p className="mt-1 text-ink-soft">{settings.allergenText.replace(/^Voedselallergie\?\s*/i, '')}</p>
+            </div>
+          </aside>
+
+          <div id="gerechten" className="mt-6 scroll-mt-24 pb-16 md:pb-24">
+            {menu.length > 0 ? (
+              <MenuBrowser menu={menu} />
+            ) : (
+              <p className="py-12 text-center text-lg text-ink-soft">
+                De menukaart wordt bijgewerkt. Bel ons gerust op {settings.phoneDisplay} voor ons actuele aanbod.
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ───────── Over ons ───────── */}
-      <section className="on-dark bg-char text-white" aria-labelledby="over-titel">
+      <section id="over-ons" className="on-dark bg-char text-white" aria-labelledby="over-titel">
         <div className={`container-site grid items-center gap-10 py-16 md:py-24 ${aboutImage ? 'md:grid-cols-2 md:gap-16' : ''}`}>
           {aboutImage && (
             <div className="overflow-hidden rounded-[3px]" data-reveal>
@@ -224,9 +279,21 @@ export default async function HomePage() {
               {settings.aboutTitle}
             </h2>
             <p className="mt-5 text-lg leading-relaxed text-white/80">{settings.aboutText}</p>
-            <Link href="/over-ons" className="link-arrow mt-5">
-              Meer over ons <ArrowRightIcon size={18} />
-            </Link>
+            {story.length > 0 && (
+              <details className="about-story group mt-5">
+                <summary className="link-arrow cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                  <span className="group-open:hidden">Lees ons verhaal</span>
+                  <span className="hidden group-open:inline">Verhaal sluiten</span>
+                  <ArrowRightIcon size={18} className="transition-transform duration-300 group-open:rotate-90" />
+                </summary>
+                <div className="mt-4 space-y-4 leading-relaxed text-white/80">
+                  {story.map((paragraph) => (
+                    <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+                  ))}
+                  {settings.waitingAreaText && <p>{settings.waitingAreaText}</p>}
+                </div>
+              </details>
+            )}
           </div>
         </div>
         {highlights.length > 0 && (
@@ -243,65 +310,34 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* ───────── Galerij-voorproefje ───────── */}
+      {/* ───────── Galerij ───────── */}
       {showGallery && (
-        <section className="container-site py-16 md:py-24" aria-labelledby="galerij-titel">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <h2 id="galerij-titel" className="text-[2.4rem] md:text-6xl" data-reveal>
-              Een kijkje bij ons
-            </h2>
-            <Link href="/galerij" className="link-arrow self-start md:self-auto">
-              Bekijk alle foto&apos;s <ArrowRightIcon size={18} />
-            </Link>
-          </div>
-          {gallery.length >= 5 ? (
-            // Mosaic: one large photo and four smaller ones.
-            <ul className="mt-8 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4 md:grid-rows-2">
-              {gallery.slice(0, 5).map((img, i) => (
-                <li
-                  key={img.id}
-                  className={`overflow-hidden rounded-[3px] bg-line ${i === 0 ? 'col-span-2 row-span-2' : ''} ${i === 4 ? 'hidden md:block' : ''}`}
-                >
-                  <Link href="/galerij" className="group block h-full" aria-label={`Bekijk alle foto's${img.alt ? `: ${img.alt}` : ''}`}>
-                    <Picture
-                      image={img}
-                      sizes={i === 0 ? '(min-width: 768px) 50vw, 100vw' : '(min-width: 768px) 25vw, 50vw'}
-                      alt=""
-                      className="aspect-square h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            // Few photos: an even row that never looks half-empty.
-            <ul
-              className={`mt-8 grid gap-2 sm:gap-3 ${gallery.length === 1 ? 'grid-cols-1' : gallery.length === 2 ? 'grid-cols-2' : gallery.length === 3 ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}
-            >
-              {gallery.map((img, i) => (
-                <li key={img.id} className={`overflow-hidden rounded-[3px] bg-line ${gallery.length === 3 && i === 2 ? 'col-span-2 md:col-span-1' : ''}`}>
-                  <Link href="/galerij" className="group block h-full" aria-label={`Bekijk alle foto's${img.alt ? `: ${img.alt}` : ''}`}>
-                    <Picture
-                      image={img}
-                      sizes={gallery.length === 1 ? '100vw' : '(min-width: 768px) 33vw, 50vw'}
-                      alt=""
-                      className={`h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] ${gallery.length === 1 ? 'aspect-[16/9]' : 'aspect-[4/3]'}`}
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+        <section id="galerij" className="container-site py-16 md:py-24" aria-labelledby="galerij-titel">
+          <h2 id="galerij-titel" className="text-[2.75rem] md:text-7xl" data-reveal>
+            Galerij
+          </h2>
+          <p className="mb-8 mt-3 text-lg text-ink-soft" data-reveal>
+            Een kijkje in onze zaak en bij onze gerechten.
+          </p>
+          <GalleryGrid images={gallery} />
         </section>
       )}
 
       {/* ───────── Openingstijden en locatie ───────── */}
-      <section id="openingstijden" className="border-t border-line bg-white" aria-labelledby="tijden-titel">
-        <div className="container-site grid gap-12 py-16 md:py-24 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
-          <div data-reveal>
-            <h2 id="tijden-titel" className="text-[2.4rem] md:text-5xl">
+      <section id="contact" className="border-t border-line bg-white" aria-labelledby="contact-titel">
+        <div className="container-site pt-16 md:pt-24">
+          <h2 id="contact-titel" className="text-[2.75rem] md:text-7xl" data-reveal>
+            Contact
+          </h2>
+          <p className="mt-3 max-w-2xl text-lg text-ink-soft" data-reveal>
+            Bel ons voor een bestelling of reservering, kom langs, of stuur een bericht. We helpen je graag.
+          </p>
+        </div>
+        <div className="container-site grid gap-12 py-12 md:py-16 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+          <div id="openingstijden" className="scroll-mt-24" data-reveal>
+            <h3 id="tijden-titel" className="text-[2rem] uppercase md:text-4xl">
               Openingstijden
-            </h2>
+            </h3>
             <div className="mt-4">
               <OpeningStatus schedule={schedule} initial={status} />
             </div>
@@ -322,9 +358,9 @@ export default async function HomePage() {
             </ul>
           </div>
           <div data-reveal style={{ '--reveal-i': 1 } as React.CSSProperties}>
-            <h2 id="locatie-titel" className="text-[2.4rem] md:text-5xl">
+            <h3 id="locatie-titel" className="text-[2rem] uppercase md:text-4xl">
               Zo vind je ons
-            </h2>
+            </h3>
             <p className="mt-3 text-lg text-ink-soft">
               {settings.businessName} in {settings.city}. Kom langs om af te halen of om in ons restaurant te eten.
             </p>
@@ -338,6 +374,17 @@ export default async function HomePage() {
                 </address>
               )}
             </div>
+          </div>
+        </div>
+        <div className="container-site pb-16 md:pb-24">
+          <div className="grid gap-8 rounded-[4px] border border-line bg-paper p-5 sm:p-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16" data-reveal>
+            <div>
+              <h3 id="formulier-titel" className="text-[2rem] uppercase md:text-4xl">
+                Stuur ons een bericht
+              </h3>
+              <p className="mt-3 text-ink-soft">Voor vragen en opmerkingen. Wil je bestellen of reserveren? Bel ons dan even, dat gaat het snelst.</p>
+            </div>
+            <ContactForm formToken={issueFormToken()} turnstileSiteKey={env().TURNSTILE_SITE_KEY} nonce={h.get('x-nonce') ?? undefined} />
           </div>
         </div>
       </section>

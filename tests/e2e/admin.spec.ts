@@ -74,7 +74,7 @@ test.describe.serial('Beheer', () => {
 
     await page.goto('/menukaart');
     await expect(page.getByRole('heading', { name: "Pizza's", level: 2 })).toBeVisible();
-    await expect(page.getByText('Testpizza Margherita')).toBeVisible();
+    await expect(page.getByText('Testpizza Margherita').first()).toBeVisible();
     await expect(page.getByText(/€\s12,50/)).toBeVisible();
     await expect(page.getByText(/€\s13,50/)).toBeVisible();
     // Search
@@ -97,7 +97,7 @@ test.describe.serial('Beheer', () => {
     await toast(page, 'uitgelicht');
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Populair' })).toBeVisible();
-    await expect(page.getByText('Testpizza Margherita')).toBeVisible();
+    await expect(page.getByText('Testpizza Margherita').first()).toBeVisible();
 
     // Hide
     await page.goto('/admin/menukaart');
