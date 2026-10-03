@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { SiteSettings } from '@/lib/content/queries';
 import { telHref } from '@/lib/format';
 import { weekRows, type Schedule } from '@/lib/opening-hours';
+import { DeveloperCredit } from './developer-credit';
 import { NAV_ITEMS } from './nav-items';
 
 export function SiteFooter({ settings, schedule, now }: { settings: SiteSettings; schedule: Schedule; now: Date }) {
@@ -79,22 +80,25 @@ export function SiteFooter({ settings, schedule, now }: { settings: SiteSettings
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="container-site flex flex-col gap-3 py-6 text-sm text-paper/65 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {year} {settings.businessName}, {settings.city}
-          </p>
-          <ul className="flex gap-5">
-            <li>
-              <Link href="/privacy" className="inline-flex min-h-9 items-center hover:text-white hover:underline">
-                Privacy
-              </Link>
-            </li>
-            <li>
-              <Link href="/voorwaarden" className="inline-flex min-h-9 items-center hover:text-white hover:underline">
-                Voorwaarden
-              </Link>
-            </li>
-          </ul>
+        <div className="container-site flex flex-col gap-4 py-6 text-sm text-paper/65 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+            <p>
+              © {year} {settings.businessName}, {settings.city}
+            </p>
+            <ul className="flex gap-5">
+              <li>
+                <Link href="/privacy" className="inline-flex min-h-9 items-center hover:text-white hover:underline">
+                  Privacy
+                </Link>
+              </li>
+              <li>
+                <Link href="/voorwaarden" className="inline-flex min-h-9 items-center hover:text-white hover:underline">
+                  Voorwaarden
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <DeveloperCredit />
         </div>
       </div>
     </footer>
