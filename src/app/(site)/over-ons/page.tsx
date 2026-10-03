@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { HighlightIcon } from '@/components/site/highlight-icon';
 import { JsonLd } from '@/components/site/json-ld';
 import { PageHeader } from '@/components/site/page-header';
 import { Picture } from '@/components/site/picture';
@@ -26,10 +25,7 @@ export default async function AboutPage() {
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Over ons', path: '/over-ons' }])} />
-      <PageHeader
-        eyebrow={settings.foundedYear ? `Sinds ${settings.foundedYear} in ${settings.city}` : settings.city}
-        title={`Over ${settings.businessName}`}
-      />
+      <PageHeader eyebrow={settings.foundedYear ? `Sinds ${settings.foundedYear} in ${settings.city}` : undefined} title="Over ons" />
 
       <section className="container-site grid gap-12 py-16 md:grid-cols-12 md:py-24" aria-labelledby="verhaal-titel">
         <div className={mainImage ? 'md:col-span-6 lg:col-span-5' : 'md:col-span-8'}>
@@ -55,18 +51,15 @@ export default async function AboutPage() {
       </section>
 
       {highlights.length > 0 && (
-        <section className="border-y border-line bg-cream" aria-labelledby="bij-ons-titel">
+        <section className="border-y border-line bg-white" aria-labelledby="bij-ons-titel">
           <div className="container-site py-16 md:py-24">
             <h2 id="bij-ons-titel" className="text-3xl md:text-4xl">
               Bij ons
             </h2>
             <ul className="mt-10 grid gap-10 md:grid-cols-3">
               {highlights.map((h) => (
-                <li key={h.id}>
-                  <span className="inline-flex size-12 items-center justify-center rounded-full bg-tomato-soft text-tomato">
-                    <HighlightIcon name={h.icon} size={24} />
-                  </span>
-                  <h3 className="mt-4 text-2xl">{h.title}</h3>
+                <li key={h.id} className="border-t-[3px] border-tomato pt-5">
+                  <h3 className="text-2xl">{h.title}</h3>
                   <p className="mt-2 text-ink-soft">{h.body}</p>
                 </li>
               ))}

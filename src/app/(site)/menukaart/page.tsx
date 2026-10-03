@@ -1,5 +1,6 @@
 import { JsonLd } from '@/components/site/json-ld';
 import { MenuBrowser } from '@/components/site/menu-browser';
+import { MenuFolder } from '@/components/site/menu-folder';
 import { OffersList } from '@/components/site/offers';
 import { PageHeader } from '@/components/site/page-header';
 import { DownloadIcon, InfoIcon, PhoneIcon } from '@/components/ui/icons';
@@ -19,9 +20,9 @@ export default async function MenuPage() {
       {menu.length > 0 && <JsonLd data={menuJsonLd(menu)} />}
 
       <PageHeader
-        eyebrow={`${settings.businessName} · ${settings.city}`}
         title="Menukaart"
         intro="Al onze gerechten en prijzen op een rij. Bestellen of afhalen? Bel ons gerust."
+        aside={<MenuFolder tone="dark" className="mx-auto pr-2 md:mx-0" />}
       >
         <div className="mt-8 flex flex-col gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
           <a href={phoneHref} className="btn btn-primary">
@@ -36,10 +37,10 @@ export default async function MenuPage() {
       </PageHeader>
 
       <div className="container-site">
-        <aside role="note" aria-labelledby="allergenen-titel" className="mt-10 flex gap-4 rounded-md border border-crust/50 bg-warning-soft p-5 md:p-6">
-          <InfoIcon className="mt-0.5 shrink-0 text-warning" size={24} />
+        <aside role="note" aria-labelledby="allergenen-titel" className="mt-10 flex gap-4 border-l-4 border-tomato bg-white p-5 md:p-6">
+          <InfoIcon className="mt-0.5 shrink-0 text-tomato" size={24} />
           <div>
-            <h2 id="allergenen-titel" className="font-sans text-base font-semibold">
+            <h2 id="allergenen-titel" className="text-base normal-case tracking-normal [font-stretch:100%]">
               Voedselallergie?
             </h2>
             <p className="mt-1 text-ink-soft">{settings.allergenText.replace(/^Voedselallergie\?\s*/i, '')}</p>
@@ -60,7 +61,7 @@ export default async function MenuPage() {
             <MenuBrowser menu={menu} />
           ) : (
             <div className="py-16 text-center">
-              <p className="font-display text-3xl">De menukaart wordt bijgewerkt</p>
+              <p className="text-3xl font-extrabold uppercase [font-stretch:75%]">De menukaart wordt bijgewerkt</p>
               <p className="mx-auto mt-3 max-w-lg text-lg text-ink-soft">
                 {settings.menuPdfUrl
                   ? 'Bekijk in de tussentijd onze menukaart als PDF, of bel ons voor ons actuele aanbod.'

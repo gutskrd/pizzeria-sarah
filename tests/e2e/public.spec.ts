@@ -6,7 +6,7 @@ test.use({ storageState: { cookies: [], origins: [] } });
 const PAGES: Array<{ path: string; h1: string | RegExp }> = [
   { path: '/', h1: /^Pizzeria Sarah/ },
   { path: '/menukaart', h1: 'Menukaart' },
-  { path: '/over-ons', h1: 'Over Pizzeria Sarah' },
+  { path: '/over-ons', h1: 'Over ons' },
   { path: '/galerij', h1: "Foto's" },
   { path: '/contact', h1: 'Contact' },
   { path: '/privacy', h1: /^Privacy\u00AD?verklaring$/ },
@@ -78,13 +78,26 @@ test.describe('Publieke pagina’s', () => {
     await page.goto('/');
     await expect(page.getByText(/Nu geopend|Nu gesloten|Vandaag gesloten|Vandaag geopend/).first()).toBeVisible();
     await expect(page.locator('a[href="tel:+31488411767"]').first()).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Menukaart bekijken' }).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /Route plannen/ })).toHaveAttribute('href', /google\.com\/maps/);
+    await expect(page.getByRole('link', { name: 'Hele menukaart' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Route plannen/ }).first()).toHaveAttribute('href', /google\.com\/maps/);
     const jsonLd = await page.locator('script[type="application/ld+json"]').first().textContent();
     const data = JSON.parse(jsonLd ?? '{}');
     expect(data['@type']).toBe('Restaurant');
     expect(data.telephone).toBe('+31488411767');
     expect(data.openingHoursSpecification.length).toBeGreaterThanOrEqual(6);
+  });
+
+  test('de folder vouwt open, draait om en vouwt weer dicht', async ({ page }) => {
+    await page.goto('/menukaart');
+    await page.getByRole('link', { name: /Bekijk de menukaart-folder/ }).click();
+    const folder = page.getByRole('dialog', { name: /Menukaart-folder/ });
+    await expect(folder).toBeVisible();
+    await expect(folder.getByRole('img', { name: /Binnenkant van de folder/ })).toHaveAttribute('data-open', 'true');
+    await folder.getByRole('button', { name: 'Buitenkant' }).click();
+    await expect(folder.getByRole('img', { name: /Buitenkant van de folder/ })).toHaveAttribute('data-side', 'buiten');
+    await expect(folder.getByRole('link', { name: 'Vergroten' })).toHaveAttribute('href', '/menukaart/folder/buitenkant.webp');
+    await page.keyboard.press('Escape');
+    await expect(folder).toBeHidden();
   });
 
   test('menukaart toont de allergeneninformatie', async ({ page }) => {

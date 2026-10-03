@@ -2,17 +2,17 @@ import Link from 'next/link';
 import { GalleryGrid } from '@/components/site/gallery-grid';
 import { JsonLd } from '@/components/site/json-ld';
 import { PageHeader } from '@/components/site/page-header';
-import { getGalleryImages, getSettings } from '@/lib/content/queries';
+import { getGalleryImages } from '@/lib/content/queries';
 import { breadcrumbJsonLd, pageMetadata } from '@/lib/seo';
 
 export const generateMetadata = () => pageMetadata('galerij');
 
 export default async function GalleryPage() {
-  const [settings, images] = await Promise.all([getSettings(), getGalleryImages()]);
+  const images = await getGalleryImages();
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: "Foto's", path: '/galerij' }])} />
-      <PageHeader eyebrow={`${settings.businessName} · ${settings.city}`} title="Foto's" intro="Een kijkje in onze zaak en bij onze gerechten." />
+      <PageHeader title="Foto's" intro="Een kijkje in onze zaak en bij onze gerechten." />
       <div className="container-site py-12 md:py-16">
         {images.length > 0 ? (
           <GalleryGrid images={images} />

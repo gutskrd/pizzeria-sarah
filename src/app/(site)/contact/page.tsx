@@ -23,11 +23,7 @@ export default async function ContactPage() {
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Contact', path: '/contact' }])} />
       <JsonLd data={restaurantJsonLd(settings, schedule)} />
-      <PageHeader
-        eyebrow={`${settings.businessName} · ${settings.city}`}
-        title="Contact"
-        intro="Bel ons voor een bestelling of reservering, of stuur een bericht. We helpen je graag."
-      />
+      <PageHeader title="Contact" intro="Bel ons voor een bestelling of reservering, of stuur een bericht. We helpen je graag." />
 
       <div className="container-site grid gap-14 py-14 md:py-20 lg:grid-cols-12 lg:gap-16">
         <div className="space-y-12 lg:col-span-5">
@@ -49,7 +45,7 @@ export default async function ContactPage() {
             </ul>
           </section>
 
-          <section aria-labelledby="reserveren-titel" className="rounded-md bg-char p-6 text-paper on-dark">
+          <section aria-labelledby="reserveren-titel" className="rounded-[3px] bg-char p-6 text-paper on-dark">
             <h2 id="reserveren-titel" className="text-2xl">
               Reserveren
             </h2>

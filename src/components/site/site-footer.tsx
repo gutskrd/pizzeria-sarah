@@ -20,10 +20,10 @@ export function SiteFooter({ settings, schedule, now }: { settings: SiteSettings
   ].filter(Boolean) as Array<{ href: string; label: string }>;
 
   return (
-    <footer className="on-dark bg-char text-paper">
+    <footer className="on-dark border-t-[3px] border-tomato bg-char text-paper">
       <div className="container-site grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr_1.2fr] lg:py-16">
         <div>
-          <p className="font-display text-2xl">{settings.businessName}</p>
+          <p className="text-[1.9rem] font-extrabold uppercase leading-none [font-stretch:72%]">{settings.businessName}</p>
           <p className="mt-3 max-w-xs text-paper/75">{settings.footerText}</p>
           {socials.length > 0 && (
             <ul className="mt-5 flex gap-4">

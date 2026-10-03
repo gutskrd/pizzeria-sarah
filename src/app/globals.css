@@ -423,3 +423,305 @@
     background-position: -100% 0;
   }
 }
+
+/* ───────────────────────── Publieke website ─────────────────────────
+   Black, red and white with condensed headings, like the printed menu.
+   The admin keeps its own look: everything here is scoped to .site-theme. */
+.site-theme {
+  --font-display: var(--font-archivo), 'Arial Narrow', Arial, sans-serif;
+  --font-sans: var(--font-archivo), Arial, sans-serif;
+  --color-paper: #f5f3ef;
+  --color-cream: #ffffff;
+  --color-ink: #151515;
+  --color-ink-soft: #3a3a3a;
+  --color-muted: #5e5e5e;
+  --color-line: #e2ddd5;
+  --color-line-strong: #c3bdb3;
+  --color-tomato: #d81f26;
+  --color-tomato-dark: #a9161c;
+  --color-tomato-soft: #fbe3e1;
+  --color-char: #0f0f0f;
+  --color-char-soft: #1b1b1b;
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+@layer base {
+  .site-theme :is(h1, h2, h3, h4) {
+    font-stretch: 78%;
+    font-weight: 750;
+    letter-spacing: -0.005em;
+    line-height: 1.05;
+  }
+  .site-theme :is(h1, h2) {
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 0.98;
+  }
+  .site-theme .on-dark :focus-visible {
+    outline-color: #fff;
+  }
+}
+
+@layer components {
+  .site-theme .eyebrow {
+    font-stretch: 85%;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .site-theme .on-dark .eyebrow {
+    color: #ff6b6b;
+  }
+  .site-theme .btn {
+    border-radius: 3px;
+    font-stretch: 85%;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .site-theme .link-arrow {
+    color: var(--color-ink);
+    text-decoration-color: var(--color-tomato);
+    text-decoration-thickness: 2px;
+  }
+  .site-theme .link-arrow:hover {
+    color: var(--color-tomato-dark);
+  }
+  .site-theme .on-dark .link-arrow {
+    color: #fff;
+  }
+  .site-theme .on-dark .link-arrow:hover {
+    color: #fff;
+    text-decoration-color: #fff;
+  }
+
+  /* A red label like the category banners on the printed menu. */
+  .menu-banner {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0.2rem 1.1rem 0.15rem;
+    background: var(--color-tomato);
+    color: #fff;
+    font-stretch: 75%;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    clip-path: polygon(0.6rem 0, calc(100% - 0.6rem) 0, 100% 50%, calc(100% - 0.6rem) 100%, 0.6rem 100%, 0 50%);
+  }
+}
+
+/* ── Menukaart-folder: a trifold leaflet that unfolds in 3D ── */
+.folder-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  overflow: hidden;
+}
+.folder-dialog::backdrop {
+  background: rgb(10 10 10 / 0.88);
+  backdrop-filter: blur(3px);
+}
+.folder-dialog[open] {
+  animation: folder-fade 260ms ease-out both;
+}
+.folder-dialog[data-closing='true'] {
+  animation: folder-fade-out 260ms ease-in 900ms both;
+}
+.folder-stage {
+  perspective: 2600px;
+}
+.folder {
+  --fold-ms: 950ms;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: scale(var(--closed-scale, 1));
+  transition: transform var(--fold-ms) cubic-bezier(0.65, 0, 0.25, 1) 0ms;
+}
+.folder[data-open='true'] {
+  transform: scale(1);
+  transition-delay: 0ms;
+}
+.folder[data-open='true'][data-side='buiten'] {
+  transform: scale(1) rotateY(180deg);
+}
+.folder[data-open='false'] {
+  transition-delay: 380ms;
+}
+.folder-panel {
+  position: absolute;
+  top: 0;
+  width: calc(100% / 3);
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform var(--fold-ms) cubic-bezier(0.65, 0, 0.25, 1);
+}
+.folder-panel[data-panel='links'] {
+  left: 0;
+  transform-origin: 100% 50%;
+  transform: rotateY(180deg) translateZ(-2px);
+}
+.folder-panel[data-panel='midden'] {
+  left: calc(100% / 3);
+}
+.folder-panel[data-panel='rechts'] {
+  left: calc(200% / 3);
+  transform-origin: 0 50%;
+  transform: rotateY(-180deg) translateZ(-1px);
+}
+/* Opening: the cover first, then the inner flap. Closing: the reverse. */
+.folder[data-open='true'] .folder-panel[data-panel='links'] {
+  transform: rotateY(0deg);
+  transition-delay: 0ms;
+}
+.folder[data-open='true'] .folder-panel[data-panel='rechts'] {
+  transform: rotateY(0deg);
+  transition-delay: 380ms;
+}
+.folder[data-open='false'] .folder-panel[data-panel='links'] {
+  transition-delay: 380ms;
+}
+.folder-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: #000;
+  overflow: hidden;
+}
+.folder-face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.folder-face[data-face='achter'] {
+  transform: rotateY(180deg);
+}
+/* Shade the inside while it is folded, so it lights up as it opens. */
+.folder-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--fold-ms) ease;
+}
+.folder-panel[data-panel='links'] .folder-face[data-face='voor']::after {
+  background: linear-gradient(to left, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.15));
+}
+.folder-panel[data-panel='rechts'] .folder-face[data-face='voor']::after {
+  background: linear-gradient(to right, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.15));
+}
+.folder[data-open='false'] .folder-face[data-face='voor']::after {
+  opacity: 1;
+}
+/* The fold lines of the open leaflet. */
+.folder-panel[data-panel='midden'] .folder-face::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgb(0 0 0 / 0.35) 0,
+    rgb(255 255 255 / 0.06) 1.5%,
+    transparent 6%,
+    transparent 94%,
+    rgb(255 255 255 / 0.06) 98.5%,
+    rgb(0 0 0 / 0.35) 100%
+  );
+}
+.folder-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -3%;
+  width: calc(100% / 3 * var(--closed-scale, 1));
+  height: 8%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.55);
+  filter: blur(18px);
+  transition: width var(--fold-ms, 950ms) cubic-bezier(0.65, 0, 0.25, 1) 380ms;
+}
+.folder-shadow[data-open='true'] {
+  width: 100%;
+  transition-delay: 0ms;
+}
+
+/* The folded leaflet as it lies on the counter: the button that opens it. */
+.folder-cover {
+  position: relative;
+  display: block;
+  transform: rotate(-3deg);
+  transition: transform 350ms var(--ease-out-soft);
+}
+.folder-cover::before,
+.folder-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background: #1c1c1c;
+  z-index: -1;
+  transition: transform 350ms var(--ease-out-soft);
+}
+.folder-cover::before {
+  transform: translate(5px, 4px);
+  background: #2a2a2a;
+}
+.folder-cover::after {
+  transform: translate(10px, 8px);
+  background: #3a3a3a;
+  box-shadow: 0 30px 45px -15px rgb(0 0 0 / 0.6);
+}
+.folder-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  transform-origin: 0 50%;
+  transition: transform 450ms var(--ease-out-soft);
+}
+@media (hover: hover) {
+  .folder-cover-wrap:hover .folder-cover {
+    transform: rotate(-1deg) translateY(-4px);
+  }
+  .folder-cover-wrap:hover .folder-cover img {
+    transform: perspective(900px) rotateY(-14deg);
+  }
+}
+
+@keyframes folder-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes folder-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.folder-instant,
+.folder-instant * {
+  transition: none !important;
+}

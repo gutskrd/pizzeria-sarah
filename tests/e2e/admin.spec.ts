@@ -96,7 +96,7 @@ test.describe.serial('Beheer', () => {
     await page.getByRole('button', { name: 'Testpizza Margherita uitlichten op de homepage' }).click();
     await toast(page, 'uitgelicht');
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Uit onze menukaart' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Populair' })).toBeVisible();
     await expect(page.getByText('Testpizza Margherita')).toBeVisible();
 
     // Hide

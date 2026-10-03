@@ -54,7 +54,7 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
 
   return (
     <div>
-      <div className="sticky top-16 z-30 -mx-4 border-b border-line bg-paper/95 px-4 backdrop-blur-sm sm:-mx-6 sm:px-6 md:top-[4.5rem] lg:-mx-10 lg:px-10">
+      <div className="sticky top-[67px] z-30 -mx-4 border-b border-line bg-paper/95 px-4 backdrop-blur-sm sm:-mx-6 sm:px-6 md:top-[75px] lg:-mx-10 lg:px-10">
         <div className="flex flex-col gap-3 py-3 md:flex-row md:items-center">
           <label className="relative block md:w-72 md:shrink-0">
             <span className="sr-only">Zoek een gerecht</span>
@@ -64,7 +64,7 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Zoek een gerecht"
-              className="h-11 w-full rounded-sm border border-line-strong bg-cream pl-10 pr-10 text-base placeholder:text-muted focus:border-ink focus:outline-none"
+              className="h-11 w-full rounded-[3px] border border-line-strong bg-white pl-10 pr-10 text-base placeholder:text-muted focus:border-ink focus:outline-none"
             />
             {query && (
               <button
@@ -85,7 +85,7 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
                     href={`#${c.slug}`}
                     data-chip={c.slug}
                     aria-current={active === c.slug ? 'true' : undefined}
-                    className="inline-flex min-h-10 items-center rounded-full border border-line-strong px-4 text-[0.95rem] font-medium whitespace-nowrap transition-colors hover:border-ink aria-[current=true]:border-ink aria-[current=true]:bg-ink aria-[current=true]:text-paper"
+                    className="inline-flex min-h-10 items-center rounded-[3px] border border-line-strong bg-white px-3.5 text-[0.9rem] font-bold uppercase tracking-[0.04em] whitespace-nowrap transition-colors [font-stretch:85%] hover:border-ink aria-[current=true]:border-tomato aria-[current=true]:bg-tomato aria-[current=true]:text-white"
                   >
                     {c.name}
                   </a>
@@ -102,29 +102,25 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
 
       {filtered.length === 0 ? (
         <div className="py-16 text-center">
-          <p className="font-display text-2xl">Geen gerechten gevonden</p>
+          <p className="text-2xl font-extrabold uppercase [font-stretch:78%]">Geen gerechten gevonden</p>
           <p className="mt-2 text-muted">Probeer een ander zoekwoord, of bekijk de hele menukaart.</p>
           <button type="button" onClick={() => setQuery('')} className="btn btn-outline mt-6">
             Hele menukaart tonen
           </button>
         </div>
       ) : (
-        <div className="divide-y divide-line">
+        <div>
           {filtered.map((c) => (
-            <section key={c.id} id={c.slug} data-menu-section={c.slug} className="scroll-mt-40 py-10 md:py-14" aria-labelledby={`cat-${c.slug}`}>
-              <div className="grid gap-6 lg:grid-cols-[16rem_1fr] lg:gap-12">
-                <div>
-                  <h2 id={`cat-${c.slug}`} className="text-3xl md:text-4xl lg:sticky lg:top-44">
-                    {c.name}
-                  </h2>
-                  {c.description && <p className="mt-2 text-muted">{c.description}</p>}
-                </div>
-                <ul>
-                  {c.items.map((item) => (
-                    <MenuItemRow key={item.id} item={item} />
-                  ))}
-                </ul>
-              </div>
+            <section key={c.id} id={c.slug} data-menu-section={c.slug} className="scroll-mt-40 pt-10 md:pt-14" aria-labelledby={`cat-${c.slug}`}>
+              <h2 id={`cat-${c.slug}`} className="menu-banner text-[1.35rem] md:text-[1.5rem]">
+                {c.name}
+              </h2>
+              {c.description && <p className="mt-3 max-w-2xl text-muted">{c.description}</p>}
+              <ul className="mt-3 grid lg:grid-cols-2 lg:gap-x-14">
+                {c.items.map((item) => (
+                  <MenuItemRow key={item.id} item={item} />
+                ))}
+              </ul>
             </section>
           ))}
         </div>

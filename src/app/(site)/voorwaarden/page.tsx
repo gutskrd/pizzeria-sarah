@@ -10,7 +10,7 @@ export default async function TermsPage() {
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Voorwaarden', path: '/voorwaarden' }])} />
-      <PageHeader eyebrow={s.businessName} title="Voorwaarden" />
+      <PageHeader title="Voorwaarden" />
       <div className="container-site py-14 md:py-20">
         <div className="prose-site max-w-3xl text-[1.05rem] leading-relaxed text-ink-soft">
           <p>Deze voorwaarden gelden voor het gebruik van de website van {s.businessName}. Door de website te gebruiken, ga je hiermee akkoord.</p>

@@ -6,9 +6,9 @@ import { useEffect, useRef, useState } from 'react';
 import { CloseIcon, MenuIcon, PhoneIcon } from '@/components/ui/icons';
 import { NAV_ITEMS } from './nav-items';
 
-type Props = { businessName: string; city: string; phoneDisplay: string; phoneHref: string };
+type Props = { businessName: string; tagline: string; phoneDisplay: string; phoneHref: string };
 
-export function SiteHeader({ businessName, city, phoneDisplay, phoneHref }: Props) {
+export function SiteHeader({ businessName, tagline, phoneDisplay, phoneHref }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -36,14 +36,16 @@ export function SiteHeader({ businessName, city, phoneDisplay, phoneHref }: Prop
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-line/80 bg-paper/95 backdrop-blur-sm supports-[backdrop-filter]:bg-paper/85">
-        <a href="#inhoud" className="sr-only-focusable absolute left-4 top-3 z-50 rounded-sm bg-ink px-4 py-2 text-sm font-semibold text-paper">
+      <header className="on-dark sticky top-0 z-40 border-b-[3px] border-tomato bg-char text-white">
+        <a href="#inhoud" className="sr-only-focusable absolute left-4 top-3 z-50 rounded-sm bg-white px-4 py-2 text-sm font-semibold text-ink">
           Direct naar de inhoud
         </a>
         <div className="container-site flex h-16 items-center justify-between gap-4 md:h-[4.5rem]">
           <Link href="/" className="group flex min-w-0 flex-col leading-none" onClick={() => setOpen(false)}>
-            <span className="truncate font-display text-[1.45rem] font-semibold tracking-tight md:text-[1.6rem]">{businessName}</span>
-            <span className="mt-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-muted">{city}</span>
+            <span className="truncate text-[1.5rem] font-extrabold uppercase leading-none tracking-[0.01em] [font-stretch:72%] md:text-[1.7rem]">
+              {businessName}
+            </span>
+            <span className="mt-1 truncate text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-white/60">{tagline}</span>
           </Link>
 
           <nav aria-label="Hoofdmenu" className="hidden lg:block">
@@ -53,7 +55,7 @@ export function SiteHeader({ businessName, city, phoneDisplay, phoneHref }: Prop
                   <Link
                     href={item.href}
                     aria-current={isActive(item.href) ? 'page' : undefined}
-                    className="relative inline-flex min-h-11 items-center px-3.5 text-[0.98rem] font-medium text-ink-soft transition-colors hover:text-ink aria-[current=page]:text-ink after:absolute after:inset-x-3.5 after:bottom-2 after:h-[2px] after:origin-left after:scale-x-0 after:bg-tomato after:transition-transform after:duration-200 hover:after:scale-x-100 aria-[current=page]:after:scale-x-100"
+                    className="relative inline-flex min-h-11 items-center px-3.5 text-[0.95rem] font-bold uppercase tracking-[0.06em] text-white/75 transition-colors [font-stretch:85%] hover:text-white aria-[current=page]:text-white after:absolute after:inset-x-3.5 after:bottom-2 after:h-[2px] after:origin-left after:scale-x-0 after:bg-tomato after:transition-transform after:duration-200 hover:after:scale-x-100 aria-[current=page]:after:scale-x-100"
                   >
                     {item.label}
                   </Link>
@@ -79,7 +81,7 @@ export function SiteHeader({ businessName, city, phoneDisplay, phoneHref }: Prop
             <button
               ref={buttonRef}
               type="button"
-              className="inline-flex size-11 items-center justify-center rounded-sm border border-line-strong text-ink lg:hidden"
+              className="inline-flex size-11 items-center justify-center rounded-sm border border-white/25 text-white lg:hidden"
               aria-expanded={open}
               aria-controls="mobiel-menu"
               aria-label={open ? 'Menu sluiten' : 'Menu openen'}
@@ -90,7 +92,7 @@ export function SiteHeader({ businessName, city, phoneDisplay, phoneHref }: Prop
           </div>
         </div>
       </header>
-      <div id="mobiel-menu" ref={panelRef} hidden={!open} className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto bg-paper lg:hidden">
+      <div id="mobiel-menu" ref={panelRef} hidden={!open} className="fixed inset-x-0 bottom-0 top-[67px] z-40 overflow-y-auto md:top-[75px] bg-paper lg:hidden">
         <nav aria-label="Mobiel menu" className="container-site py-6">
           <ul className="divide-y divide-line border-y border-line">
             {NAV_ITEMS.map((item) => (
@@ -99,7 +101,7 @@ export function SiteHeader({ businessName, city, phoneDisplay, phoneHref }: Prop
                   href={item.href}
                   aria-current={isActive(item.href) ? 'page' : undefined}
                   onClick={() => setOpen(false)}
-                  className="flex min-h-14 items-center justify-between py-3 font-display text-2xl aria-[current=page]:text-tomato"
+                  className="flex min-h-14 items-center justify-between py-3 text-2xl font-extrabold uppercase [font-stretch:75%] aria-[current=page]:text-tomato"
                 >
                   {item.label}
                 </Link>
