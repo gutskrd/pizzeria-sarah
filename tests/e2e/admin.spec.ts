@@ -125,7 +125,12 @@ test.describe.serial('Beheer', () => {
 
     // A portrait photo is not a whole open folder.
     await insideInput.setInputFiles(await makeImage('staand.jpg', '#222222', 800, 1200));
-    await expect(page.getByRole('alert').filter({ hasText: /liggende afbeelding/ }).first()).toBeVisible();
+    await expect(
+      page
+        .getByRole('alert')
+        .filter({ hasText: /liggende afbeelding/ })
+        .first(),
+    ).toBeVisible();
 
     // Replace the inside; the panels are cut again and the preview changes.
     const before = await card.getByRole('img', { name: 'Binnenkant van de folder' }).getAttribute('src');

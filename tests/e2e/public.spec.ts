@@ -78,7 +78,7 @@ test.describe('Publieke pagina’s', () => {
     await page.goto('/');
     await expect(page.getByText(/Nu geopend|Nu gesloten|Vandaag gesloten|Vandaag geopend/).first()).toBeVisible();
     await expect(page.locator('a[href="tel:+31488411767"]').first()).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Hele menukaart' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Hele menukaart' }).first()).toBeVisible();
     await expect(page.getByRole('link', { name: /Route plannen/ }).first()).toHaveAttribute('href', /google\.com\/maps/);
     const jsonLd = await page.locator('script[type="application/ld+json"]').first().textContent();
     const data = JSON.parse(jsonLd ?? '{}');
@@ -98,6 +98,16 @@ test.describe('Publieke pagina’s', () => {
     await expect(folder.getByRole('link', { name: 'Vergroten' })).toHaveAttribute('href', /^\/media\/[\w-]+\/buitenkant\.webp$/);
     await page.keyboard.press('Escape');
     await expect(folder).toBeHidden();
+  });
+
+  test('llms.txt vat de zaak samen in platte tekst', async ({ request }) => {
+    const res = await request.get('/llms.txt');
+    expect(res.ok()).toBe(true);
+    expect(res.headers()['content-type']).toContain('text/markdown');
+    const text = await res.text();
+    expect(text).toContain('# Pizzeria Sarah');
+    expect(text).toContain('## Openingstijden');
+    expect(text).toContain('0488 - 411 767');
   });
 
   test('menukaart toont de allergeneninformatie', async ({ page }) => {

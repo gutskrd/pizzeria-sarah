@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { statusSnapshot, type Schedule, type StatusSnapshot } from '@/lib/opening-hours';
+import { orderHint, statusSnapshot, type Schedule, type StatusSnapshot } from '@/lib/opening-hours';
 
 /**
  * Live "Nu geopend / Vandaag gesloten" indicator. The server renders the
@@ -12,21 +12,29 @@ export function OpeningStatus({
   initial,
   tone = 'light',
   showDetail = true,
+  initialHint,
 }: {
   schedule: Schedule;
   initial: StatusSnapshot;
   tone?: 'light' | 'dark';
   showDetail?: boolean;
+  /** Pass the server's orderHint() to show the "bel je bestelling door" nudge. */
+  initialHint?: string | null;
 }) {
   const [status, setStatus] = useState(initial);
+  const [hint, setHint] = useState(initialHint ?? null);
 
   useEffect(() => {
-    const id = window.setInterval(() => setStatus(statusSnapshot(schedule, new Date())), 60_000);
+    const id = window.setInterval(() => {
+      const now = new Date();
+      setStatus(statusSnapshot(schedule, now));
+      if (initialHint !== undefined) setHint(orderHint(schedule, now));
+    }, 60_000);
     return () => window.clearInterval(id);
-  }, [schedule]);
+  }, [schedule, initialHint]);
 
   const dot = status.isOpenNow ? 'bg-[#4caf50]' : tone === 'dark' ? 'bg-[#e8a87c]' : 'bg-tomato';
-  return (
+  const line = (
     <p className="flex flex-wrap items-center gap-x-3 gap-y-1" aria-live="polite">
       <span
         className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
@@ -40,5 +48,16 @@ export function OpeningStatus({
       </span>
       {showDetail && <span className={tone === 'dark' ? 'text-sm text-paper/80' : 'text-sm text-muted'}>{status.detail}</span>}
     </p>
+  );
+  if (initialHint === undefined) return line;
+  return (
+    <div>
+      {line}
+      {hint && (
+        <p className={`mt-2 text-[0.95rem] font-semibold ${tone === 'dark' ? 'text-white' : 'text-ink'}`} aria-live="polite">
+          {hint}
+        </p>
+      )}
+    </div>
   );
 }

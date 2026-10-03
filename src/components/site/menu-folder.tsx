@@ -26,7 +26,7 @@ function useFolderSize(active: boolean, panelWidth: number, panelHeight: number)
       const vh = window.innerHeight;
       const availW = vw - (vw < 640 ? 24 : 96);
       const availH = vh - (vh < 500 ? 110 : 190);
-      const w = Math.max(240, Math.min(availW, availH * ratio, panelWidth * 3 * 1.25));
+      const w = Math.max(240, Math.min(availW, availH * ratio, panelWidth * 3));
       const h = w / ratio;
       // Closed, only one panel shows; make it larger so the cover is easy to see.
       const scale = Math.max(1, Math.min(availH / h, (vw * 0.62) / (w / 3), 2.2));
@@ -212,6 +212,18 @@ export function MenuFolder({ folder, className = '', tone = 'light' }: { folder:
                   </button>
                 ))}
               </div>
+              <a
+                href="/menukaart#gerechten"
+                onClick={() => {
+                  // Leave the flyer at once and jump to the menu as text.
+                  dialogRef.current?.close();
+                  setVisible(false);
+                  setOpen(false);
+                }}
+                className="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold uppercase tracking-[0.06em] text-white underline decoration-tomato decoration-2 underline-offset-4 [font-stretch:85%] hover:decoration-white"
+              >
+                Als tekst lezen
+              </a>
               <a
                 href={folder.sheets[side]}
                 target="_blank"

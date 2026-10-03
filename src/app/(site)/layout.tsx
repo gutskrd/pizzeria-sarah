@@ -1,9 +1,11 @@
 import localFont from 'next/font/local';
 import { SiteFooter } from '@/components/site/site-footer';
+import { MobileOrderBar } from '@/components/site/mobile-order-bar';
 import { ScrollReveal } from '@/components/site/scroll-reveal';
 import { SiteHeader } from '@/components/site/site-header';
 import { getSchedule, getSettings } from '@/lib/content/queries';
 import { telHref } from '@/lib/format';
+import { statusSnapshot } from '@/lib/opening-hours';
 
 // Archivo (variable weight and width): the condensed cuts echo the printed menu.
 const archivo = localFont({
@@ -31,6 +33,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       </main>
       <SiteFooter settings={settings} schedule={schedule} now={now} />
       <ScrollReveal />
+      <MobileOrderBar phoneHref={telHref(settings.phoneE164)} routeUrl={settings.routeUrl} schedule={schedule} initial={statusSnapshot(schedule, now)} />
     </div>
   );
 }

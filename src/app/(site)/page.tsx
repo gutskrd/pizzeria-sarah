@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { HoursTable } from '@/components/site/hours-table';
+import { CategoryTiles } from '@/components/site/category-tiles';
 import { JsonLd } from '@/components/site/json-ld';
 import { LocationCard } from '@/components/site/location-card';
 import { MenuFolder } from '@/components/site/menu-folder';
@@ -10,8 +11,8 @@ import { Picture } from '@/components/site/picture';
 import { ArrowRightIcon, DownloadIcon, MailIcon, PhoneIcon, PinIcon } from '@/components/ui/icons';
 import { getActiveOffers, getFeaturedMenuItems, getGalleryPreview, getHighlights, getMenu, getSchedule, getSettings } from '@/lib/content/queries';
 import { telHref } from '@/lib/format';
-import { statusSnapshot } from '@/lib/opening-hours';
-import { pageMetadata, restaurantJsonLd } from '@/lib/seo';
+import { orderHint, statusSnapshot } from '@/lib/opening-hours';
+import { pageMetadata, restaurantJsonLd, websiteJsonLd } from '@/lib/seo';
 
 export const generateMetadata = () => pageMetadata('home');
 
@@ -34,7 +35,8 @@ export default async function HomePage() {
 
   return (
     <>
-      <JsonLd data={restaurantJsonLd(settings, schedule)} />
+      <JsonLd data={restaurantJsonLd(settings, schedule, menu)} />
+      <JsonLd data={websiteJsonLd(settings)} />
 
       {/* ───────── Hero ───────── */}
       <section className="on-dark relative isolate overflow-hidden bg-char text-white" aria-labelledby="hero-titel">
@@ -72,7 +74,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="reveal mt-8 [animation-delay:240ms]">
-              <OpeningStatus schedule={schedule} initial={status} tone="dark" />
+              <OpeningStatus schedule={schedule} initial={status} tone="dark" initialHint={orderHint(schedule, now)} />
             </div>
           </div>
           {settings.folder && (
@@ -130,6 +132,26 @@ export default async function HomePage() {
           </div>
         </dl>
       </section>
+
+      {/* ───────── Waar heb je zin in? ───────── */}
+      {menu.length > 1 && (
+        <section className="container-site pt-16 md:pt-20" aria-labelledby="zin-titel">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between" data-reveal>
+            <div>
+              <h2 id="zin-titel" className="text-[2.4rem] md:text-6xl">
+                Waar heb je zin in?
+              </h2>
+              <p className="mt-2 text-lg text-ink-soft">Kies je favoriet, bekijk de gerechten en bel je bestelling door.</p>
+            </div>
+            <Link href="/menukaart" className="link-arrow self-start md:self-auto">
+              Hele menukaart <ArrowRightIcon size={18} />
+            </Link>
+          </div>
+          <div className="mt-8">
+            <CategoryTiles menu={menu} />
+          </div>
+        </section>
+      )}
 
       {/* ───────── Welkom en populaire gerechten ───────── */}
       <section className="container-site grid gap-12 py-16 md:py-24 lg:grid-cols-12 lg:gap-16" aria-labelledby="intro-titel">
@@ -275,7 +297,7 @@ export default async function HomePage() {
       <section id="openingstijden" className="border-t border-line bg-white" aria-labelledby="tijden-titel">
         <div className="container-site grid gap-12 py-16 md:py-24 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
           <div data-reveal>
-            <h2 id="tijden-titel" className="text-[2.4rem] md:text-5xl xl:text-6xl">
+            <h2 id="tijden-titel" className="text-[2.4rem] md:text-5xl">
               Openingstijden
             </h2>
             <div className="mt-4">
@@ -298,7 +320,7 @@ export default async function HomePage() {
             </ul>
           </div>
           <div data-reveal style={{ '--reveal-i': 1 } as React.CSSProperties}>
-            <h2 id="locatie-titel" className="text-[2.4rem] md:text-5xl xl:text-6xl">
+            <h2 id="locatie-titel" className="text-[2.4rem] md:text-5xl">
               Zo vind je ons
             </h2>
             <p className="mt-3 text-lg text-ink-soft">

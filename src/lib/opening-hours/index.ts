@@ -327,3 +327,18 @@ export function upcomingDays(schedule: Schedule, instant: Date, count = 7): DayP
     return { date, weekday: day.weekday, periods: day.periods, label: day.exception?.label ?? null, isToday: i === 0 };
   });
 }
+
+/**
+ * A friendly nudge for visitors, based on the real opening hours:
+ * "Nu open tot 20:00. Bel je bestelling door!" or, just before closing,
+ * "Nog 25 min open. Bel snel je bestelling door!". Null when there is
+ * nothing useful to say (while closed).
+ */
+export function orderHint(schedule: Schedule, instant: Date): string | null {
+  const next = nextChange(schedule, instant);
+  if (!next) return null;
+  // Only while open: the opening hours themselves are shown right next to it.
+  if (next.type !== 'closes') return null;
+  if (next.minutes <= 45) return `Nog ${next.minutes <= 1 ? 'heel even' : `${next.minutes} min`} open. Bel snel je bestelling door!`;
+  return `Nu open tot ${next.time}. Bel je bestelling door!`;
+}

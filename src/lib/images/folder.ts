@@ -16,7 +16,7 @@ export const sheetFileName = (side: FolderSide) => `${side}kant.webp`;
 export const panelFileName = (side: FolderSide, n: 1 | 2 | 3) => `${side}-${n}.webp`;
 
 const MAX_SHEET_WIDTH = 2400;
-const MAX_PANEL_HEIGHT = 1100;
+const MAX_PANEL_HEIGHT = 1400;
 export const MIN_CUT = 0.15;
 export const MAX_CUT = 0.85;
 export const MIN_PANEL = 0.15;
@@ -43,12 +43,36 @@ export async function normalizeSheet(input: Buffer, expected: ImageKind): Promis
   if (width <= height) {
     throw new UploadError('Kies een liggende afbeelding van de hele open folder: alle drie de delen naast elkaar.');
   }
-  return sharp(input, { limitInputPixels: MAX_IMAGE_PIXELS, failOn: 'error' })
-    .rotate()
-    .resize({ width: MAX_SHEET_WIDTH, withoutEnlargement: true })
-    .flatten({ background: '#000000' })
-    .webp({ quality: 90, effort: 4 })
-    .toBuffer();
+  const upright = await sharp(input, { limitInputPixels: MAX_IMAGE_PIXELS, failOn: 'error' }).rotate().flatten({ background: '#000000' }).toBuffer();
+  return sharpenSheet(upright);
+}
+
+/** Below this width a sheet is enlarged (with sharpening), so the text in the folder stays crisp on screen. */
+export const SHARP_SHEET_WIDTH = 1800;
+
+/**
+ * Stores a sheet at a good size for the website: large sheets are reduced,
+ * small ones (such as a screenshot of the menu) are enlarged with a
+ * high-quality filter and sharpened so letters keep clean edges.
+ */
+export async function sharpenSheet(sheet: Buffer): Promise<Buffer> {
+  const meta = await sharp(sheet).metadata();
+  // Shave a hair off every edge: screenshots and scans often have a thin light border.
+  const edge = Math.max(1, Math.round((meta.width ?? 0) * 0.0025));
+  const width = (meta.width ?? 0) - edge * 2;
+  const image = sharp(sheet, { limitInputPixels: MAX_IMAGE_PIXELS }).extract({
+    left: edge,
+    top: edge,
+    width,
+    height: (meta.height ?? 0) - edge * 2,
+  });
+  if (width < SHARP_SHEET_WIDTH) {
+    const target = Math.min(MAX_SHEET_WIDTH, Math.max(SHARP_SHEET_WIDTH, width * 2));
+    image.resize({ width: target, kernel: 'lanczos3' }).sharpen({ sigma: 1.1, m1: 0.6, m2: 2.2 });
+  } else {
+    image.resize({ width: MAX_SHEET_WIDTH, withoutEnlargement: true });
+  }
+  return image.webp({ quality: 92, effort: 4 }).toBuffer();
 }
 
 /**

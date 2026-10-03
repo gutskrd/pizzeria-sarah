@@ -4,6 +4,7 @@ import {
   formatCountdown,
   isoWeekday,
   nextChange,
+  orderHint,
   resolveDay,
   toLocalMoment,
   upcomingDays,
@@ -169,5 +170,19 @@ describe('nextChange', () => {
       ['2026-10-07', 0, 'Vakantie', false],
       ['2026-10-08', 1, null, false],
     ]);
+  });
+});
+
+describe('orderHint', () => {
+  it('invites to order while open', () => {
+    expect(orderHint(regular, at('2026-10-06T15:00:00Z'))).toBe('Nu open tot 20:00. Bel je bestelling door!');
+  });
+  it('hurries just before closing', () => {
+    expect(orderHint(regular, at('2026-10-06T17:40:00Z'))).toBe('Nog 20 min open. Bel snel je bestelling door!');
+  });
+  it('says nothing while closed', () => {
+    expect(orderHint(regular, at('2026-10-06T10:00:00Z'))).toBeNull();
+    expect(orderHint(regular, at('2026-10-05T12:00:00Z'))).toBeNull();
+    expect(orderHint(regular, at('2026-10-06T18:30:00Z'))).toBeNull();
   });
 });

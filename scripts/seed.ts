@@ -16,8 +16,8 @@ import postgres from 'postgres';
 import * as schema from '../src/lib/db/schema';
 import { readFile } from 'node:fs/promises';
 import { eq } from 'drizzle-orm';
-import { normalizeSheet, renderPanels, sheetFileName } from '../src/lib/images/folder';
-import { newStorageKey, writeMediaFiles } from '../src/lib/images/storage';
+import { normalizeSheet, renderPanels, sharpenSheet, sheetFileName } from '../src/lib/images/folder';
+import { newStorageKey, readMediaFile, writeMediaFiles } from '../src/lib/images/storage';
 import { MENU_2025_11 } from './data/menukaart-2025-11';
 
 const url = process.env.DATABASE_URL;
@@ -196,6 +196,38 @@ if (folderRow && !folderRow.key && !folderRow.updatedAt && !process.argv.include
     })
     .where(eq(schema.siteSettings.id, 1));
   console.log('Folder (menukaart november 2025) toegevoegd.');
+}
+
+// A folder processed before sheets were sharpened is upgraded once (same fold lines).
+const [current] = await db
+  .select({
+    key: schema.siteSettings.folderKey,
+    hasInside: schema.siteSettings.folderHasInside,
+    hasOutside: schema.siteSettings.folderHasOutside,
+    cuts: schema.siteSettings.folderCuts,
+    panelHeight: schema.siteSettings.folderPanelHeight,
+  })
+  .from(schema.siteSettings)
+  .limit(1);
+if (current?.key && current.hasInside && current.hasOutside && (current.panelHeight ?? 0) < 900) {
+  const inside = await readMediaFile(current.key, sheetFileName('binnen'));
+  const outside = await readMediaFile(current.key, sheetFileName('buiten'));
+  if (inside && outside) {
+    const sheets = { binnen: await sharpenSheet(inside), buiten: await sharpenSheet(outside) };
+    const rendered = await renderPanels(sheets, current.cuts);
+    const key = newStorageKey();
+    await writeMediaFiles(key, [
+      { name: sheetFileName('binnen'), data: sheets.binnen },
+      { name: sheetFileName('buiten'), data: sheets.buiten },
+      ...rendered.files,
+    ]);
+    await db
+      .update(schema.siteSettings)
+      .set({ folderKey: key, folderPanelWidth: rendered.panelWidth, folderPanelHeight: rendered.panelHeight })
+      .where(eq(schema.siteSettings.id, 1));
+    // The old files stay: a running website may still show them until its cache refreshes.
+    console.log('Folder scherper gemaakt.');
+  }
 }
 
 console.log('Basisinhoud toegevoegd.');

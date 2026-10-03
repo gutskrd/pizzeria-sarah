@@ -6,7 +6,7 @@ import { LocationCard } from '@/components/site/location-card';
 import { OpeningStatus } from '@/components/site/opening-status';
 import { PageHeader } from '@/components/site/page-header';
 import { MailIcon, PhoneIcon, PinIcon } from '@/components/ui/icons';
-import { getSchedule, getSettings } from '@/lib/content/queries';
+import { getMenu, getSchedule, getSettings } from '@/lib/content/queries';
 import { env } from '@/lib/env';
 import { telHref } from '@/lib/format';
 import { statusSnapshot } from '@/lib/opening-hours';
@@ -16,14 +16,14 @@ import { breadcrumbJsonLd, pageMetadata, restaurantJsonLd } from '@/lib/seo';
 export const generateMetadata = () => pageMetadata('contact');
 
 export default async function ContactPage() {
-  const [settings, schedule, h] = await Promise.all([getSettings(), getSchedule(), headers()]);
+  const [settings, schedule, menu, h] = await Promise.all([getSettings(), getSchedule(), getMenu(), headers()]);
   const now = new Date();
   const phoneHref = telHref(settings.phoneE164);
 
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Contact', path: '/contact' }])} />
-      <JsonLd data={restaurantJsonLd(settings, schedule)} />
+      <JsonLd data={restaurantJsonLd(settings, schedule, menu)} />
       <PageHeader title="Contact" intro="Bel ons voor een bestelling of reservering, of stuur een bericht. We helpen je graag." />
 
       <div className="container-site grid gap-14 py-14 md:py-20 lg:grid-cols-12 lg:gap-16">

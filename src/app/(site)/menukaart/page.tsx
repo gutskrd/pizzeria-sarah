@@ -56,7 +56,7 @@ export default async function MenuPage() {
           </section>
         )}
 
-        <div className="mt-8 pb-20">
+        <div id="gerechten" className="mt-8 scroll-mt-24 pb-20">
           {menu.length > 0 ? (
             <MenuBrowser menu={menu} />
           ) : (

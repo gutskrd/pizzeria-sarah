@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CloseIcon, SearchIcon } from '@/components/ui/icons';
 import type { PublicMenuCategory } from '@/lib/content/queries';
+import { FoodIcon } from './food-icon';
 import { MenuItemRow } from './menu-item';
 
 const normalize = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -112,7 +113,8 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
         <div>
           {filtered.map((c) => (
             <section key={c.id} id={c.slug} data-menu-section={c.slug} className="scroll-mt-40 pt-10 md:pt-14" aria-labelledby={`cat-${c.slug}`}>
-              <h2 id={`cat-${c.slug}`} className="menu-banner text-[1.35rem] md:text-[1.5rem]" data-reveal>
+              <h2 id={`cat-${c.slug}`} className="menu-banner gap-2 text-[1.35rem] md:text-[1.5rem]" data-reveal>
+                <FoodIcon name={c.name} size={22} className="shrink-0" />
                 {c.name}
               </h2>
               {c.description && <p className="mt-3 max-w-2xl text-muted">{c.description}</p>}

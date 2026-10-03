@@ -159,6 +159,12 @@ executables and anything else are refused.
 
 ---
 
+**Machine-readable:** every page has structured data (schema.org `Restaurant`
+with hours, address, cuisines and price range from the menu, `WebSite`, `Menu`
+with every dish and price, breadcrumbs), a sitemap, and `/llms.txt`: a
+plain-text summary of the restaurant, hours and full menu for AI assistants,
+built from the same data as the website.
+
 ## 4. Try it: local demo (one command)
 
 Needs [Node.js 22](https://nodejs.org) and [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running).

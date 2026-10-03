@@ -899,3 +899,22 @@
     transform: scale(1.6);
   }
 }
+
+/* Category tiles: the food icon gives a happy little wiggle on hover. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .zin-tile:hover .zin-icon svg {
+    animation: zin-wiggle 600ms ease-in-out;
+  }
+}
+@keyframes zin-wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-12deg) scale(1.08);
+  }
+  60% {
+    transform: rotate(8deg) scale(1.08);
+  }
+}

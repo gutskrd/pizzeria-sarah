@@ -49,7 +49,30 @@ export async function pageMetadata(key: PageKey, opts: { noindex?: boolean } = {
   };
 }
 
-export function restaurantJsonLd(settings: SiteSettings, schedule: Schedule) {
+/** Lowest and highest price on the menu, e.g. "€3–€27" (only real prices). */
+export function menuPriceRange(menu: PublicMenuCategory[]): string | null {
+  const prices = menu.flatMap((c) =>
+    c.items.flatMap((i) => (i.variants.length ? i.variants.map((v) => v.priceCents) : i.priceCents !== null ? [i.priceCents] : [])),
+  );
+  if (!prices.length) return null;
+  const euro = (cents: number) => `€${Number.isInteger(cents / 100) ? cents / 100 : (cents / 100).toFixed(2).replace('.', ',')}`;
+  return `${euro(Math.min(...prices))}–${euro(Math.max(...prices))}`;
+}
+
+export function websiteJsonLd(settings: SiteSettings) {
+  const base = siteUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${base}/#website`,
+    name: settings.businessName,
+    url: `${base}/`,
+    inLanguage: 'nl-NL',
+    publisher: { '@id': `${base}/#restaurant` },
+  };
+}
+
+export function restaurantJsonLd(settings: SiteSettings, schedule: Schedule, menu: PublicMenuCategory[] = []) {
   const base = siteUrl();
   const special = schedule.exceptions.map((e) =>
     e.isClosed || e.periods.length === 0
@@ -57,6 +80,11 @@ export function restaurantJsonLd(settings: SiteSettings, schedule: Schedule) {
       : e.periods.map((p) => ({ '@type': 'OpeningHoursSpecification', validFrom: e.startsOn, validThrough: e.endsOn, opens: p.opens, closes: p.closes })),
   );
   const sameAs = [settings.facebookUrl, settings.instagramUrl].filter(Boolean);
+  const priceRange = menuPriceRange(menu);
+  const images = [
+    settings.heroImage ? `${base}${settings.heroImage.ogUrl}` : null,
+    settings.folder ? `${base}${settings.folder.panels.buiten[2]}` : null,
+  ].filter((x): x is string => Boolean(x));
   return {
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
@@ -74,10 +102,13 @@ export function restaurantJsonLd(settings: SiteSettings, schedule: Schedule) {
       addressLocality: settings.city,
       addressCountry: 'NL',
     },
-    servesCuisine: ['Pizza', 'Grill'],
-    hasMenu: `${base}/menukaart`,
+    // As printed on the menu: pizza's, shoarma, döner, pasta, kip (grillroom).
+    servesCuisine: ['Pizza', 'Italiaans', 'Shoarma', 'Döner', 'Pasta', 'Grill'],
+    hasMenu: { '@id': `${base}/menukaart#menu`, url: `${base}/menukaart` },
     acceptsReservations: true,
-    ...(settings.heroImage ? { image: `${base}${settings.heroImage.ogUrl}` } : {}),
+    ...(priceRange ? { priceRange } : {}),
+    ...(images.length ? { image: images } : {}),
+    ...(settings.routeUrl ? { hasMap: settings.routeUrl } : {}),
     openingHoursSpecification: toSchemaOrgHours(schedule),
     ...(special.length ? { specialOpeningHoursSpecification: special.flat() } : {}),
     ...(sameAs.length ? { sameAs } : {}),
@@ -105,7 +136,9 @@ export function menuJsonLd(menu: PublicMenuCategory[]) {
     '@type': 'Menu',
     '@id': `${base}/menukaart#menu`,
     name: 'Menukaart',
-    inLanguage: 'nl',
+    url: `${base}/menukaart`,
+    inLanguage: 'nl-NL',
+    isPartOf: { '@id': `${base}/#website` },
     hasMenuSection: menu.map((c) => ({
       '@type': 'MenuSection',
       name: c.name,
@@ -114,9 +147,17 @@ export function menuJsonLd(menu: PublicMenuCategory[]) {
         const prices = i.variants.length ? i.variants.map((v) => v.priceCents) : i.priceCents !== null ? [i.priceCents] : [];
         return {
           '@type': 'MenuItem',
-          name: i.name,
+          '@id': `${base}/menukaart#gerecht-${i.id}`,
+          name: i.number ? `${i.number}. ${i.name}` : i.name,
           ...(i.description ? { description: i.description } : {}),
-          ...(prices.length ? { offers: { '@type': 'Offer', priceCurrency: 'EUR', price: (Math.min(...prices) / 100).toFixed(2) } } : {}),
+          ...(i.image ? { image: `${base}${i.image.ogUrl}` } : {}),
+          ...(i.variants.length
+            ? {
+                offers: i.variants.map((v) => ({ '@type': 'Offer', name: v.label, priceCurrency: 'EUR', price: (v.priceCents / 100).toFixed(2) })),
+              }
+            : prices.length
+              ? { offers: { '@type': 'Offer', priceCurrency: 'EUR', price: (prices[0]! / 100).toFixed(2) } }
+              : {}),
         };
       }),
     })),

@@ -24,7 +24,8 @@ export function MenuItemRow({
   const hasPrice = item.priceCents !== null || item.variants.length > 0;
   return (
     <li
-      className="menu-row flex gap-4 border-b border-line py-3.5"
+      id={showCategory ? undefined : `gerecht-${item.id}`}
+      className="menu-row scroll-mt-40 flex gap-4 border-b border-line py-3.5"
       data-reveal={reveal !== undefined ? '' : undefined}
       style={reveal !== undefined ? ({ '--reveal-i': reveal } as React.CSSProperties) : undefined}
     >
@@ -32,7 +33,14 @@ export function MenuItemRow({
       <div className="min-w-0 flex-1">
         {showCategory && <p className="mb-0.5 text-xs font-bold uppercase tracking-[0.1em] text-tomato [font-stretch:85%]">{item.categoryName}</p>}
         <div className="flex items-baseline justify-between gap-4">
-          <Heading className="min-w-0 text-[1.15rem] leading-snug [font-stretch:85%]">{item.name}</Heading>
+          <Heading className="min-w-0 text-[1.15rem] leading-snug [font-stretch:85%]">
+            {item.name}
+            {item.isFeatured && !showCategory && (
+              <span className="ml-2 inline-flex translate-y-[-2px] items-center rounded-full bg-tomato px-2 py-0.5 align-middle text-[0.68rem] font-bold uppercase tracking-[0.08em] text-white [font-stretch:90%]">
+                Aanrader
+              </span>
+            )}
+          </Heading>
           {hasPrice && (
             <span className="shrink-0 whitespace-nowrap text-[1.05rem] font-bold tabular-nums">
               <PriceText item={item} />
