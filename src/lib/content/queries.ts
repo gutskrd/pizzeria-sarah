@@ -1,3 +1,4 @@
+import type { PublicFolder } from './folder-types';
 import { and, asc, desc, eq, gte, inArray, isNull, lte, or } from 'drizzle-orm';
 import { db, schema } from '@/lib/db';
 import type { PageKey } from '@/lib/db/schema';
@@ -29,10 +30,25 @@ async function loadImages(ids: Array<string | null | undefined>): Promise<Map<st
   return new Map(rows.map((r: ImageRecord) => [r.id, toPublicImage(r)]));
 }
 
+function publicFolder(row: typeof schema.siteSettings.$inferSelect): PublicFolder | null {
+  const key = row.folderKey;
+  if (!key || !row.folderVisible || !row.folderHasInside || !row.folderHasOutside || !row.folderPanelWidth || !row.folderPanelHeight) return null;
+  const panels = (side: 'binnen' | 'buiten') => [1, 2, 3].map((n) => mediaUrl(key, `${side}-${n}.webp`)) as [string, string, string];
+  return {
+    label: row.folderLabel,
+    panelWidth: row.folderPanelWidth,
+    panelHeight: row.folderPanelHeight,
+    panels: { binnen: panels('binnen'), buiten: panels('buiten') },
+    sheets: { binnen: mediaUrl(key, 'binnenkant.webp'), buiten: mediaUrl(key, 'buitenkant.webp') },
+    version: key,
+  };
+}
+
 export type SiteSettings = typeof schema.siteSettings.$inferSelect & {
   heroImage: PublicImage | null;
   aboutImage: PublicImage | null;
   menuPdfUrl: string | null;
+  folder: PublicFolder | null;
   fullAddress: string;
   routeUrl: string | null;
 };
@@ -48,6 +64,7 @@ export function getSettings(): Promise<SiteSettings> {
       heroImage: row.heroImageId ? (images.get(row.heroImageId) ?? null) : null,
       aboutImage: row.aboutImageId ? (images.get(row.aboutImageId) ?? null) : null,
       menuPdfUrl: row.menuPdfKey ? mediaUrl(row.menuPdfKey, 'menukaart.pdf') : null,
+      folder: publicFolder(row),
       fullAddress,
       routeUrl: row.street ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${row.businessName}, ${fullAddress}`)}` : null,
     };

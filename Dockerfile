@@ -33,6 +33,7 @@ COPY --from=builder --chown=app:app /app/.next/static ./.next/static
 COPY --from=builder --chown=app:app /app/public ./public
 COPY --from=builder --chown=app:app /app/drizzle ./drizzle
 COPY --from=builder --chown=app:app /app/scripts-dist ./scripts-dist
+COPY --from=builder --chown=app:app /app/content ./content
 USER app
 EXPOSE 3000
 VOLUME ["/data/media"]

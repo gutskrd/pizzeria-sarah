@@ -2,9 +2,10 @@ import { headers } from 'next/headers';
 import { ContactForm } from '@/components/site/contact-form';
 import { HoursTable } from '@/components/site/hours-table';
 import { JsonLd } from '@/components/site/json-ld';
+import { LocationCard } from '@/components/site/location-card';
 import { OpeningStatus } from '@/components/site/opening-status';
 import { PageHeader } from '@/components/site/page-header';
-import { MailIcon, PhoneIcon, PinIcon, RouteIcon } from '@/components/ui/icons';
+import { MailIcon, PhoneIcon, PinIcon } from '@/components/ui/icons';
 import { getSchedule, getSettings } from '@/lib/content/queries';
 import { env } from '@/lib/env';
 import { telHref } from '@/lib/format';
@@ -59,25 +60,16 @@ export default async function ContactPage() {
             <h2 id="adres-titel" className="text-3xl">
               Adres
             </h2>
-            <address className="mt-5 flex gap-3 text-lg not-italic">
-              <PinIcon className="mt-1 shrink-0 text-tomato" />
-              <span>
-                {settings.businessName}
-                {settings.street && (
-                  <>
-                    <br />
-                    {settings.street}
-                  </>
-                )}
-                <br />
-                {[settings.postalCode, settings.city].filter(Boolean).join(' ')}
-              </span>
-            </address>
-            {settings.routeUrl && (
-              <a href={settings.routeUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline mt-5">
-                <RouteIcon size={18} /> Route plannen
-              </a>
-            )}
+            <div className="mt-5">
+              {settings.street ? (
+                <LocationCard businessName={settings.businessName} street={settings.street} postalCode={settings.postalCode} city={settings.city} />
+              ) : (
+                <address className="flex gap-3 text-lg not-italic">
+                  <PinIcon className="mt-1 shrink-0 text-tomato" />
+                  {settings.city}
+                </address>
+              )}
+            </div>
           </section>
 
           <section id="openingstijden" aria-labelledby="tijden-titel">

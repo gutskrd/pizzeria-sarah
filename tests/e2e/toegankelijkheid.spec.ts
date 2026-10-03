@@ -21,6 +21,9 @@ const PAGES = [
   '/admin/activiteit',
 ];
 
+// Check the finished page, not content halfway through a fade-in animation.
+test.use({ reducedMotion: 'reduce' });
+
 for (const path of PAGES) {
   test(`toegankelijkheid (axe): ${path}`, async ({ page }) => {
     await page.goto(path);

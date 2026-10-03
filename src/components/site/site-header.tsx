@@ -45,7 +45,7 @@ export function SiteHeader({ businessName, tagline, phoneDisplay, phoneHref }: P
             <span className="truncate text-[1.5rem] font-extrabold uppercase leading-none tracking-[0.01em] [font-stretch:72%] md:text-[1.7rem]">
               {businessName}
             </span>
-            <span className="mt-1 truncate text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-white/60">{tagline}</span>
+            <span className="mt-1 hidden truncate text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-white/60 min-[400px]:block">{tagline}</span>
           </Link>
 
           <nav aria-label="Hoofdmenu" className="hidden lg:block">

@@ -1,5 +1,6 @@
 import localFont from 'next/font/local';
 import { SiteFooter } from '@/components/site/site-footer';
+import { ScrollReveal } from '@/components/site/scroll-reveal';
 import { SiteHeader } from '@/components/site/site-header';
 import { getSchedule, getSettings } from '@/lib/content/queries';
 import { telHref } from '@/lib/format';
@@ -29,6 +30,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         {children}
       </main>
       <SiteFooter settings={settings} schedule={schedule} now={now} />
+      <ScrollReveal />
     </div>
   );
 }

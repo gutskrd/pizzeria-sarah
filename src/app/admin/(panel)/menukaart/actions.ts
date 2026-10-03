@@ -3,9 +3,11 @@
 import { and, eq, ne, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { adminAction, UserError } from '@/lib/admin/action';
+import { rebuildFolder, removeFolderFiles } from '@/lib/admin/folder';
 import { invalidatePublicContent } from '@/lib/content/cache';
 import { db, schema } from '@/lib/db';
 import { parsePrice } from '@/lib/format';
+import { validCuts } from '@/lib/images/folder';
 import { deleteMedia } from '@/lib/images/storage';
 import { logActivity } from '@/lib/security/events';
 import { slugify } from '@/lib/slug';
@@ -213,4 +215,31 @@ export const removeMenuPdf = adminAction(z.object({}), async (_input, ctx) => {
   await logActivity(ctx.user.id, 'menukaart', 'PDF-menukaart verwijderd');
   invalidatePublicContent();
   return { ok: true, message: 'PDF-menukaart verwijderd.' };
+});
+
+/* ───────────── Folder (gedrukte menukaart) ───────────── */
+
+const cutPair = z
+  .tuple([z.number().finite(), z.number().finite()])
+  .refine((pair) => validCuts(pair), 'De vouwlijnen liggen te dicht bij elkaar of bij de rand.');
+
+export const updateFolder = adminAction(
+  z.object({
+    label: z.string().trim().max(60, 'Maximaal 60 tekens.'),
+    visible: z.boolean(),
+    cuts: z.object({ binnen: cutPair, buiten: cutPair }).optional(),
+  }),
+  async ({ label, visible, cuts }, ctx) => {
+    await db().update(schema.siteSettings).set({ folderLabel: label, folderVisible: visible, updatedAt: new Date() }).where(eq(schema.siteSettings.id, 1));
+    if (cuts) await rebuildFolder({ cuts });
+    await logActivity(ctx.user.id, 'menukaart', 'Folder bijgewerkt');
+    invalidatePublicContent();
+    return { ok: true, message: 'Folder opgeslagen.' };
+  },
+);
+
+export const removeFolder = adminAction(z.object({}), async (_input, ctx) => {
+  await removeFolderFiles();
+  await logActivity(ctx.user.id, 'menukaart', 'Folder verwijderd');
+  return { ok: true, message: 'Folder verwijderd.' };
 });

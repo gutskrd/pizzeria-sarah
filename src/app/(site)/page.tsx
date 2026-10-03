@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { HoursTable } from '@/components/site/hours-table';
 import { JsonLd } from '@/components/site/json-ld';
+import { LocationCard } from '@/components/site/location-card';
 import { MenuFolder } from '@/components/site/menu-folder';
 import { MenuItemRow } from '@/components/site/menu-item';
 import { OffersList } from '@/components/site/offers';
 import { OpeningStatus } from '@/components/site/opening-status';
 import { Picture } from '@/components/site/picture';
-import { ArrowRightIcon, DownloadIcon, MailIcon, PhoneIcon, PinIcon, RouteIcon } from '@/components/ui/icons';
+import { ArrowRightIcon, DownloadIcon, MailIcon, PhoneIcon, PinIcon } from '@/components/ui/icons';
 import { getActiveOffers, getFeaturedMenuItems, getGalleryPreview, getHighlights, getMenu, getSchedule, getSettings } from '@/lib/content/queries';
 import { telHref } from '@/lib/format';
 import { statusSnapshot } from '@/lib/opening-hours';
@@ -44,13 +45,16 @@ export default async function HomePage() {
           </>
         ) : (
           // The red diagonal from the printed menu.
-          <div aria-hidden="true" className="absolute -right-1/4 top-[58%] -z-10 h-24 w-[90%] -rotate-[8deg] bg-tomato md:top-1/2 md:h-32 md:w-[60%]" />
+          <div
+            aria-hidden="true"
+            className="hero-band absolute -right-1/4 top-[58%] -z-10 h-24 w-[90%] -rotate-[8deg] bg-tomato md:top-1/2 md:h-32 md:w-[60%]"
+          />
         )}
         <div className="container-site grid items-center gap-12 py-14 md:py-20 lg:grid-cols-[1fr_auto] lg:gap-20 lg:py-24">
           <div>
             <p className="reveal text-sm font-bold uppercase tracking-[0.12em] text-white/70 [font-stretch:85%]">
               {settings.tagline}
-              {settings.city && <> · {settings.city}</>}
+              {settings.city && <span className="hidden sm:inline"> · {settings.city}</span>}
             </p>
             <h1
               id="hero-titel"
@@ -71,9 +75,11 @@ export default async function HomePage() {
               <OpeningStatus schedule={schedule} initial={status} tone="dark" />
             </div>
           </div>
-          <div className="reveal flex justify-center [animation-delay:200ms] lg:justify-end">
-            <MenuFolder tone="dark" />
-          </div>
+          {settings.folder && (
+            <div className="reveal flex justify-center [animation-delay:200ms] lg:justify-end">
+              <MenuFolder key={settings.folder.version} folder={settings.folder} tone="dark" />
+            </div>
+          )}
         </div>
       </section>
 
@@ -127,7 +133,7 @@ export default async function HomePage() {
 
       {/* ───────── Welkom en populaire gerechten ───────── */}
       <section className="container-site grid gap-12 py-16 md:py-24 lg:grid-cols-12 lg:gap-16" aria-labelledby="intro-titel">
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4" data-reveal>
           <h2 id="intro-titel" className="text-[2.4rem] md:text-6xl">
             {settings.introTitle}
           </h2>
@@ -146,12 +152,12 @@ export default async function HomePage() {
         <div className="lg:col-span-8" aria-labelledby={showFeatured ? 'menu-titel' : undefined}>
           {showFeatured ? (
             <>
-              <h2 id="menu-titel" className="menu-banner text-[1.35rem]">
+              <h2 id="menu-titel" className="menu-banner text-[1.35rem]" data-reveal>
                 Populair
               </h2>
               <ul className="mt-3 grid md:grid-cols-2 md:gap-x-12">
-                {featured.map((item) => (
-                  <MenuItemRow key={item.id} item={item} showCategory />
+                {featured.map((item, i) => (
+                  <MenuItemRow key={item.id} item={item} showCategory reveal={i} />
                 ))}
               </ul>
             </>
@@ -174,7 +180,7 @@ export default async function HomePage() {
       {/* ───────── Aanbiedingen (alleen als er actieve aanbiedingen zijn) ───────── */}
       {offers.length > 0 && (
         <section className="container-site pb-16 md:pb-24" aria-labelledby="aanbiedingen-titel">
-          <h2 id="aanbiedingen-titel" className="mb-8 text-[2.4rem] md:text-5xl">
+          <h2 id="aanbiedingen-titel" className="mb-8 text-[2.4rem] md:text-5xl" data-reveal>
             Aanbiedingen
           </h2>
           <OffersList offers={offers} />
@@ -185,11 +191,11 @@ export default async function HomePage() {
       <section className="on-dark bg-char text-white" aria-labelledby="over-titel">
         <div className={`container-site grid items-center gap-10 py-16 md:py-24 ${aboutImage ? 'md:grid-cols-2 md:gap-16' : ''}`}>
           {aboutImage && (
-            <div className="overflow-hidden rounded-[3px]">
+            <div className="overflow-hidden rounded-[3px]" data-reveal>
               <Picture image={aboutImage} sizes="(min-width: 768px) 50vw, 100vw" className="aspect-[4/3] w-full object-cover" />
             </div>
           )}
-          <div className={aboutImage ? '' : 'max-w-3xl'}>
+          <div className={aboutImage ? '' : 'max-w-3xl'} data-reveal>
             <h2 id="over-titel" className="text-[2.4rem] md:text-6xl">
               {settings.aboutTitle}
             </h2>
@@ -202,8 +208,8 @@ export default async function HomePage() {
         {highlights.length > 0 && (
           <div className="container-site pb-16 md:pb-24">
             <ul className="grid gap-8 md:grid-cols-3 md:gap-10">
-              {highlights.map((h) => (
-                <li key={h.id} className="border-t-[3px] border-tomato pt-5">
+              {highlights.map((h, i) => (
+                <li key={h.id} className="border-t-[3px] border-tomato pt-5" data-reveal style={{ '--reveal-i': i } as React.CSSProperties}>
                   <h3 className="text-[1.6rem]">{h.title}</h3>
                   <p className="mt-2 text-white/75">{h.body}</p>
                 </li>
@@ -217,7 +223,7 @@ export default async function HomePage() {
       {showGallery && (
         <section className="container-site py-16 md:py-24" aria-labelledby="galerij-titel">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <h2 id="galerij-titel" className="text-[2.4rem] md:text-6xl">
+            <h2 id="galerij-titel" className="text-[2.4rem] md:text-6xl" data-reveal>
               Een kijkje bij ons
             </h2>
             <Link href="/galerij" className="link-arrow self-start md:self-auto">
@@ -265,11 +271,11 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ───────── Openingstijden en adres ───────── */}
+      {/* ───────── Openingstijden en locatie ───────── */}
       <section id="openingstijden" className="border-t border-line bg-white" aria-labelledby="tijden-titel">
-        <div className="container-site grid gap-14 py-16 md:grid-cols-2 md:gap-16 md:py-24">
-          <div>
-            <h2 id="tijden-titel" className="text-[2.4rem] md:text-6xl">
+        <div className="container-site grid gap-12 py-16 md:py-24 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+          <div data-reveal>
+            <h2 id="tijden-titel" className="text-[2.4rem] md:text-5xl xl:text-6xl">
               Openingstijden
             </h2>
             <div className="mt-4">
@@ -278,26 +284,7 @@ export default async function HomePage() {
             <div className="mt-6">
               <HoursTable schedule={schedule} now={now} />
             </div>
-          </div>
-          <div>
-            <h2 id="locatie-titel" className="text-[2.4rem] md:text-6xl">
-              Adres
-            </h2>
-            <address className="mt-5 flex gap-3 text-lg not-italic">
-              <PinIcon className="mt-1 shrink-0 text-tomato" />
-              <span>
-                {settings.businessName}
-                {settings.street && (
-                  <>
-                    <br />
-                    {settings.street}
-                  </>
-                )}
-                <br />
-                {[settings.postalCode, settings.city].filter(Boolean).join(' ')}
-              </span>
-            </address>
-            <ul className="mt-4 space-y-1 text-lg">
+            <ul className="mt-8 space-y-1 text-lg">
               <li>
                 <a href={phoneHref} className="inline-flex min-h-11 items-center gap-3 font-semibold hover:text-tomato-dark">
                   <PhoneIcon className="text-tomato" /> {settings.phoneDisplay}
@@ -309,15 +296,23 @@ export default async function HomePage() {
                 </a>
               </li>
             </ul>
-            <div className="mt-6 flex flex-wrap gap-3">
-              {settings.routeUrl && (
-                <a href={settings.routeUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline">
-                  <RouteIcon size={18} /> Route plannen
-                </a>
+          </div>
+          <div data-reveal style={{ '--reveal-i': 1 } as React.CSSProperties}>
+            <h2 id="locatie-titel" className="text-[2.4rem] md:text-5xl xl:text-6xl">
+              Zo vind je ons
+            </h2>
+            <p className="mt-3 text-lg text-ink-soft">
+              {settings.businessName} in {settings.city}. Kom langs om af te halen of om in ons restaurant te eten.
+            </p>
+            <div className="mt-6">
+              {settings.street ? (
+                <LocationCard businessName={settings.businessName} street={settings.street} postalCode={settings.postalCode} city={settings.city} />
+              ) : (
+                <address className="flex gap-3 text-lg not-italic">
+                  <PinIcon className="mt-1 shrink-0 text-tomato" />
+                  {settings.city}
+                </address>
               )}
-              <Link href="/contact" className="btn btn-outline">
-                Stuur een bericht
-              </Link>
             </div>
           </div>
         </div>
@@ -326,7 +321,7 @@ export default async function HomePage() {
       {/* ───────── Restaurant / reserveren ───────── */}
       <section className="on-dark bg-tomato text-white" aria-labelledby="reserveren-titel">
         <div className="container-site flex flex-col gap-6 py-12 md:flex-row md:items-center md:justify-between">
-          <div className="max-w-2xl">
+          <div className="max-w-2xl" data-reveal>
             <h2 id="reserveren-titel" className="text-[2rem] md:text-5xl">
               Eten in ons restaurant
             </h2>

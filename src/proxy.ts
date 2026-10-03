@@ -18,7 +18,8 @@ function buildCsp(nonce: string): string {
     "img-src 'self' data: blob:",
     "font-src 'self'",
     `connect-src 'self' ${turnstile}`,
-    `frame-src ${turnstile}`,
+    // Google Maps only loads after the visitor clicks "Kaart tonen".
+    `frame-src ${turnstile} https://www.google.com https://maps.google.com`,
     "media-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",

@@ -1,9 +1,10 @@
 import { asc, inArray } from 'drizzle-orm';
 import { MenuEditor } from '@/components/admin/menu/menu-editor';
 import { toPickedImage } from '@/lib/admin/images';
-import type { AdminMenuCategory } from '@/lib/admin/types';
+import type { AdminFolder, AdminMenuCategory } from '@/lib/admin/types';
 import { requireAdmin } from '@/lib/auth/current';
 import { db, schema } from '@/lib/db';
+import { DEFAULT_FOLDER_CUTS } from '@/lib/db/schema';
 import { mediaUrl } from '@/lib/images/storage';
 
 export const metadata = { title: 'Menukaart – Beheer' };
@@ -15,7 +16,18 @@ export default async function AdminMenuPage({ searchParams }: { searchParams: Pr
     d.select().from(schema.menuCategories).orderBy(asc(schema.menuCategories.sortOrder), asc(schema.menuCategories.name)),
     d.select().from(schema.menuItems).orderBy(asc(schema.menuItems.sortOrder), asc(schema.menuItems.name)),
     d
-      .select({ key: schema.siteSettings.menuPdfKey, at: schema.siteSettings.menuPdfUpdatedAt, bytes: schema.siteSettings.menuPdfBytes })
+      .select({
+        key: schema.siteSettings.menuPdfKey,
+        at: schema.siteSettings.menuPdfUpdatedAt,
+        bytes: schema.siteSettings.menuPdfBytes,
+        folderKey: schema.siteSettings.folderKey,
+        folderHasInside: schema.siteSettings.folderHasInside,
+        folderHasOutside: schema.siteSettings.folderHasOutside,
+        folderCuts: schema.siteSettings.folderCuts,
+        folderLabel: schema.siteSettings.folderLabel,
+        folderVisible: schema.siteSettings.folderVisible,
+        folderUpdatedAt: schema.siteSettings.folderUpdatedAt,
+      })
       .from(schema.siteSettings)
       .limit(1),
   ]);
@@ -53,6 +65,18 @@ export default async function AdminMenuPage({ searchParams }: { searchParams: Pr
 
   const s = settings[0];
   const pdf = s?.key && s.at ? { url: mediaUrl(s.key, 'menukaart.pdf'), updatedAt: s.at.toISOString(), bytes: s.bytes ?? 0 } : null;
+  const folderKey = s?.folderKey ?? null;
+  const folder: AdminFolder = {
+    sheets: {
+      binnen: folderKey && s?.folderHasInside ? mediaUrl(folderKey, 'binnenkant.webp') : null,
+      buiten: folderKey && s?.folderHasOutside ? mediaUrl(folderKey, 'buitenkant.webp') : null,
+    },
+    cuts: s?.folderCuts ?? DEFAULT_FOLDER_CUTS,
+    label: s?.folderLabel ?? '',
+    visible: s?.folderVisible ?? true,
+    updatedAt: folderKey ? (s?.folderUpdatedAt?.toISOString() ?? null) : null,
+    version: folderKey ?? 'leeg',
+  };
   const { gerecht } = await searchParams;
-  return <MenuEditor categories={data} pdf={pdf} openItem={gerecht} />;
+  return <MenuEditor categories={data} pdf={pdf} folder={folder} openItem={gerecht} />;
 }

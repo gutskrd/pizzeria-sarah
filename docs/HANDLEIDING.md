@@ -70,6 +70,11 @@ Onder **Activiteit** zie je alle wijzigingen aan de website, per dag, en kun je 
 - **Allergeneninformatie**: vul alleen in wat je zeker weet.
 - De **ster** zet een gerecht op de homepage. Het **oogje** verbergt een gerecht tijdelijk, bijvoorbeeld
   als het op is.
+- **Folder**: de gedrukte menukaart die op de website openvouwt. Heb je een nieuwe folder? Maak van beide kanten
+  een liggende foto of scan (de hele open folder, alle drie de delen naast elkaar) en kies bij _Binnenkant_ en
+  _Buitenkant_ de juiste foto. Bij de buitenkant staat de voorkant (met het logo) rechts.
+  De gele vouwlijnen worden vanzelf gezocht. Staan ze niet precies op de vouwen? Sleep ze op de goede plek
+  (of gebruik de schuifjes) en druk op **Folder opslaan**. Met _Folder tonen op de website_ zet je hem aan of uit.
 - Heb je de menukaart ook als PDF? Upload hem onderaan de pagina; bezoekers kunnen hem dan downloaden.
 - Met **Voorbeeld bekijken** zie je de menukaart zoals bezoekers hem zien.
 

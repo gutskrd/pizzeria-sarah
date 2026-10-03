@@ -45,13 +45,14 @@ export default async function PrivacyPage() {
           </p>
           <h3>Cookies</h3>
           <p>
-            Wij plaatsen geen cookies bij bezoekers van de website. Alleen het beheergedeelte, dat uitsluitend door de eigenaar wordt gebruikt, gebruikt strikt
-            noodzakelijke cookies om ingelogd te blijven.
+            Wij plaatsen zelf geen cookies bij bezoekers van de website (zie hieronder voor de kaart van Google Maps). Alleen het beheergedeelte, dat
+            uitsluitend door de eigenaar wordt gebruikt, gebruikt strikt noodzakelijke cookies om ingelogd te blijven.
           </p>
-          <h3>Route plannen</h3>
+          <h3>Kaart en route plannen</h3>
           <p>
-            Als je op &lsquo;Route plannen&rsquo; klikt, word je doorgestuurd naar Google Maps. Op het gebruik daarvan is het privacybeleid van Google van
-            toepassing.
+            De kaart van Google Maps op onze website wordt pas geladen als je op &lsquo;Kaart tonen&rsquo; klikt. Pas dan maakt je browser verbinding met
+            Google, dat daarbij cookies kan plaatsen. Klik je op &lsquo;Route plannen&rsquo;, &lsquo;Apple Kaarten&rsquo; of &lsquo;Waze&rsquo;, dan word je
+            doorgestuurd naar die dienst. Op het gebruik daarvan is het privacybeleid van die dienst van toepassing.
           </p>
 
           <h2>Met wie delen we gegevens?</h2>

@@ -57,8 +57,8 @@ export default async function AboutPage() {
               Bij ons
             </h2>
             <ul className="mt-10 grid gap-10 md:grid-cols-3">
-              {highlights.map((h) => (
-                <li key={h.id} className="border-t-[3px] border-tomato pt-5">
+              {highlights.map((h, i) => (
+                <li key={h.id} className="border-t-[3px] border-tomato pt-5" data-reveal style={{ '--reveal-i': i } as React.CSSProperties}>
                   <h3 className="text-2xl">{h.title}</h3>
                   <p className="mt-2 text-ink-soft">{h.body}</p>
                 </li>
@@ -69,7 +69,7 @@ export default async function AboutPage() {
       )}
 
       <section className="container-site grid gap-12 py-16 md:grid-cols-2 md:gap-16 md:py-24" aria-labelledby="restaurant-titel">
-        <div>
+        <div data-reveal>
           <h2 id="restaurant-titel" className="text-3xl md:text-4xl">
             Restaurant en wachtruimte
           </h2>
@@ -79,7 +79,7 @@ export default async function AboutPage() {
             <PhoneIcon size={18} /> Bel {settings.phoneDisplay}
           </a>
         </div>
-        <div>
+        <div data-reveal style={{ '--reveal-i': 1 } as React.CSSProperties}>
           <h2 className="text-3xl md:text-4xl">Bedrijfsgegevens</h2>
           <dl className="mt-6 divide-y divide-line border-y border-line">
             {[

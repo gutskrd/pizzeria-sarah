@@ -8,11 +8,16 @@
  *
  * Safe to run repeatedly: existing rows are left untouched, and the menu is
  * only added while the menu is still completely empty.
- * Pass --zonder-menukaart to skip the menu (used by the automated tests).
+ * Pass --zonder-menukaart to skip the menu (used by the automated tests) and
+ * --zonder-folder to skip the printed folder.
  */
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../src/lib/db/schema';
+import { readFile } from 'node:fs/promises';
+import { eq } from 'drizzle-orm';
+import { normalizeSheet, renderPanels, sheetFileName } from '../src/lib/images/folder';
+import { newStorageKey, writeMediaFiles } from '../src/lib/images/storage';
 import { MENU_2025_11 } from './data/menukaart-2025-11';
 
 const url = process.env.DATABASE_URL;
@@ -158,6 +163,39 @@ if (existingCategories.length === 0 && !process.argv.includes('--zonder-menukaar
   });
   const count = MENU_2025_11.reduce((n, c) => n + c.items.length, 0);
   console.log(`Menukaart toegevoegd: ${count} gerechten in ${MENU_2025_11.length} categorieën.`);
+}
+
+// The printed folder of November 2025, cut at its fold lines (measured on the
+// printed sheets). The owner replaces it under Beheer → Menukaart → Folder.
+const [folderRow] = await db.select({ key: schema.siteSettings.folderKey, updatedAt: schema.siteSettings.folderUpdatedAt }).from(schema.siteSettings).limit(1);
+if (folderRow && !folderRow.key && !folderRow.updatedAt && !process.argv.includes('--zonder-folder')) {
+  const dir = 'content/menukaart-2025-11';
+  const sheets = {
+    binnen: await normalizeSheet(await readFile(`${dir}/menukaart-blad-1.png`), 'png'),
+    buiten: await normalizeSheet(await readFile(`${dir}/menukaart-blad-2.png`), 'png'),
+  };
+  const cuts: schema.FolderCuts = { binnen: [0.329, 0.654], buiten: [0.339, 0.656] };
+  const rendered = await renderPanels(sheets, cuts);
+  const key = newStorageKey();
+  await writeMediaFiles(key, [
+    { name: sheetFileName('binnen'), data: sheets.binnen },
+    { name: sheetFileName('buiten'), data: sheets.buiten },
+    ...rendered.files,
+  ]);
+  await db
+    .update(schema.siteSettings)
+    .set({
+      folderKey: key,
+      folderHasInside: true,
+      folderHasOutside: true,
+      folderCuts: cuts,
+      folderPanelWidth: rendered.panelWidth,
+      folderPanelHeight: rendered.panelHeight,
+      folderLabel: 'november 2025',
+      folderUpdatedAt: new Date(),
+    })
+    .where(eq(schema.siteSettings.id, 1));
+  console.log('Folder (menukaart november 2025) toegevoegd.');
 }
 
 console.log('Basisinhoud toegevoegd.');

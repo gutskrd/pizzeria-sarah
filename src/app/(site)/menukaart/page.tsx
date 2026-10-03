@@ -22,7 +22,7 @@ export default async function MenuPage() {
       <PageHeader
         title="Menukaart"
         intro="Al onze gerechten en prijzen op een rij. Bestellen of afhalen? Bel ons gerust."
-        aside={<MenuFolder tone="dark" className="mx-auto pr-2 md:mx-0" />}
+        aside={settings.folder ? <MenuFolder key={settings.folder.version} folder={settings.folder} tone="dark" className="mx-auto pr-2 md:mx-0" /> : undefined}
       >
         <div className="mt-8 flex flex-col gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
           <a href={phoneHref} className="btn btn-primary">

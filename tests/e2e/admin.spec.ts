@@ -117,6 +117,47 @@ test.describe.serial('Beheer', () => {
     await expect(page.getByText('Testschotel')).toHaveCount(0);
   });
 
+  test('folder: kant vervangen, vouwlijnen aanpassen, verbergen en weer tonen', async ({ page }) => {
+    await page.goto('/admin/menukaart');
+    const card = page.locator('section', { has: page.getByRole('heading', { name: 'Folder', exact: true }) });
+    await expect(card.getByText('Op de website', { exact: true })).toBeVisible();
+    const insideInput = card.locator('input[type=file]').first();
+
+    // A portrait photo is not a whole open folder.
+    await insideInput.setInputFiles(await makeImage('staand.jpg', '#222222', 800, 1200));
+    await expect(page.getByRole('alert').filter({ hasText: /liggende afbeelding/ }).first()).toBeVisible();
+
+    // Replace the inside; the panels are cut again and the preview changes.
+    const before = await card.getByRole('img', { name: 'Binnenkant van de folder' }).getAttribute('src');
+    await insideInput.setInputFiles(await makeImage('folder-binnen.jpg', '#333333', 1500, 1060));
+    await toast(page, 'Binnenkant van de folder opgeslagen');
+    await expect(card.getByRole('img', { name: 'Binnenkant van de folder' })).not.toHaveAttribute('src', before!);
+
+    // Move a fold line with the keyboard, name the folder and save.
+    const slider = card.getByRole('slider', { name: 'Binnenkant: vouwlijn links' });
+    const start = Number(await slider.inputValue());
+    await slider.focus();
+    for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowRight');
+    await expect.poll(async () => Number(await slider.inputValue())).toBeGreaterThan(start);
+    await card.getByLabel('Naam of datum van de folder').fill('testfolder');
+    await card.getByRole('button', { name: 'Folder opslaan' }).click();
+    await toast(page, /^Folder opgeslagen\.$/);
+
+    await page.goto('/menukaart');
+    await page.getByRole('link', { name: 'Bekijk de menukaart-folder (testfolder)' }).click();
+    await expect(page.getByRole('dialog', { name: 'Menukaart-folder, testfolder' })).toBeVisible();
+
+    // Hidden: gone from the website. Then shown again.
+    for (const shown of [false, true]) {
+      await page.goto('/admin/menukaart');
+      await card.getByRole('switch', { name: 'Folder tonen op de website' }).click();
+      await card.getByRole('button', { name: 'Folder opslaan' }).click();
+      await toast(page, /^Folder opgeslagen\.$/);
+      await page.goto('/menukaart');
+      await expect(page.getByRole('link', { name: /Bekijk de menukaart-folder/ })).toHaveCount(shown ? 1 : 0);
+    }
+  });
+
   test("foto's: uploaden, gegevens invullen, zichtbaar in de galerij", async ({ page }) => {
     const red = await makeImage('rood.jpg', '#b3301d');
     const green = await makeImage('groen.png', '#3f6b34', 1200, 900, 'png');

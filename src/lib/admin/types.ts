@@ -40,3 +40,13 @@ export type AdminMenuCategory = {
   isVisible: boolean;
   items: AdminMenuItem[];
 };
+
+/** The printed folder as the admin edits it. A side is null until it is uploaded. */
+export type AdminFolder = {
+  sheets: { binnen: string | null; buiten: string | null };
+  cuts: { binnen: [number, number]; buiten: [number, number] };
+  label: string;
+  visible: boolean;
+  updatedAt: string | null;
+  version: string;
+};

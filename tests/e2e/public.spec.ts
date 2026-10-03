@@ -95,7 +95,7 @@ test.describe('Publieke pagina’s', () => {
     await expect(folder.getByRole('img', { name: /Binnenkant van de folder/ })).toHaveAttribute('data-open', 'true');
     await folder.getByRole('button', { name: 'Buitenkant' }).click();
     await expect(folder.getByRole('img', { name: /Buitenkant van de folder/ })).toHaveAttribute('data-side', 'buiten');
-    await expect(folder.getByRole('link', { name: 'Vergroten' })).toHaveAttribute('href', '/menukaart/folder/buitenkant.webp');
+    await expect(folder.getByRole('link', { name: 'Vergroten' })).toHaveAttribute('href', /^\/media\/[\w-]+\/buitenkant\.webp$/);
     await page.keyboard.press('Escape');
     await expect(folder).toBeHidden();
   });

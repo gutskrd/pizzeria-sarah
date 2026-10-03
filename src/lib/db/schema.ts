@@ -6,6 +6,7 @@ import {
   date,
   index,
   integer,
+  jsonb,
   pgTable,
   smallint,
   text,
@@ -222,6 +223,9 @@ export const images = pgTable(
 
 /* ───────────────────────── Website content ───────────────────────── */
 
+export type FolderCuts = { binnen: [number, number]; buiten: [number, number] };
+export const DEFAULT_FOLDER_CUTS: FolderCuts = { binnen: [1 / 3, 2 / 3], buiten: [1 / 3, 2 / 3] };
+
 export const siteSettings = pgTable(
   'site_settings',
   {
@@ -258,6 +262,18 @@ export const siteSettings = pgTable(
     menuPdfKey: text('menu_pdf_key'),
     menuPdfBytes: integer('menu_pdf_bytes'),
     menuPdfUpdatedAt: timestamp('menu_pdf_updated_at', { withTimezone: true }),
+
+    /** The printed trifold menu ("folder"): uploaded sheets and the cut-out panels (random file key). */
+    folderKey: text('folder_key'),
+    folderHasInside: boolean('folder_has_inside').notNull().default(false),
+    folderHasOutside: boolean('folder_has_outside').notNull().default(false),
+    /** Fold lines as fractions of the sheet width, per side. */
+    folderCuts: jsonb('folder_cuts').$type<FolderCuts>().notNull().default(DEFAULT_FOLDER_CUTS),
+    folderPanelWidth: integer('folder_panel_width'),
+    folderPanelHeight: integer('folder_panel_height'),
+    folderLabel: text('folder_label').notNull().default(''),
+    folderVisible: boolean('folder_visible').notNull().default(true),
+    folderUpdatedAt: timestamp('folder_updated_at', { withTimezone: true }),
 
     newDeviceAlerts: boolean('new_device_alerts').notNull().default(true),
     messageAlerts: boolean('message_alerts').notNull().default(true),

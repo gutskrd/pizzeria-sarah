@@ -112,7 +112,7 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
         <div>
           {filtered.map((c) => (
             <section key={c.id} id={c.slug} data-menu-section={c.slug} className="scroll-mt-40 pt-10 md:pt-14" aria-labelledby={`cat-${c.slug}`}>
-              <h2 id={`cat-${c.slug}`} className="menu-banner text-[1.35rem] md:text-[1.5rem]">
+              <h2 id={`cat-${c.slug}`} className="menu-banner text-[1.35rem] md:text-[1.5rem]" data-reveal>
                 {c.name}
               </h2>
               {c.description && <p className="mt-3 max-w-2xl text-muted">{c.description}</p>}

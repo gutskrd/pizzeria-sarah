@@ -4,7 +4,7 @@ import { env } from '@/lib/env';
 import { randomToken } from '@/lib/security/crypto';
 
 const KEY_RE = /^[A-Za-z0-9_-]{12,64}$/;
-const FILE_RE = /^(?:\d{2,4}w\.webp|og\.jpg|menukaart\.pdf)$/;
+const FILE_RE = /^(?:\d{2,4}w\.webp|og\.jpg|menukaart\.pdf|(?:binnen|buiten)(?:kant|-[123])\.webp)$/;
 
 export function mediaRoot(): string {
   return path.resolve(env().MEDIA_DIR);

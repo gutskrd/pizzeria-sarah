@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { CloseIcon } from '@/components/ui/icons';
+import { ArrowRightIcon, CloseIcon } from '@/components/ui/icons';
+import type { PublicFolder } from '@/lib/content/folder-types';
 
 /**
  * The printed trifold menu. The folded leaflet opens a full-screen view in
@@ -10,26 +11,23 @@ import { CloseIcon } from '@/components/ui/icons';
  * images are a visual extra.
  */
 
-const SRC = '/menukaart/folder';
-// Native size of one panel; the leaflet is three panels wide.
-const PANEL_W = 264;
-const PANEL_H = 561;
-const RATIO = (PANEL_W * 3) / PANEL_H;
 const FOLD_MS = 1330;
 
 type Side = 'binnen' | 'buiten';
 
-function useFolderSize(active: boolean) {
+function useFolderSize(active: boolean, panelWidth: number, panelHeight: number) {
   const [size, setSize] = useState({ w: 0, h: 0, scale: 1 });
   useEffect(() => {
     if (!active) return;
+    // The open leaflet is three panels wide.
+    const ratio = (panelWidth * 3) / panelHeight;
     const measure = () => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const availW = vw - (vw < 640 ? 24 : 96);
       const availH = vh - (vh < 500 ? 110 : 190);
-      const w = Math.max(240, Math.min(availW, availH * RATIO, PANEL_W * 3 * 1.25));
-      const h = w / RATIO;
+      const w = Math.max(240, Math.min(availW, availH * ratio, panelWidth * 3 * 1.25));
+      const h = w / ratio;
       // Closed, only one panel shows; make it larger so the cover is easy to see.
       const scale = Math.max(1, Math.min(availH / h, (vw * 0.62) / (w / 3), 2.2));
       setSize({ w, h, scale });
@@ -37,20 +35,21 @@ function useFolderSize(active: boolean) {
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
-  }, [active]);
+  }, [active, panelWidth, panelHeight]);
   return size;
 }
 
-function Face({ src, face }: { src: string; face: 'voor' | 'achter' }) {
+function Face({ src, face, folder }: { src: string; face: 'voor' | 'achter'; folder: PublicFolder }) {
   return (
     <div className="folder-face" data-face={face}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- static panel images, already optimised */}
-      <img src={`${SRC}/${src}.webp`} alt="" width={PANEL_W} height={PANEL_H} decoding="async" draggable={false} />
+      {/* eslint-disable-next-line @next/next/no-img-element -- panels are generated at their display size */}
+      <img src={src} alt="" width={folder.panelWidth} height={folder.panelHeight} decoding="async" draggable={false} />
     </div>
   );
 }
 
-export function MenuFolder({ date = 'november 2025', className = '', tone = 'light' }: { date?: string; className?: string; tone?: 'light' | 'dark' }) {
+export function MenuFolder({ folder, className = '', tone = 'light' }: { folder: PublicFolder; className?: string; tone?: 'light' | 'dark' }) {
+  const title = folder.label ? `Menukaart · ${folder.label}` : 'Menukaart';
   const dialogRef = useRef<HTMLDialogElement>(null);
   const folderRef = useRef<HTMLDivElement>(null);
   const timers = useRef<number[]>([]);
@@ -61,7 +60,7 @@ export function MenuFolder({ date = 'november 2025', className = '', tone = 'lig
   const [side, setSide] = useState<Side>('binnen');
   // Jump straight to the folded state when the view opens, without animating.
   const [instant, setInstant] = useState(true);
-  const size = useFolderSize(visible);
+  const size = useFolderSize(visible, folder.panelWidth, folder.panelHeight);
 
   const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
@@ -112,29 +111,35 @@ export function MenuFolder({ date = 'november 2025', className = '', tone = 'lig
   return (
     <>
       <a
-        href={`${SRC}/binnenkant.webp`}
+        href={folder.sheets.binnen}
         onClick={show}
         onPointerEnter={() => setMounted(true)}
         onFocus={() => setMounted(true)}
-        className={`folder-cover-wrap group inline-flex flex-col items-center gap-5 ${className}`}
-        aria-label={`Bekijk de menukaart-folder (${date})`}
+        className={`folder-cover-wrap group relative isolate inline-flex flex-col items-center gap-5 ${className}`}
+        aria-label={folder.label ? `Bekijk de menukaart-folder (${folder.label})` : 'Bekijk de menukaart-folder'}
       >
         <span className="folder-cover w-[11.5rem] sm:w-[13rem] lg:w-[15rem]">
-          {/* eslint-disable-next-line @next/next/no-img-element -- static image */}
-          <img src={`${SRC}/buiten-3.webp`} alt="" width={PANEL_W} height={PANEL_H} />
+          {/* The cover lifts now and then, showing the flap underneath. */}
+          <span className="folder-cover-inner">
+            {/* eslint-disable-next-line @next/next/no-img-element -- generated panel */}
+            <img src={folder.panels.buiten[0]} alt="" width={folder.panelWidth} height={folder.panelHeight} className="folder-cover-under" />
+            {/* eslint-disable-next-line @next/next/no-img-element -- generated panel */}
+            <img src={folder.panels.buiten[2]} alt="" width={folder.panelWidth} height={folder.panelHeight} className="folder-cover-front" />
+          </span>
         </span>
         <span
           className={`inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.08em] [font-stretch:85%] ${tone === 'dark' ? 'text-white' : 'text-ink'}`}
         >
           <span className="inline-block h-0.5 w-6 bg-tomato transition-all duration-300 group-hover:w-9" aria-hidden="true" />
           Open de folder
+          <ArrowRightIcon size={16} className="folder-hint-arrow text-tomato" aria-hidden="true" />
         </span>
       </a>
 
       <dialog
         ref={dialogRef}
         className="folder-dialog"
-        aria-label={`Menukaart-folder, ${date}`}
+        aria-label={folder.label ? `Menukaart-folder, ${folder.label}` : 'Menukaart-folder'}
         data-closing={closing ? 'true' : undefined}
         onCancel={(e) => {
           e.preventDefault();
@@ -147,7 +152,7 @@ export function MenuFolder({ date = 'november 2025', className = '', tone = 'lig
         {mounted && (
           <div className="flex h-full flex-col" onClick={(e) => e.target === e.currentTarget && hide()}>
             <div className="flex items-center justify-between gap-4 px-4 pt-4 sm:px-8 sm:pt-6">
-              <p className="text-sm font-bold uppercase tracking-[0.1em] text-white/80 [font-stretch:85%]">Menukaart · {date}</p>
+              <p className="text-sm font-bold uppercase tracking-[0.1em] text-white/80 [font-stretch:85%]">{title}</p>
               <button
                 type="button"
                 onClick={hide}
@@ -177,16 +182,16 @@ export function MenuFolder({ date = 'november 2025', className = '', tone = 'lig
                   onClick={() => !open && !closing && setOpen(true)}
                 >
                   <div className="folder-panel" data-panel="links">
-                    <Face src="binnen-1" face="voor" />
-                    <Face src="buiten-3" face="achter" />
+                    <Face folder={folder} src={folder.panels.binnen[0]} face="voor" />
+                    <Face folder={folder} src={folder.panels.buiten[2]} face="achter" />
                   </div>
                   <div className="folder-panel" data-panel="midden">
-                    <Face src="binnen-2" face="voor" />
-                    <Face src="buiten-2" face="achter" />
+                    <Face folder={folder} src={folder.panels.binnen[1]} face="voor" />
+                    <Face folder={folder} src={folder.panels.buiten[1]} face="achter" />
                   </div>
                   <div className="folder-panel" data-panel="rechts">
-                    <Face src="binnen-3" face="voor" />
-                    <Face src="buiten-1" face="achter" />
+                    <Face folder={folder} src={folder.panels.binnen[2]} face="voor" />
+                    <Face folder={folder} src={folder.panels.buiten[0]} face="achter" />
                   </div>
                 </div>
               </div>
@@ -208,7 +213,7 @@ export function MenuFolder({ date = 'november 2025', className = '', tone = 'lig
                 ))}
               </div>
               <a
-                href={`${SRC}/${side === 'binnen' ? 'binnenkant' : 'buitenkant'}.webp`}
+                href={folder.sheets[side]}
                 target="_blank"
                 rel="noopener"
                 className="inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold uppercase tracking-[0.06em] text-white underline decoration-tomato decoration-2 underline-offset-4 [font-stretch:85%] hover:decoration-white"

@@ -693,15 +693,10 @@
   width: 100%;
   height: auto;
   border-radius: 2px;
-  transform-origin: 0 50%;
-  transition: transform 450ms var(--ease-out-soft);
 }
 @media (hover: hover) {
   .folder-cover-wrap:hover .folder-cover {
     transform: rotate(-1deg) translateY(-4px);
-  }
-  .folder-cover-wrap:hover .folder-cover img {
-    transform: perspective(900px) rotateY(-14deg);
   }
 }
 
@@ -724,4 +719,183 @@
 .folder-instant,
 .folder-instant * {
   transition: none !important;
+}
+
+/* ───────────────────────── Beweging op de website ─────────────────────────
+   Everything here respects "reduce motion": the global rule at the top turns
+   animations and transitions off, and the scroll reveal only hides content
+   when motion is allowed. */
+
+/* Fade and rise into view while scrolling (see components/site/scroll-reveal). */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready [data-reveal]:not([data-revealed]) {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  .reveal-ready [data-reveal] {
+    transition:
+      opacity 700ms var(--ease-out-soft),
+      transform 700ms var(--ease-out-soft);
+    transition-delay: calc(var(--reveal-i, 0) * 80ms);
+  }
+  /* Red banners wipe in from the left. */
+  .reveal-ready [data-reveal][data-revealed] .menu-banner,
+  .reveal-ready .menu-banner[data-reveal][data-revealed] {
+    animation: banner-wipe 650ms var(--ease-out-soft) both;
+    animation-delay: calc(var(--reveal-i, 0) * 80ms + 120ms);
+  }
+}
+@keyframes banner-wipe {
+  from {
+    clip-path: polygon(0 0, 0 0, 0 50%, 0 100%, 0 100%, 0 50%);
+  }
+}
+
+/* The red band in the hero slides in. */
+.hero-band {
+  animation: hero-band 1100ms var(--ease-out-soft) 250ms both;
+}
+@keyframes hero-band {
+  from {
+    opacity: 0;
+    translate: 35% 0;
+  }
+}
+
+.site-theme .btn {
+  transition:
+    background-color 160ms var(--ease-out-soft),
+    color 160ms var(--ease-out-soft),
+    border-color 160ms var(--ease-out-soft),
+    transform 200ms var(--ease-out-soft),
+    box-shadow 200ms var(--ease-out-soft);
+}
+@media (hover: hover) {
+  .site-theme .btn:hover {
+    transform: translateY(-2px);
+  }
+  .site-theme .btn-primary:hover {
+    box-shadow: 0 10px 22px -10px rgb(216 31 38 / 0.7);
+  }
+}
+
+/* ── The folded flyer asks to be opened: every few seconds the cover lifts
+   a little, showing the menu inside. ── */
+.folder-cover-inner {
+  position: relative;
+  display: block;
+  perspective: 900px;
+}
+.folder-cover-under {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  filter: brightness(0.75);
+}
+.folder-cover-inner > .folder-cover-front {
+  position: relative;
+  transform-origin: 0 50%;
+  box-shadow: 0 0 0 transparent;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .folder-cover-inner > .folder-cover-front {
+    animation: folder-peek 5.5s cubic-bezier(0.45, 0, 0.2, 1) 1.6s infinite;
+  }
+  .folder-hint-arrow {
+    animation: hint-nudge 1.6s ease-in-out infinite;
+  }
+  .folder-cover-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 8% -10% 18%;
+    z-index: -2;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(216 31 38 / 0.45), transparent);
+    animation: folder-glow 5.5s ease-in-out 1.6s infinite;
+    pointer-events: none;
+  }
+}
+@keyframes folder-peek {
+  0%,
+  62%,
+  100% {
+    transform: rotateY(0deg);
+    box-shadow: 0 0 0 transparent;
+  }
+  72% {
+    transform: rotateY(-28deg);
+    box-shadow: 18px 0 30px rgb(0 0 0 / 0.55);
+  }
+  80% {
+    transform: rotateY(-4deg);
+  }
+  86% {
+    transform: rotateY(-14deg);
+    box-shadow: 10px 0 20px rgb(0 0 0 / 0.4);
+  }
+  94% {
+    transform: rotateY(0deg);
+  }
+}
+@keyframes folder-glow {
+  0%,
+  58%,
+  100% {
+    opacity: 0.35;
+  }
+  74% {
+    opacity: 1;
+  }
+}
+@keyframes hint-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+@media (hover: hover) {
+  .folder-cover-wrap:hover .folder-cover-inner > .folder-cover-front {
+    animation: none;
+    transform: rotateY(-32deg);
+    box-shadow: 18px 0 30px rgb(0 0 0 / 0.55);
+    transition: transform 450ms var(--ease-out-soft);
+  }
+}
+
+/* ── Location: the pin drops in and keeps pulsing. ── */
+.location-pin svg {
+  animation: pin-drop 900ms cubic-bezier(0.3, 1.4, 0.5, 1) 300ms both;
+}
+.location-pulse {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 64px;
+  height: 22px;
+  margin-left: -32px;
+  border-radius: 50%;
+  border: 2px solid rgb(216 31 38 / 0.8);
+  animation: pin-pulse 2.2s ease-out infinite;
+  opacity: 0;
+}
+@keyframes pin-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+}
+@keyframes pin-pulse {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
 }

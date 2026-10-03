@@ -37,14 +37,25 @@ import {
   TrashIcon,
   UploadIcon,
 } from '@/components/ui/icons';
-import type { AdminMenuCategory, AdminMenuItem } from '@/lib/admin/types';
+import type { AdminFolder, AdminMenuCategory, AdminMenuItem } from '@/lib/admin/types';
 import { formatPrice } from '@/lib/format';
 import { useCleanUrl } from '@/components/admin/use-clean-url';
+import { FolderCard } from './folder-card';
 import { MenuItemDialog } from './item-dialog';
 
 type Pdf = { url: string; updatedAt: string; bytes: number } | null;
 
-export function MenuEditor({ categories: initial, pdf, openItem }: { categories: AdminMenuCategory[]; pdf: Pdf; openItem?: string }) {
+export function MenuEditor({
+  categories: initial,
+  pdf,
+  folder,
+  openItem,
+}: {
+  categories: AdminMenuCategory[];
+  pdf: Pdf;
+  folder: AdminFolder;
+  openItem?: string;
+}) {
   const [categories, setCategories] = useState(initial);
   const [syncedFrom, setSyncedFrom] = useState(initial);
   const [sortingCategories, setSortingCategories] = useState(false);
@@ -148,6 +159,7 @@ export function MenuEditor({ categories: initial, pdf, openItem }: { categories:
         </div>
       )}
 
+      <FolderCard key={folder.version} folder={folder} />
       <PdfCard pdf={pdf} />
 
       <CategoryDialog state={categoryDialog} onClose={() => setCategoryDialog(null)} />
