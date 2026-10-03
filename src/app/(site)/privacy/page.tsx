@@ -51,8 +51,8 @@ export default async function PrivacyPage() {
           <h3>Kaart en route plannen</h3>
           <p>
             De kaart van Google Maps op onze website wordt pas geladen als je op &lsquo;Kaart tonen&rsquo; klikt. Pas dan maakt je browser verbinding met
-            Google, dat daarbij cookies kan plaatsen. Klik je op &lsquo;Route plannen&rsquo;, &lsquo;Apple Kaarten&rsquo; of &lsquo;Waze&rsquo;, dan word je
-            doorgestuurd naar die dienst. Op het gebruik daarvan is het privacybeleid van die dienst van toepassing.
+            Google, dat daarbij cookies kan plaatsen. Klik je op &lsquo;Route plannen&rsquo; of &lsquo;Apple Kaarten&rsquo;, dan word je doorgestuurd naar die
+            dienst. Op het gebruik daarvan is het privacybeleid van die dienst van toepassing.
           </p>
 
           <h2>Met wie delen we gegevens?</h2>

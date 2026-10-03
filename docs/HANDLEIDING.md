@@ -75,7 +75,8 @@ Onder **Activiteit** zie je alle wijzigingen aan de website, per dag, en kun je 
   _Buitenkant_ de juiste foto. Bij de buitenkant staat de voorkant (met het logo) rechts.
   De gele vouwlijnen worden vanzelf gezocht. Staan ze niet precies op de vouwen? Sleep ze op de goede plek
   (of gebruik de schuifjes) en druk op **Folder opslaan**. Met _Folder tonen op de website_ zet je hem aan of uit.
-- Heb je de menukaart ook als PDF? Upload hem onderaan de pagina; bezoekers kunnen hem dan downloaden.
+- **PDF**: bezoekers kunnen de menukaart downloaden als PDF. Die wordt automatisch gemaakt van je gerechten en
+  klopt dus altijd. Liever je eigen PDF? Kies hem onderaan de pagina Menukaart.
 - Met **Voorbeeld bekijken** zie je de menukaart zoals bezoekers hem zien.
 
 ## Openingstijden
@@ -101,9 +102,15 @@ Een aanbieding staat alleen op de website binnen die periode (en als _Zichtbaar_
 
 ## Website
 
-Hier pas je de teksten aan: bovenaan de homepage (met hoofdfoto), de welkomsttekst, _Over ons_,
-_Waarom wij_, reserveren, wachtruimte, allergeneninformatie en de tekst onderaan. Elk onderdeel heeft
-een eigen knop **Opslaan**. Onderaan stel je in hoe elke pagina in **Google** verschijnt.
+Je ziet een **voorbeeld van je website**. Klik op het stuk dat je wilt veranderen (bijvoorbeeld de grote titel
+bovenaan): rechts verschijnen de velden, en terwijl je typt zie je het voorbeeld meteen veranderen. Tevreden?
+Druk op **Opslaan**.
+
+- Bovenaan kies je de pagina: **Homepage**, **Over ons**, **Menukaart** of **Google**.
+- Stukken met _Wijzigen bij …_ (zoals de gerechten of de openingstijden) pas je aan op die plek in het beheer;
+  de knop brengt je er direct heen.
+- Een geel bolletje betekent: nog niet opgeslagen.
+- Bij **Google** zie je per pagina hoe je website in de zoekresultaten staat, en pas je dat aan.
 
 ## Ingelogde apparaten
 

@@ -538,49 +538,60 @@ function PdfCard({ pdf }: { pdf: Pdf }) {
 
   return (
     <section className="admin-card mt-8 p-5 sm:p-6" aria-labelledby="pdf-titel">
-      <h2 id="pdf-titel" className="font-display text-2xl">
-        Menukaart als PDF <span className="font-sans text-base font-normal text-muted">(optioneel)</span>
-      </h2>
-      <p className="mt-1 text-muted">Heb je de menukaart ook als PDF? Dan kunnen bezoekers die downloaden op de pagina Menukaart.</p>
-      <input ref={inputRef} type="file" accept="application/pdf" hidden onChange={(e) => upload(e.target.files?.[0])} />
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        {pdf ? (
-          <>
-            <a href={pdf.url} target="_blank" rel="noopener" className="admin-btn admin-btn-secondary">
-              <DownloadIcon size={18} /> PDF bekijken
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-lg bg-tomato-soft text-tomato" aria-hidden="true">
+          <DownloadIcon size={26} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 id="pdf-titel" className="font-display text-2xl">
+            Menukaart als PDF
+          </h2>
+          {pdf ? (
+            <p className="mt-1 text-muted">
+              Bezoekers downloaden <strong className="text-ink">je eigen PDF</strong>. Verwijder hem om weer de automatische PDF te gebruiken.
+            </p>
+          ) : (
+            <p className="mt-1 text-muted">
+              Bezoekers kunnen de menukaart downloaden als PDF. Die wordt <strong className="text-ink">automatisch gemaakt</strong> van de gerechten hierboven,
+              dus hij klopt altijd. Liever je eigen PDF? Kies hem hieronder.
+            </p>
+          )}
+          <input ref={inputRef} type="file" accept="application/pdf" hidden onChange={(e) => upload(e.target.files?.[0])} />
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <a href={pdf ? pdf.url : '/menukaart.pdf'} target="_blank" rel="noopener" className="admin-btn admin-btn-secondary">
+              <ExternalIcon size={18} /> PDF bekijken
             </a>
-            <button type="button" className="admin-btn admin-btn-secondary" disabled={progress !== null} onClick={() => inputRef.current?.click()}>
-              <UploadIcon size={18} /> {progress !== null ? `Bezig… ${Math.round(progress * 100)}%` : 'Vervangen'}
+            <button type="button" className="admin-btn admin-btn-ghost" disabled={progress !== null} onClick={() => inputRef.current?.click()}>
+              <UploadIcon size={18} />{' '}
+              {progress !== null ? `Bezig met uploaden… ${Math.round(progress * 100)}%` : pdf ? 'Andere PDF uploaden' : 'Eigen PDF uploaden'}
             </button>
-            <button
-              type="button"
-              className="admin-btn admin-btn-ghost"
-              onClick={async () => {
-                if (
-                  await confirm({
-                    title: 'PDF verwijderen?',
-                    message: 'De PDF-menukaart is daarna niet meer te downloaden op de website.',
-                    confirmLabel: 'Verwijderen',
-                    tone: 'danger',
-                  })
-                )
-                  await run(() => removeMenuPdf({}));
-              }}
-            >
-              Verwijderen
-            </button>
-          </>
-        ) : (
-          <button type="button" className="admin-btn admin-btn-secondary" disabled={progress !== null} onClick={() => inputRef.current?.click()}>
-            <UploadIcon size={18} /> {progress !== null ? `Bezig met uploaden… ${Math.round(progress * 100)}%` : 'PDF uploaden'}
-          </button>
-        )}
+            {pdf && (
+              <button
+                type="button"
+                className="admin-btn admin-btn-ghost"
+                onClick={async () => {
+                  if (
+                    await confirm({
+                      title: 'Eigen PDF verwijderen?',
+                      message: 'Bezoekers krijgen dan weer de PDF die automatisch van je menukaart wordt gemaakt.',
+                      confirmLabel: 'Verwijderen',
+                      tone: 'danger',
+                    })
+                  )
+                    await run(() => removeMenuPdf({}));
+                }}
+              >
+                Eigen PDF verwijderen
+              </button>
+            )}
+          </div>
+          {pdf && (
+            <p className="mt-3 text-sm text-muted">
+              Geüpload op {new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(pdf.updatedAt))}
+            </p>
+          )}
+        </div>
       </div>
-      {pdf && (
-        <p className="mt-3 text-sm text-muted">
-          Bijgewerkt op {new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(pdf.updatedAt))}
-        </p>
-      )}
     </section>
   );
 }

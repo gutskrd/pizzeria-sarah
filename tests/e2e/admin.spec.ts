@@ -397,15 +397,31 @@ test.describe.serial('Beheer', () => {
     await expect(page.getByText('Testactie vandaag')).toBeVisible();
   });
 
-  test('website: teksten wijzigen en SEO aanpassen', async ({ page }) => {
+  test('website: klikken in het voorbeeld, live zien, opslaan en SEO aanpassen', async ({ page }) => {
     await page.goto('/admin/website');
-    await page.getByLabel('Titel', { exact: true }).first().fill('Pizzeria Sarah Dodewaard');
-    await page.locator('#hoofdfoto').getByRole('button', { name: 'Opslaan' }).click();
+    const editor = page.locator('section[aria-labelledby="blok-titel"]');
+    const preview = page.getByLabel('Voorbeeld van de website');
+
+    // The top of the homepage is selected first; typing updates the preview at once.
+    await expect(editor.getByRole('heading', { name: 'Bovenaan de homepage' })).toBeVisible();
+    await editor.getByLabel('Titel', { exact: true }).fill('Pizzeria Sarah Dodewaard');
+    await expect(preview.getByText('Pizzeria Sarah Dodewaard')).toBeVisible();
+    await editor.getByRole('button', { name: 'Opslaan', exact: true }).click();
     await toast(page, 'Wijzigingen opgeslagen.');
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Pizzeria Sarah Dodewaard');
 
-    await page.goto('/admin/website#zoekmachines');
+    // Click another part of the preview to edit it.
+    await page.goto('/admin/website');
+    await page.getByRole('button', { name: 'Welkomsttekst wijzigen' }).click();
+    await expect(editor.getByRole('heading', { name: 'Welkomsttekst' })).toBeVisible();
+    await editor.getByLabel('Titel', { exact: true }).fill('Welkom in Dodewaard');
+    await expect(preview.getByText('Welkom in Dodewaard')).toBeVisible();
+    await editor.getByRole('button', { name: 'Opslaan', exact: true }).click();
+    await toast(page, 'Wijzigingen opgeslagen.');
+
+    // Google
+    await page.getByRole('tab', { name: 'Google' }).click();
     await page.getByLabel('Titel in Google').nth(1).fill('Menukaart van Pizzeria Sarah in Dodewaard');
     await page.locator('#zoekmachines form').nth(1).getByRole('button', { name: 'Opslaan' }).click();
     await toast(page, 'Wijzigingen opgeslagen.');
@@ -414,12 +430,12 @@ test.describe.serial('Beheer', () => {
 
     // Empty text is refused with a Dutch message.
     await page.goto('/admin/website');
-    const heroText = page.getByLabel('Korte tekst', { exact: true });
+    const heroText = editor.getByLabel('Korte tekst', { exact: true });
     await heroText.click();
     await page.keyboard.press('ControlOrMeta+A');
     await page.keyboard.press('Backspace');
     await expect(heroText).toHaveValue('');
-    await page.locator('#hoofdfoto').getByRole('button', { name: 'Opslaan' }).click();
+    await editor.getByRole('button', { name: 'Opslaan', exact: true }).click();
     await expect(page.getByText('De tekst mag niet leeg zijn.').first()).toBeVisible();
   });
 

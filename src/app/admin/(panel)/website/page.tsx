@@ -1,10 +1,14 @@
 import { asc, inArray } from 'drizzle-orm';
+import { archivo } from '@/app/fonts/archivo';
 import { WebsiteView } from '@/components/admin/website-view';
 import { toPickedImage } from '@/lib/admin/images';
 import { requireAdmin } from '@/lib/auth/current';
 import { db, schema } from '@/lib/db';
 import { PAGE_KEYS } from '@/lib/db/schema';
 import { siteUrl } from '@/lib/env';
+import { getFeaturedMenuItems, getMenu, getSchedule } from '@/lib/content/queries';
+import { formatPrice } from '@/lib/format';
+import { statusSnapshot } from '@/lib/opening-hours';
 import { PAGE_LABELS, PAGE_PATHS } from '@/lib/seo';
 
 export const metadata = { title: 'Website – Beheer' };
@@ -12,10 +16,13 @@ export const metadata = { title: 'Website – Beheer' };
 export default async function WebsiteAdminPage() {
   await requireAdmin();
   const d = db();
-  const [[s], highlights, seo] = await Promise.all([
+  const [[s], highlights, seo, featured, menu, schedule] = await Promise.all([
     d.select().from(schema.siteSettings).limit(1),
     d.select().from(schema.highlights).orderBy(asc(schema.highlights.sortOrder)),
     d.select().from(schema.pageSeo),
+    getFeaturedMenuItems(6),
+    getMenu(),
+    getSchedule(),
   ]);
   if (!s) throw new Error('site_settings missing');
   const imageIds = [s.heroImageId, s.aboutImageId].filter((x): x is string => Boolean(x));
@@ -24,7 +31,11 @@ export default async function WebsiteAdminPage() {
 
   return (
     <WebsiteView
+      previewClassName={`site-theme ${archivo.variable}`}
       data={{
+        featured: featured.map((f) => ({ name: f.name, price: f.priceCents !== null ? formatPrice(f.priceCents) : '' })),
+        categories: menu.map((c) => c.name),
+        todayHours: statusSnapshot(schedule, new Date()).todayHours,
         hero: { heroTitle: s.heroTitle, heroText: s.heroText, heroImage: img(s.heroImageId) },
         intro: { introTitle: s.introTitle, introText: s.introText },
         about: { aboutTitle: s.aboutTitle, aboutText: s.aboutText, aboutStory: s.aboutStory, aboutImage: img(s.aboutImageId) },

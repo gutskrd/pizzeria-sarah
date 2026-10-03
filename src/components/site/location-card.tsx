@@ -14,7 +14,6 @@ export function LocationCard({ businessName, street, postalCode, city }: { busin
   const routes = [
     { label: 'Google Maps', href: `https://www.google.com/maps/dir/?api=1&destination=${query}` },
     { label: 'Apple Kaarten', href: `https://maps.apple.com/?daddr=${query}` },
-    { label: 'Waze', href: `https://waze.com/ul?q=${encodeURIComponent(address)}&navigate=yes` },
   ];
 
   return (

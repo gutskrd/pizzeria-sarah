@@ -13,6 +13,8 @@ export const generateMetadata = () => pageMetadata('menukaart');
 export default async function MenuPage() {
   const [settings, menu, offers] = await Promise.all([getSettings(), getMenu(), getActiveOffers()]);
   const phoneHref = telHref(settings.phoneE164);
+  // The owner's own PDF, or else the one made automatically from the menu.
+  const pdfUrl = settings.menuPdfUrl ?? (menu.length > 0 ? '/menukaart.pdf' : null);
 
   return (
     <>
@@ -28,9 +30,9 @@ export default async function MenuPage() {
           <a href={phoneHref} className="btn btn-primary">
             <PhoneIcon size={18} /> Bel {settings.phoneDisplay}
           </a>
-          {settings.menuPdfUrl && (
-            <a href={settings.menuPdfUrl} className="btn btn-outline" type="application/pdf">
-              <DownloadIcon size={18} /> Menukaart als PDF
+          {pdfUrl && (
+            <a href={pdfUrl} className="btn btn-outline" type="application/pdf" download="menukaart-pizzeria-sarah.pdf">
+              <DownloadIcon size={18} /> Download als PDF
             </a>
           )}
         </div>
@@ -63,7 +65,7 @@ export default async function MenuPage() {
             <div className="py-16 text-center">
               <p className="text-3xl font-extrabold uppercase [font-stretch:75%]">De menukaart wordt bijgewerkt</p>
               <p className="mx-auto mt-3 max-w-lg text-lg text-ink-soft">
-                {settings.menuPdfUrl
+                {pdfUrl
                   ? 'Bekijk in de tussentijd onze menukaart als PDF, of bel ons voor ons actuele aanbod.'
                   : `Bel ons gerust op ${settings.phoneDisplay} voor ons actuele aanbod en de prijzen.`}
               </p>
@@ -71,8 +73,8 @@ export default async function MenuPage() {
                 <a href={phoneHref} className="btn btn-primary">
                   <PhoneIcon size={18} /> Bel ons
                 </a>
-                {settings.menuPdfUrl && (
-                  <a href={settings.menuPdfUrl} className="btn btn-outline">
+                {pdfUrl && (
+                  <a href={pdfUrl} className="btn btn-outline">
                     <DownloadIcon size={18} /> Menukaart als PDF
                   </a>
                 )}

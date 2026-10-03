@@ -100,6 +100,16 @@ test.describe('Publieke pagina’s', () => {
     await expect(folder).toBeHidden();
   });
 
+  test('de menukaart is als PDF te downloaden', async ({ page, request }) => {
+    await page.goto('/menukaart');
+    const link = page.getByRole('link', { name: 'Download als PDF' });
+    await expect(link).toBeVisible();
+    const res = await request.get((await link.getAttribute('href'))!);
+    expect(res.ok()).toBe(true);
+    expect(res.headers()['content-type']).toBe('application/pdf');
+    expect((await res.body()).subarray(0, 5).toString()).toBe('%PDF-');
+  });
+
   test('llms.txt vat de zaak samen in platte tekst', async ({ request }) => {
     const res = await request.get('/llms.txt');
     expect(res.ok()).toBe(true);

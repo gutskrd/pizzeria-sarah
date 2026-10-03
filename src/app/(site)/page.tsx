@@ -27,6 +27,8 @@ export default async function HomePage() {
     getActiveOffers(),
   ]);
   const now = new Date();
+  // The owner's own PDF, or else the one made automatically from the menu.
+  const pdfUrl = settings.menuPdfUrl ?? (menu.length > 0 ? '/menukaart.pdf' : null);
   const phoneHref = telHref(settings.phoneE164);
   const status = statusSnapshot(schedule, now);
   const aboutImage = settings.aboutImage ?? gallery.find((g) => g.id !== settings.heroImage?.id) ?? null;
@@ -164,9 +166,9 @@ export default async function HomePage() {
             <Link href="/menukaart" className="btn btn-primary">
               Hele menukaart <ArrowRightIcon size={18} />
             </Link>
-            {settings.menuPdfUrl && (
-              <a href={settings.menuPdfUrl} className="btn btn-outline">
-                <DownloadIcon size={18} /> PDF
+            {pdfUrl && (
+              <a href={pdfUrl} className="btn btn-outline" download="menukaart-pizzeria-sarah.pdf">
+                <DownloadIcon size={18} /> Menukaart (PDF)
               </a>
             )}
           </div>
