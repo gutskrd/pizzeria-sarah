@@ -79,7 +79,7 @@ test.describe('Publieke pagina’s', () => {
       ['Contact', 'contact'],
       ['Over ons', 'over-ons'],
       ['Menukaart', 'menukaart'],
-    ]) {
+    ] as const) {
       await nav.getByRole('link', { name: label, exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`/#${id}$`));
       await expect.poll(() => page.evaluate((i) => Math.round(document.getElementById(i)!.getBoundingClientRect().top), id)).toBeLessThan(120);

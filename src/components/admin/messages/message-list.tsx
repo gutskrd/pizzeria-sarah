@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { bulkMessageAction, markAllMessagesRead } from '@/app/admin/(panel)/berichten/actions';
+import { bulkMessageAction, emptySpam, markAllMessagesRead } from '@/app/admin/(panel)/berichten/actions';
 import { useConfirm } from '@/components/admin/confirm';
 import { useAdminAction } from '@/components/admin/use-admin-action';
-import { ArchiveIcon, CheckIcon, CloseIcon, MailIcon, SearchIcon, TrashIcon } from '@/components/ui/icons';
+import { AlertIcon, ArchiveIcon, CheckIcon, CloseIcon, InboxIcon, MailIcon, SearchIcon, TrashIcon } from '@/components/ui/icons';
 import type { MessageStatus } from '@/lib/db/schema';
 import { StatusBadge } from './status-badge';
 
@@ -17,12 +17,14 @@ export type ListMessage = {
   subject: string;
   body: string;
   status: MessageStatus;
+  spamReasons: string;
   createdAt: string;
   ago: string;
   when: string;
 };
 
-export function MessageList({ messages, unread, query }: { messages: ListMessage[]; unread: number; query: string }) {
+export function MessageList({ messages, unread, query, filter }: { messages: ListMessage[]; unread: number; query: string; filter: string }) {
+  const spamView = filter === 'spam';
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [q, setQ] = useState(query);
   const router = useRouter();
@@ -53,7 +55,7 @@ export function MessageList({ messages, unread, query }: { messages: ListMessage
       return next;
     });
 
-  const bulk = async (action: 'read' | 'new' | 'archived' | 'delete') => {
+  const bulk = async (action: 'read' | 'new' | 'archived' | 'delete' | 'notspam') => {
     if (action === 'delete') {
       const ok = await confirm({
         title: ids.length === 1 ? 'Bericht verwijderen?' : `${ids.length} berichten verwijderen?`,
@@ -69,6 +71,35 @@ export function MessageList({ messages, unread, query }: { messages: ListMessage
 
   return (
     <>
+      {spamView && (
+        <div className="mb-4 flex flex-col gap-3 rounded-lg border border-[#ecd9a8] bg-warning-soft p-4 sm:flex-row sm:items-center">
+          <AlertIcon size={22} className="shrink-0 text-warning" />
+          <p className="flex-1 text-[0.95rem] text-ink-soft">
+            Hier komen berichten die op reclame of spam lijken. Je krijgt er geen e-mail van, en ze worden na 30 dagen vanzelf verwijderd. Staat er toch een
+            echt bericht tussen? Kies <strong>Geen spam</strong>.
+          </p>
+          {messages.length > 0 && (
+            <button
+              type="button"
+              className="admin-btn admin-btn-secondary shrink-0"
+              onClick={async () => {
+                if (
+                  await confirm({
+                    title: 'Spam leegmaken?',
+                    message: 'Alle berichten in Spam worden definitief verwijderd.',
+                    confirmLabel: 'Leegmaken',
+                    tone: 'danger',
+                  })
+                )
+                  await run(() => emptySpam({}));
+              }}
+            >
+              <TrashIcon size={18} /> Spam leegmaken
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <label className="relative block flex-1">
           <span className="sr-only">Zoek in berichten</span>
@@ -95,15 +126,23 @@ export function MessageList({ messages, unread, query }: { messages: ListMessage
           aria-label="Acties voor geselecteerde berichten"
         >
           <span className="mr-auto px-1 text-sm font-semibold">{ids.length} geselecteerd</span>
-          <button type="button" className="admin-btn admin-btn-sm text-paper hover:bg-white/10" onClick={() => bulk('read')}>
-            <CheckIcon size={16} /> Gelezen
-          </button>
-          <button type="button" className="admin-btn admin-btn-sm text-paper hover:bg-white/10" onClick={() => bulk('new')}>
-            <MailIcon size={16} /> Ongelezen
-          </button>
-          <button type="button" className="admin-btn admin-btn-sm text-paper hover:bg-white/10" onClick={() => bulk('archived')}>
-            <ArchiveIcon size={16} /> Archiveren
-          </button>
+          {spamView ? (
+            <button type="button" className="admin-btn admin-btn-sm text-paper hover:bg-white/10" onClick={() => bulk('notspam')}>
+              <InboxIcon size={16} /> Geen spam
+            </button>
+          ) : (
+            <>
+              <button type="button" className="admin-btn admin-btn-sm text-paper hover:bg-white/10" onClick={() => bulk('read')}>
+                <CheckIcon size={16} /> Gelezen
+              </button>
+              <button type="button" className="admin-btn admin-btn-sm text-paper hover:bg-white/10" onClick={() => bulk('new')}>
+                <MailIcon size={16} /> Ongelezen
+              </button>
+              <button type="button" className="admin-btn admin-btn-sm text-paper hover:bg-white/10" onClick={() => bulk('archived')}>
+                <ArchiveIcon size={16} /> Archiveren
+              </button>
+            </>
+          )}
           <button type="button" className="admin-btn admin-btn-sm text-paper hover:bg-white/10" onClick={() => bulk('delete')}>
             <TrashIcon size={16} /> Verwijderen
           </button>
@@ -166,6 +205,7 @@ export function MessageList({ messages, unread, query }: { messages: ListMessage
                         <span className="min-w-0 flex-1 truncate text-sm text-muted">{m.body}</span>
                         <StatusBadge status={m.status} />
                       </span>
+                      {m.status === 'spam' && m.spamReasons && <span className="mt-1 block text-xs text-warning">Waarom: {m.spamReasons}</span>}
                     </span>
                   </Link>
                 </li>

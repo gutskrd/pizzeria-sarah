@@ -122,9 +122,9 @@ export function MenuFolder({ folder, className = '', tone = 'light' }: { folder:
           {/* The cover lifts now and then, showing the flap underneath. */}
           <span className="folder-cover-inner">
             {/* eslint-disable-next-line @next/next/no-img-element -- generated panel */}
-            <img src={folder.panels.buiten[0]} alt="" width={folder.panelWidth} height={folder.panelHeight} className="folder-cover-under" />
+            <img src={folder.cover.under} alt="" width={folder.cover.width} height={folder.cover.height} className="folder-cover-under" />
             {/* eslint-disable-next-line @next/next/no-img-element -- generated panel */}
-            <img src={folder.panels.buiten[2]} alt="" width={folder.panelWidth} height={folder.panelHeight} className="folder-cover-front" />
+            <img src={folder.cover.front} alt="" width={folder.cover.width} height={folder.cover.height} className="folder-cover-front" fetchPriority="high" />
           </span>
         </span>
         <span

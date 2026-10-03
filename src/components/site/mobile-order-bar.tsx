@@ -54,7 +54,7 @@ export function MobileOrderBar({
 
   return (
     <div
-      className={`mobile-order-bar on-dark fixed inset-x-0 transition-transform duration-300 bottom-0 z-30 border-t border-white/10 bg-char/95 px-3 pt-2.5 text-white shadow-[0_-12px_30px_-12px_rgba(0,0,0,0.5)] backdrop-blur md:hidden ${
+      className={`mobile-order-bar on-dark fixed inset-x-0 transition-transform duration-300 bottom-0 z-30 border-t border-white/10 bg-char px-3 pt-2.5 text-white shadow-[0_-12px_30px_-12px_rgba(0,0,0,0.5)] md:hidden ${
         shown ? 'translate-y-0' : 'pointer-events-none translate-y-full'
       }`}
       style={{ paddingBottom: 'calc(0.625rem + env(safe-area-inset-bottom))' }}

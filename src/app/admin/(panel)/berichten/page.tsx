@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, ne, or, sql } from 'drizzle-orm';
+import { and, desc, eq, ilike, notInArray, or, sql } from 'drizzle-orm';
 import Link from 'next/link';
 import { EmptyState } from '@/components/admin/fields';
 import { MessageList } from '@/components/admin/messages/message-list';
@@ -17,6 +17,7 @@ const FILTERS: Array<{ key: 'inbox' | MessageStatus; label: string }> = [
   { key: 'read', label: 'Gelezen' },
   { key: 'replied', label: 'Beantwoord' },
   { key: 'archived', label: 'Gearchiveerd' },
+  { key: 'spam', label: 'Spam' },
 ];
 
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
@@ -26,7 +27,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
   const { status, zoek } = await searchParams;
   const filter = (MESSAGE_STATUSES as readonly string[]).includes(status ?? '') ? (status as MessageStatus) : 'inbox';
   const query = (zoek ?? '').trim().slice(0, 80);
-  const statusWhere = filter === 'inbox' ? ne(schema.messages.status, 'archived') : eq(schema.messages.status, filter);
+  const statusWhere = filter === 'inbox' ? notInArray(schema.messages.status, ['archived', 'spam']) : eq(schema.messages.status, filter);
   const like = `%${escapeLike(query)}%`;
   const where = query
     ? and(
@@ -43,7 +44,9 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
       .groupBy(schema.messages.status),
   ]);
   const count = (key: 'inbox' | MessageStatus) =>
-    key === 'inbox' ? counts.filter((c) => c.status !== 'archived').reduce((n, c) => n + c.count, 0) : (counts.find((c) => c.status === key)?.count ?? 0);
+    key === 'inbox'
+      ? counts.filter((c) => c.status !== 'archived' && c.status !== 'spam').reduce((n, c) => n + c.count, 0)
+      : (counts.find((c) => c.status === key)?.count ?? 0);
   const unread = count('new');
   const total = counts.reduce((n, c) => n + c.count, 0);
   const now = new Date();
@@ -87,6 +90,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
       ) : (
         <MessageList
           key={filter}
+          filter={filter}
           unread={unread}
           query={query}
           messages={messages.map((m) => ({
@@ -96,6 +100,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
             subject: m.subject,
             body: m.body,
             status: m.status,
+            spamReasons: m.spamReasons,
             createdAt: m.createdAt.toISOString(),
             ago: timeAgo(m.createdAt, now),
             when: formatShortDateTime(m.createdAt),

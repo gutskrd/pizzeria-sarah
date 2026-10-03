@@ -13,7 +13,7 @@ import type { MessageStatus } from '@/lib/db/schema';
 import { StatusBadge } from './status-badge';
 
 type Props = {
-  message: { id: string; name: string; email: string; subject: string; body: string; status: MessageStatus; createdAt: string };
+  message: { id: string; name: string; email: string; subject: string; body: string; status: MessageStatus; spamReasons: string; createdAt: string };
   replies: Array<{ id: string; body: string; createdAt: string }>;
   businessName: string;
 };
@@ -72,14 +72,29 @@ export function MessageView({ message, replies, businessName }: Props) {
             <dd>{fmt.format(new Date(message.createdAt))}</dd>
           </dl>
         </header>
+        {message.status === 'spam' && (
+          <div className="flex flex-col gap-3 border-b border-[#ecd9a8] bg-warning-soft px-5 py-4 sm:flex-row sm:items-center">
+            <p className="flex-1 text-[0.95rem] text-ink-soft">
+              <strong className="text-warning">Dit bericht lijkt spam.</strong> {message.spamReasons && <>Waarom: {message.spamReasons}. </>}Klik niet op links
+              in dit bericht. Is het toch een echt bericht?
+            </p>
+            <button
+              type="button"
+              className="admin-btn admin-btn-secondary shrink-0"
+              onClick={() => run(() => setMessageStatus({ id: message.id, status: 'read' }), { success: 'Teruggezet in de inbox.' })}
+            >
+              Geen spam
+            </button>
+          </div>
+        )}
         <div className="whitespace-pre-wrap break-words px-5 py-5 text-[1.03rem] leading-relaxed">{message.body}</div>
         <div className="flex flex-wrap gap-2 border-t border-line bg-paper/40 px-4 py-3 sm:px-5">
-          {!replyOpen && (
+          {!replyOpen && message.status !== 'spam' && (
             <button type="button" className="admin-btn admin-btn-primary" onClick={() => setReplyOpen(true)}>
               <ReplyIcon size={18} /> Beantwoorden
             </button>
           )}
-          {message.status !== 'archived' ? (
+          {message.status === 'spam' ? null : message.status !== 'archived' ? (
             <button
               type="button"
               className="admin-btn admin-btn-secondary"
@@ -98,7 +113,7 @@ export function MessageView({ message, replies, businessName }: Props) {
               Terug naar inbox
             </button>
           )}
-          {message.status !== 'new' && message.status !== 'archived' && (
+          {message.status !== 'new' && message.status !== 'archived' && message.status !== 'spam' && (
             <button
               type="button"
               className="admin-btn admin-btn-ghost"

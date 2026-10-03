@@ -29,6 +29,13 @@
       "when": 1791019131440,
       "tag": "0003_folder",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791034188018,
+      "tag": "0004_spam_filter",
+      "breakpoints": true
     }
   ]
 }

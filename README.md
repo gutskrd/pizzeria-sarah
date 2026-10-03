@@ -165,6 +165,16 @@ with every dish and price, breadcrumbs), a sitemap, and `/llms.txt`: a
 plain-text summary of the restaurant, hours and full menu for AI assistants,
 built from the same data as the website.
 
+**Contact form protection (layered, invisible to visitors):** honeypot field,
+minimum fill-in time, signed form token, rate limits per connection, per e-mail
+address and site-wide, Cloudflare Turnstile when configured (verified server-side
+incl. hostname and action), duplicate detection, and a content score
+(`src/lib/security/spam.ts`: links, HTML, spam phrases, unusual scripts,
+throwaway addresses). High scores go to a Spam folder in the admin instead of
+being deleted (no false negatives lost; auto-deleted after 30 days). The owner
+gets at most one e-mail per 15 minutes; messages in between are bundled
+(`src/lib/messages/notify.ts`), with a daily cap.
+
 ## 4. Try it: local demo (one command)
 
 Needs [Node.js 22](https://nodejs.org) and [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running).

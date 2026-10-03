@@ -14,6 +14,10 @@ export const FOLDER_SIDES: FolderSide[] = ['binnen', 'buiten'];
 /** Full sheet, also used for "Vergroten" on the website. */
 export const sheetFileName = (side: FolderSide) => `${side}kant.webp`;
 export const panelFileName = (side: FolderSide, n: 1 | 2 | 3) => `${side}-${n}.webp`;
+/** Small cover images (twice the size shown on the page). */
+export const COVER_FILE = 'voorkant.webp';
+export const COVER_UNDER_FILE = 'voorkant-onder.webp';
+const COVER_WIDTH = 480;
 
 const MAX_SHEET_WIDTH = 2400;
 const MAX_PANEL_HEIGHT = 1400;
@@ -143,6 +147,11 @@ export async function renderPanels(sheets: Record<FolderSide, Buffer>, cuts: Fol
         .webp({ quality: 88, effort: 4 })
         .toBuffer();
       files.push({ name: panelFileName(s.side, (i + 1) as 1 | 2 | 3), data });
+      // Small versions of the cover and the flap under it, for the folded flyer on the page.
+      if (s.side === 'buiten' && (i === 2 || i === 0)) {
+        const small = await sharp(data).resize({ width: COVER_WIDTH }).webp({ quality: 85, effort: 4 }).toBuffer();
+        files.push({ name: i === 2 ? COVER_FILE : COVER_UNDER_FILE, data: small });
+      }
     }
   }
   return { files, panelWidth, panelHeight };

@@ -40,6 +40,12 @@ function publicFolder(row: typeof schema.siteSettings.$inferSelect): PublicFolde
     panelHeight: row.folderPanelHeight,
     panels: { binnen: panels('binnen'), buiten: panels('buiten') },
     sheets: { binnen: mediaUrl(key, 'binnenkant.webp'), buiten: mediaUrl(key, 'buitenkant.webp') },
+    cover: {
+      front: mediaUrl(key, 'voorkant.webp'),
+      under: mediaUrl(key, 'voorkant-onder.webp'),
+      width: 480,
+      height: Math.round((480 * row.folderPanelHeight) / row.folderPanelWidth),
+    },
     version: key,
   };
 }

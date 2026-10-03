@@ -16,7 +16,7 @@ import postgres from 'postgres';
 import * as schema from '../src/lib/db/schema';
 import { readFile } from 'node:fs/promises';
 import { eq } from 'drizzle-orm';
-import { normalizeSheet, renderPanels, sharpenSheet, sheetFileName } from '../src/lib/images/folder';
+import { COVER_FILE, normalizeSheet, renderPanels, sharpenSheet, sheetFileName } from '../src/lib/images/folder';
 import { newStorageKey, readMediaFile, writeMediaFiles } from '../src/lib/images/storage';
 import { MENU_2025_11 } from './data/menukaart-2025-11';
 
@@ -209,11 +209,14 @@ const [current] = await db
   })
   .from(schema.siteSettings)
   .limit(1);
-if (current?.key && current.hasInside && current.hasOutside && (current.panelHeight ?? 0) < 900) {
+const needsCover = Boolean(current?.key) && !(await readMediaFile(current!.key!, COVER_FILE));
+if (current?.key && current.hasInside && current.hasOutside && ((current.panelHeight ?? 0) < 900 || needsCover)) {
   const inside = await readMediaFile(current.key, sheetFileName('binnen'));
   const outside = await readMediaFile(current.key, sheetFileName('buiten'));
   if (inside && outside) {
-    const sheets = { binnen: await sharpenSheet(inside), buiten: await sharpenSheet(outside) };
+    // Old, small sheets are sharpened once; newer ones only get the missing cover images.
+    const small = (current.panelHeight ?? 0) < 900;
+    const sheets = small ? { binnen: await sharpenSheet(inside), buiten: await sharpenSheet(outside) } : { binnen: inside, buiten: outside };
     const rendered = await renderPanels(sheets, current.cuts);
     const key = newStorageKey();
     await writeMediaFiles(key, [
@@ -226,7 +229,7 @@ if (current?.key && current.hasInside && current.hasOutside && (current.panelHei
       .set({ folderKey: key, folderPanelWidth: rendered.panelWidth, folderPanelHeight: rendered.panelHeight })
       .where(eq(schema.siteSettings.id, 1));
     // The old files stay: a running website may still show them until its cache refreshes.
-    console.log('Folder scherper gemaakt.');
+    console.log(small ? 'Folder scherper gemaakt.' : 'Folder bijgewerkt.');
   }
 }
 

@@ -95,6 +95,15 @@ Nieuwe berichten zijn rood gemarkeerd. Zoek op naam of tekst, vink meerdere beri
 keer als gelezen te markeren of te archiveren, of gebruik **Alles als gelezen markeren**. Met **Beantwoorden** stuur je direct een e-mail terug.
 Reageert de klant, dan komt dat in je eigen mailbox. Klaar met een bericht? **Archiveren**.
 
+**Spam en rust in je mailbox**
+
+- Berichten die op reclame of spam lijken (bijvoorbeeld met veel links of typische verkooppraat) komen in de map
+  **Spam**. Daar krijg je geen e-mail van, en na 30 dagen worden ze vanzelf verwijderd. Staat er toch een echt
+  bericht tussen? Kies **Geen spam**, dan staat het weer in je inbox. Bij elk spambericht staat waarom het daar staat.
+- Je krijgt hooguit **één e-mail per kwartier** over nieuwe berichten. Komen er meer tegelijk binnen, dan krijg je
+  daarna één e-mail met alles bij elkaar. In het beheer zie je altijd alles meteen.
+- Hetzelfde bericht twee keer verstuurd (dubbel geklikt) komt maar één keer binnen.
+
 ## Aanbiedingen
 
 Voeg een aanbieding toe met een titel, eventueel een prijs of korting, een foto en een periode.

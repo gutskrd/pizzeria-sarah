@@ -89,18 +89,41 @@ ${button(url, 'Nieuw wachtwoord instellen')}`,
   return { subject, html, text };
 }
 
-export function contactNotificationEmail(msg: { name: string; email: string; subject: string; body: string; id: string }) {
+const BUNDLE_NOTE = 'Je krijgt hooguit één e-mail per kwartier; komen er meer berichten binnen, dan krijg je daarna één e-mail met alles bij elkaar.';
+
+export function contactNotificationEmail(msg: { name: string; email: string; subject: string; body: string; id: string; othersWaiting?: number }) {
   const subject = `Nieuw bericht via de website: ${msg.subject}`;
   const url = `${siteUrl()}/admin/berichten/${msg.id}`;
+  const others = msg.othersWaiting ?? 0;
+  const othersLine = others > 0 ? `Er ${others === 1 ? 'wacht nog 1 ander ongelezen bericht' : `wachten nog ${others} andere ongelezen berichten`}.` : '';
   const html = layout(
     subject,
     `<h1 style="font-size:22px;margin:0 0 16px">Nieuw bericht</h1>
 <p style="margin:0 0 4px"><strong>Van:</strong> ${escapeHtml(msg.name)} &lt;${escapeHtml(msg.email)}&gt;</p>
 <p style="margin:0 0 16px"><strong>Onderwerp:</strong> ${escapeHtml(msg.subject)}</p>
 <div style="background:#f6f1e9;border-radius:6px;padding:16px;margin:0 0 16px">${paragraphs(msg.body)}</div>
+${othersLine ? `<p style="margin:0 0 16px">${escapeHtml(othersLine)}</p>` : ''}
 ${button(url, 'Bekijken en beantwoorden')}`,
+    `Dit is een automatisch bericht van de website van Pizzeria Sarah. ${BUNDLE_NOTE}`,
   );
-  const text = `Nieuw bericht via de website\n\nVan: ${msg.name} <${msg.email}>\nOnderwerp: ${msg.subject}\n\n${msg.body}\n\nBekijken en beantwoorden: ${url}`;
+  const text = `Nieuw bericht via de website\n\nVan: ${msg.name} <${msg.email}>\nOnderwerp: ${msg.subject}\n\n${msg.body}\n\n${othersLine ? `${othersLine}\n\n` : ''}Bekijken en beantwoorden: ${url}`;
+  return { subject, html, text };
+}
+
+/** One e-mail for several messages that came in within a short time. */
+export function contactDigestEmail(messages: Array<{ name: string; subject: string; id: string }>, total: number) {
+  const subject = `${total} nieuwe berichten via de website`;
+  const url = `${siteUrl()}/admin/berichten?status=new`;
+  const list = messages.map((m) => `<li style="margin:0 0 8px"><strong>${escapeHtml(m.name)}</strong>: ${escapeHtml(m.subject)}</li>`).join('');
+  const more = total > messages.length ? `<p style="margin:0 0 16px">En nog ${total - messages.length} meer.</p>` : '';
+  const html = layout(
+    subject,
+    `<h1 style="font-size:22px;margin:0 0 16px">${escapeHtml(subject)}</h1>
+<ul style="padding-left:20px;margin:0 0 16px">${list}</ul>${more}
+${button(url, 'Berichten bekijken')}`,
+    `Dit is een automatisch bericht van de website van Pizzeria Sarah. ${BUNDLE_NOTE}`,
+  );
+  const text = `${subject}\n\n${messages.map((m) => `- ${m.name}: ${m.subject}`).join('\n')}${total > messages.length ? `\nEn nog ${total - messages.length} meer.` : ''}\n\nBerichten bekijken: ${url}`;
   return { subject, html, text };
 }
 

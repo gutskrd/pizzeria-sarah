@@ -371,6 +371,36 @@ test.describe.serial('Beheer', () => {
     await expect(page.getByRole('link', { name: /Jan de Vries/ }).first()).toBeVisible();
   });
 
+  test('spam: reclame gaat naar Spam zonder e-mail, en is terug te zetten', async ({ page, browser }) => {
+    const visitor = await browser.newContext();
+    const v = await visitor.newPage();
+    await v.goto('/contact');
+    await v.getByLabel('Naam', { exact: true }).fill('Mike');
+    await v.getByLabel('E-mailadres').fill('mike@seo-bureau.example');
+    await v.getByLabel('Onderwerp').fill('First page of Google');
+    await v.getByLabel('Bericht', { exact: true }).fill('We offer SEO and link building for your restaurant. See https://cheap-seo.xyz and www.backlinks.top');
+    await v.waitForTimeout(3200);
+    await v.getByRole('button', { name: 'Bericht versturen' }).click();
+    // The sender sees the normal confirmation (a spammer learns nothing).
+    await expect(v.getByRole('status')).toContainText('Bedankt voor je bericht');
+    await visitor.close();
+    expect(outbox().some((m) => m.subject.includes('First page of Google'))).toBe(false);
+
+    await page.goto('/admin/berichten');
+    await expect(page.getByRole('link', { name: /Mike/ })).toHaveCount(0);
+    await page.getByRole('link', { name: /^Spam/ }).click();
+    const row = page.getByRole('listitem').filter({ hasText: 'First page of Google' });
+    await expect(row.getByText(/Waarom:/)).toBeVisible();
+    await row.getByRole('checkbox').check();
+    await page.getByRole('button', { name: 'Geen spam' }).click();
+    await toast(page, 'Teruggezet in de inbox.');
+    await page.goto('/admin/berichten');
+    await page.getByRole('link', { name: /Mike/ }).click();
+    await page.getByRole('button', { name: 'Verwijderen' }).click();
+    await dialog(page).getByRole('button', { name: 'Verwijderen' }).click();
+    await toast(page, 'Bericht verwijderd.');
+  });
+
   test('aanbiedingen: alleen actieve aanbiedingen staan online', async ({ page }) => {
     await page.goto('/admin/aanbiedingen');
     await page.getByRole('button', { name: 'Aanbieding toevoegen' }).click();
@@ -469,6 +499,8 @@ test.describe.serial('Beheer', () => {
     await v.getByRole('button', { name: 'Bericht versturen' }).click();
     await expect(v.getByRole('status')).toContainText('Bedankt');
     await visitor.close();
+    // Less than 15 minutes after the previous e-mail: bundled later, not e-mailed at once.
+    expect(outbox().some((m) => m.subject.includes('Afhalen om 17 uur'))).toBe(false);
 
     await page.goto('/admin');
     const nav = page.getByRole('navigation', { name: 'Beheermenu' }).first();

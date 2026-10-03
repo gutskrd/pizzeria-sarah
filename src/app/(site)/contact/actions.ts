@@ -1,13 +1,13 @@
 'use server';
 
 import { z } from 'zod';
-import { getSettings } from '@/lib/content/queries';
+import { and, eq, gt } from 'drizzle-orm';
 import { db, schema } from '@/lib/db';
-import { sendEmail } from '@/lib/email';
-import { contactNotificationEmail } from '@/lib/email/templates';
-import { verifySigned } from '@/lib/security/crypto';
+import { notifyOwnerOfMessage } from '@/lib/messages/notify';
+import { keyedHash, verifySigned } from '@/lib/security/crypto';
 import { consumeRateLimit } from '@/lib/security/rate-limit';
 import { getRequestInfo } from '@/lib/security/request-info';
+import { messageFingerprintSource, scoreMessage } from '@/lib/security/spam';
 import { verifyTurnstile } from '@/lib/security/turnstile';
 
 export type ContactState = {
@@ -69,24 +69,57 @@ export async function sendContactMessage(_prev: ContactState, formData: FormData
   if (!short.ok || !daily.ok) {
     return { status: 'error', message: 'Je hebt al een paar berichten gestuurd. Probeer het later opnieuw, of bel ons.', values };
   }
+  // Also per e-mail address, so changing internet connection does not help a spammer.
+  const perAddress = await consumeRateLimit(`contact:email:${parsed.data.email}`, 3, 24 * 60 * 60);
+  if (!perAddress.ok) {
+    return {
+      status: 'error',
+      message: 'Je hebt vandaag al een paar berichten gestuurd. We reageren zo snel mogelijk; bel ons gerust als het dringend is.',
+      values,
+    };
+  }
 
-  if (!(await verifyTurnstile(String(formData.get('cf-turnstile-response') ?? '') || null, info.ip))) {
+  if (!(await verifyTurnstile(String(formData.get('cf-turnstile-response') ?? '') || null, info.ip, 'contact'))) {
     return { status: 'error', message: 'We konden niet controleren of je een mens bent. Probeer het opnieuw.', values };
   }
 
   try {
+    // The same message twice (double click, page refresh): keep one.
+    const fingerprint = keyedHash(messageFingerprintSource(parsed.data.email, parsed.data.message), 'message');
+    const [duplicate] = await db()
+      .select({ id: schema.messages.id })
+      .from(schema.messages)
+      .where(and(eq(schema.messages.fingerprint, fingerprint), gt(schema.messages.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))))
+      .limit(1);
+    if (duplicate) return { status: 'success', message: SUCCESS };
+
+    const verdict = scoreMessage({ ...parsed.data, secondsToSubmit: age / 1000 });
+    const reasons = [...verdict.reasons];
+    let isSpam = verdict.isSpam;
+    // A sudden flood (many messages from many places at once) goes to the spam folder, not to the owner.
+    if (!isSpam && !(await consumeRateLimit('contact:global:hour', 30, 60 * 60)).ok) {
+      isSpam = true;
+      reasons.push('Ongewoon veel berichten tegelijk');
+    }
+
     const [saved] = await db()
       .insert(schema.messages)
-      .values({ name: parsed.data.name, email: parsed.data.email, subject: parsed.data.subject, body: parsed.data.message })
+      .values({
+        name: parsed.data.name,
+        email: parsed.data.email,
+        subject: parsed.data.subject,
+        body: parsed.data.message,
+        status: isSpam ? 'spam' : 'new',
+        spamScore: Math.min(verdict.score, 100),
+        spamReasons: reasons.join('; ').slice(0, 500),
+        fingerprint,
+      })
       .returning({ id: schema.messages.id });
 
-    const settings = await getSettings();
-    if (settings.messageAlerts) {
-      await sendEmail({
-        to: settings.email,
-        replyTo: parsed.data.email,
-        ...contactNotificationEmail({ ...parsed.data, body: parsed.data.message, id: saved!.id }),
-      }).catch((error) => console.error('[contact] notification failed', error instanceof Error ? error.message : error));
+    if (!isSpam) {
+      await notifyOwnerOfMessage({ ...parsed.data, body: parsed.data.message, id: saved!.id }).catch((error) =>
+        console.error('[contact] notification failed', error instanceof Error ? error.message : error),
+      );
     }
   } catch (error) {
     console.error('[contact] failed to store message', error);

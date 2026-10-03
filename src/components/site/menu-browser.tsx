@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { CloseIcon, SearchIcon } from '@/components/ui/icons';
 import type { PublicMenuCategory } from '@/lib/content/queries';
 import { FoodIcon } from './food-icon';
@@ -8,7 +8,8 @@ import { MenuItemRow } from './menu-item';
 
 const normalize = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
+/** `nested`: the menu sits inside a section with its own heading (the homepage), so headings go one level down. */
+export function MenuBrowser({ menu, nested = false }: { menu: PublicMenuCategory[]; nested?: boolean }) {
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(menu[0]?.slug ?? '');
   const navRef = useRef<HTMLDivElement>(null);
@@ -55,7 +56,7 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
 
   return (
     <div>
-      <div className="sticky top-[67px] z-30 -mx-4 border-b border-line bg-paper/95 px-4 backdrop-blur-sm sm:-mx-6 sm:px-6 md:top-[75px] lg:-mx-10 lg:px-10">
+      <div className="sticky top-[67px] z-30 -mx-4 border-b border-line bg-paper px-4 sm:-mx-6 sm:px-6 md:top-[75px] lg:-mx-10 lg:px-10">
         <div className="flex flex-col gap-3 py-3 md:flex-row md:items-center">
           <label className="relative block md:w-72 md:shrink-0">
             <span className="sr-only">Zoek een gerecht</span>
@@ -110,23 +111,34 @@ export function MenuBrowser({ menu }: { menu: PublicMenuCategory[] }) {
           </button>
         </div>
       ) : (
-        <div>
-          {filtered.map((c) => (
-            <section key={c.id} id={c.slug} data-menu-section={c.slug} className="scroll-mt-40 pt-10 md:pt-14" aria-labelledby={`cat-${c.slug}`}>
-              <h2 id={`cat-${c.slug}`} className="menu-banner gap-2 text-[1.35rem] md:text-[1.5rem]" data-reveal>
-                <FoodIcon name={c.name} size={22} className="shrink-0" />
-                {c.name}
-              </h2>
-              {c.description && <p className="mt-3 max-w-2xl text-muted">{c.description}</p>}
-              <ul className="mt-3 grid lg:grid-cols-2 lg:gap-x-14">
-                {c.items.map((item) => (
-                  <MenuItemRow key={item.id} item={item} />
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
+        <MenuSections categories={filtered} nested={nested} />
       )}
     </div>
   );
 }
+
+/**
+ * The dishes themselves. Kept apart so that scrolling (which only changes the
+ * highlighted category button) never re-draws the whole menu: smooth on slow phones.
+ */
+const MenuSections = memo(function MenuSections({ categories, nested }: { categories: PublicMenuCategory[]; nested: boolean }) {
+  const Heading = nested ? 'h3' : 'h2';
+  return (
+    <div>
+      {categories.map((c) => (
+        <section key={c.id} id={c.slug} data-menu-section={c.slug} className="scroll-mt-40 pt-10 md:pt-14" aria-labelledby={`cat-${c.slug}`}>
+          <Heading id={`cat-${c.slug}`} className="menu-banner gap-2 text-[1.35rem] md:text-[1.5rem]" data-reveal>
+            <FoodIcon name={c.name} size={22} className="shrink-0" />
+            {c.name}
+          </Heading>
+          {c.description && <p className="mt-3 max-w-2xl text-muted">{c.description}</p>}
+          <ul className="mt-3 grid lg:grid-cols-2 lg:gap-x-14">
+            {c.items.map((item) => (
+              <MenuItemRow key={item.id} item={item} headingLevel={nested ? 'h4' : 'h3'} />
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+});

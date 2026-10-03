@@ -256,7 +256,7 @@ export default async function HomePage() {
 
           <div id="gerechten" className="mt-6 scroll-mt-24 pb-16 md:pb-24">
             {menu.length > 0 ? (
-              <MenuBrowser menu={menu} />
+              <MenuBrowser menu={menu} nested />
             ) : (
               <p className="py-12 text-center text-lg text-ink-soft">
                 De menukaart wordt bijgewerkt. Bel ons gerust op {settings.phoneDisplay} voor ons actuele aanbod.

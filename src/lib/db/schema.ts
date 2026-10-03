@@ -275,6 +275,8 @@ export const siteSettings = pgTable(
     folderVisible: boolean('folder_visible').notNull().default(true),
     folderUpdatedAt: timestamp('folder_updated_at', { withTimezone: true }),
 
+    /** When the owner last got an e-mail about new messages (to bundle a busy moment into one e-mail). */
+    lastMessageAlertAt: timestamp('last_message_alert_at', { withTimezone: true }),
     newDeviceAlerts: boolean('new_device_alerts').notNull().default(true),
     messageAlerts: boolean('message_alerts').notNull().default(true),
     updatedAt: updatedAt(),
@@ -443,7 +445,7 @@ export const openingExceptionPeriods = pgTable(
 
 /* ───────────────────────── Messages ───────────────────────── */
 
-export const MESSAGE_STATUSES = ['new', 'read', 'replied', 'archived'] as const;
+export const MESSAGE_STATUSES = ['new', 'read', 'replied', 'archived', 'spam'] as const;
 export type MessageStatus = (typeof MESSAGE_STATUSES)[number];
 
 export const messages = pgTable(
@@ -458,9 +460,15 @@ export const messages = pgTable(
     createdAt: createdAt(),
     readAt: timestamp('read_at', { withTimezone: true }),
     repliedAt: timestamp('replied_at', { withTimezone: true }),
+    /** Result of the content check (src/lib/security/spam.ts). */
+    spamScore: smallint('spam_score').notNull().default(0),
+    spamReasons: text('spam_reasons').notNull().default(''),
+    /** Keyed hash of sender + text, to recognise a message sent twice. */
+    fingerprint: text('fingerprint'),
   },
   (t) => [
     index('messages_status_created_idx').on(t.status, t.createdAt),
+    index('messages_fingerprint_idx').on(t.fingerprint, t.createdAt),
     check('messages_status_valid', sql.raw(`status in (${MESSAGE_STATUSES.map((v) => `'${v}'`).join(',')})`)),
     check('messages_body_length', sql`char_length(${t.body}) between 1 and 5000`),
     check('messages_name_length', sql`char_length(${t.name}) between 1 and 100`),

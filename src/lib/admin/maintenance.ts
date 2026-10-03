@@ -9,7 +9,7 @@ const DAY = 24 * 60 * 60 * 1000;
 /**
  * Housekeeping, at most once a day (triggered when the owner opens the admin):
  * removes expired login data, empties the photo trash after 30 days and
- * deletes contact messages and security history older than 12 months, as
+ * deletes spam after 30 days and contact messages and security history older than 12 months, as
  * promised in the privacy statement.
  */
 export async function runMaintenance(): Promise<void> {
@@ -23,6 +23,7 @@ export async function runMaintenance(): Promise<void> {
     await d.execute(sql`delete from sessions where revoked_at < now() - interval '90 days' or absolute_expires_at < now() - interval '90 days'`);
     await d.execute(sql`delete from trusted_devices where expires_at < now() - interval '30 days' or revoked_at < now() - interval '30 days'`);
     await d.execute(sql`delete from messages where created_at < now() - interval '12 months'`);
+    await d.execute(sql`delete from messages where status = 'spam' and created_at < now() - interval '30 days'`);
     await d.execute(sql`delete from security_events where created_at < now() - interval '12 months'`);
     await d.execute(sql`delete from activity_log where created_at < now() - interval '12 months'`);
 

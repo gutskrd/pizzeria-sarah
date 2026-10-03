@@ -107,7 +107,7 @@ export function ContactForm({ formToken, turnstileSiteKey, nonce }: { formToken:
       {turnstileSiteKey && (
         <>
           <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" nonce={nonce} />
-          <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-language="nl" data-theme="light" />
+          <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-action="contact" data-language="nl" data-theme="light" />
         </>
       )}
 

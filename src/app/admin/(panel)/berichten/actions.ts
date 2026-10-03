@@ -16,6 +16,7 @@ const STATUS_MESSAGES = {
   read: 'Gemarkeerd als gelezen.',
   replied: 'Gemarkeerd als beantwoord.',
   archived: 'Bericht gearchiveerd.',
+  spam: 'Naar spam verplaatst.',
 } as const;
 
 export const setMessageStatus = adminAction(z.object({ id: z.uuid(), status: z.enum(MESSAGE_STATUSES) }), async ({ id, status }) => {
@@ -73,12 +74,21 @@ export const deleteMessage = adminAction(z.object({ id: z.uuid() }), async ({ id
 });
 
 export const bulkMessageAction = adminAction(
-  z.object({ ids: z.array(z.uuid()).min(1).max(500), action: z.enum(['read', 'new', 'archived', 'delete']) }),
+  z.object({ ids: z.array(z.uuid()).min(1).max(500), action: z.enum(['read', 'new', 'archived', 'delete', 'notspam']) }),
   async ({ ids, action }, ctx) => {
     if (action === 'delete') {
       const rows = await db().delete(schema.messages).where(inArray(schema.messages.id, ids)).returning({ id: schema.messages.id });
       await logActivity(ctx.user.id, 'berichten', rows.length === 1 ? 'Bericht verwijderd' : `${rows.length} berichten verwijderd`);
       return { ok: true, message: rows.length === 1 ? 'Bericht verwijderd.' : `${rows.length} berichten verwijderd.` };
+    }
+    if (action === 'notspam') {
+      const rows = await db()
+        .update(schema.messages)
+        .set({ status: 'new' })
+        .where(and(inArray(schema.messages.id, ids), eq(schema.messages.status, 'spam')))
+        .returning({ id: schema.messages.id });
+      await logActivity(ctx.user.id, 'berichten', rows.length === 1 ? 'Bericht uit spam gehaald' : `${rows.length} berichten uit spam gehaald`);
+      return { ok: true, message: rows.length === 1 ? 'Teruggezet in de inbox.' : `${rows.length} berichten teruggezet in de inbox.` };
     }
     const rows = await db()
       .update(schema.messages)
@@ -103,4 +113,10 @@ export const markAllMessagesRead = adminAction(z.object({}), async () => {
     ok: true,
     message: rows.length ? `${rows.length} ${rows.length === 1 ? 'bericht' : 'berichten'} gemarkeerd als gelezen.` : 'Er waren geen ongelezen berichten.',
   };
+});
+
+export const emptySpam = adminAction(z.object({}), async (_input, ctx) => {
+  const rows = await db().delete(schema.messages).where(eq(schema.messages.status, 'spam')).returning({ id: schema.messages.id });
+  if (rows.length) await logActivity(ctx.user.id, 'berichten', `Spam leeggemaakt (${rows.length})`);
+  return { ok: true, message: rows.length ? `${rows.length} ${rows.length === 1 ? 'spambericht' : 'spamberichten'} verwijderd.` : 'De spam was al leeg.' };
 });
