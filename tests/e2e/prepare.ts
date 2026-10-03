@@ -23,7 +23,8 @@ rmSync('data/outbox', { recursive: true, force: true });
 
 const env = { ...process.env };
 execSync('npx tsx scripts/migrate.ts', { stdio: 'inherit', env });
-execSync('npx tsx scripts/seed.ts', { stdio: 'inherit', env });
+// The tests build their own menu, so start without the real one.
+execSync('npx tsx scripts/seed.ts --zonder-menukaart', { stdio: 'inherit', env });
 execSync('npx tsx scripts/create-admin.ts', {
   stdio: 'inherit',
   env: { ...env, ADMIN_EMAIL: 'eigenaar@example.com', ADMIN_NAME: 'Sarah', ADMIN_PASSWORD: 'Pizzaoven-Dodewaard-1995' },

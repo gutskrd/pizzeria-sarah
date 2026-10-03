@@ -1,16 +1,19 @@
 /**
  * Seeds the initial website content.
  *
- * Only verified information from the existing Pizzeria Sarah website is used.
- * Menu items, prices, photos and offers are intentionally NOT seeded: they
- * could not be reliably extracted and must never be invented. The owner adds
- * them through the admin panel (or via `npm run media:import-legacy`).
+ * Only verified information is used: the texts of the existing website and
+ * the printed menu of November 2025 (scripts/data/menukaart-2025-11.ts).
+ * Photos and offers are not seeded; the owner adds them in the admin panel
+ * (or via `npm run media:import-legacy`).
  *
- * Safe to run repeatedly: existing rows are left untouched.
+ * Safe to run repeatedly: existing rows are left untouched, and the menu is
+ * only added while the menu is still completely empty.
+ * Pass --zonder-menukaart to skip the menu (used by the automated tests).
  */
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../src/lib/db/schema';
+import { MENU_2025_11 } from './data/menukaart-2025-11';
 
 const url = process.env.DATABASE_URL;
 if (!url) {
@@ -129,6 +132,32 @@ const existingPeriods = await db.select({ id: schema.openingPeriods.id }).from(s
 if (existingPeriods.length === 0) {
   await client`update opening_days set note = 'Gesloten, behalve op feestdagen' where weekday = 1`;
   await db.insert(schema.openingPeriods).values([2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, opensAt: '16:00', closesAt: '20:00' })));
+}
+
+// Menu from the printed menu (November 2025), only into an empty menu.
+const existingCategories = await db.select({ id: schema.menuCategories.id }).from(schema.menuCategories).limit(1);
+if (existingCategories.length === 0 && !process.argv.includes('--zonder-menukaart')) {
+  await db.transaction(async (tx) => {
+    for (const [ci, category] of MENU_2025_11.entries()) {
+      const [row] = await tx
+        .insert(schema.menuCategories)
+        .values({ name: category.name, slug: category.slug, sortOrder: ci })
+        .returning({ id: schema.menuCategories.id });
+      await tx.insert(schema.menuItems).values(
+        category.items.map((item, ii) => ({
+          categoryId: row!.id,
+          number: item.number,
+          name: item.name,
+          description: item.description ?? '',
+          priceCents: item.price === null ? null : Math.round(item.price * 100),
+          isFeatured: item.featured ?? false,
+          sortOrder: ii,
+        })),
+      );
+    }
+  });
+  const count = MENU_2025_11.reduce((n, c) => n + c.items.length, 0);
+  console.log(`Menukaart toegevoegd: ${count} gerechten in ${MENU_2025_11.length} categorieën.`);
 }
 
 console.log('Basisinhoud toegevoegd.');

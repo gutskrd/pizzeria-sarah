@@ -9,7 +9,7 @@ next-env.d.ts
 *.tsbuildinfo
 
 # Lokale gegevens: geüploade foto's, e-mail-outbox, back-ups
-data/
+/data/
 
 # Geheimen
 .env

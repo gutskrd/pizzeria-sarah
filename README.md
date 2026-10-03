@@ -1,8 +1,7 @@
 # Pizzeria Sarah — website + beheer
 
 Replacement for the WordPress site at **pizzaria-sarah.nl**: a fast Dutch public
-website for Pizzeria Sarah (grillroom, pizzeria and takeaway in Dodewaard, since
-1995) plus a private, Dutch admin panel built for the owner.
+website for Pizzeria Sarah (grillroom, pizzeria and takeaway in Dodewaard, since 1995) plus a private, Dutch admin panel built for the owner.
 
 - **Public site:** `/`, `/menukaart`, `/over-ons`, `/galerij`, `/contact`, `/privacy`, `/voorwaarden`
 - **Admin:** `/admin`: dashboard, website texts, menu, photos, opening hours, messages, offers, activity history, signed-in devices, settings
@@ -18,17 +17,19 @@ website for Pizzeria Sarah (grillroom, pizzeria and takeaway in Dodewaard, since
 ## 1. Content status: read this first
 
 The old website could not be reached from the environment this was built in, so
-**no menu items, prices or photos were copied**. Nothing was invented.
+**no photos were copied**. The menu was transcribed from the printed menu
+(November 2025, `content/menukaart-2025-11/`). Nothing was invented.
 
-| Content | Status |
-| --- | --- |
-| Intro text, story ("sinds 1995"), waiting area, pizza text, reservation and allergen text | Seeded from the texts supplied in the brief (lightly rewritten, same facts) |
-| Phone `0488 - 411 767`, e-mail `pizzaria-sarah@hotmail.com` | Seeded from the brief |
-| Address `Margrietlaan 2, 6669 AP Dodewaard` | Seeded from **public business directories**, not from the old site. **Confirm it under Beheer → Instellingen.** |
-| Opening hours (Mon closed except holidays, Tue–Sun 16:00–20:00) | Seeded, editable |
-| Menu categories, dishes, prices, allergens | **Empty.** The owner fills them in (or uploads the PDF menu) |
-| Photos, PDF menu | **Empty.** Run the importer below, or upload in Beheer → Foto's |
-| Offers, reviews, awards, statistics | None, by design |
+| Content                                                                                   | Status                                                                                                                                                                                                                                                                                                  |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Intro text, story ("sinds 1995"), waiting area, pizza text, reservation and allergen text | Seeded from the texts supplied in the brief (lightly rewritten, same facts)                                                                                                                                                                                                                             |
+| Phone `0488 - 411 767`, e-mail `pizzaria-sarah@hotmail.com`                               | Seeded from the brief                                                                                                                                                                                                                                                                                   |
+| Address `Margrietlaan 2, 6669 AP Dodewaard`                                               | Seeded; matches the printed menu. Editable under Beheer → Instellingen                                                                                                                                                                                                                                  |
+| Opening hours (Mon closed except holidays, Tue–Sun 16:00–20:00)                           | Seeded, editable                                                                                                                                                                                                                                                                                        |
+| Menu: 10 categories, 72 dishes, prices                                                    | Seeded from the **printed menu (Nov 2025)** by `npm run db:seed` (only when the menu is still empty; `--zonder-menukaart` skips it). Data: `scripts/data/menukaart-2025-11.ts`. _Fantasia_ (31) has no printed price and shows without one. The six dishes on the homepage (star) are a starting choice |
+| Allergens                                                                                 | **Empty.** Not on the printed menu; the owner fills them in                                                                                                                                                                                                                                             |
+| Photos, PDF menu                                                                          | **Empty.** Run the importer below, or upload in Beheer → Foto's                                                                                                                                                                                                                                         |
+| Offers, reviews, awards, statistics                                                       | None, by design                                                                                                                                                                                                                                                                                         |
 
 Import the existing photos and the PDF menu from the old WordPress site (run it
 from a machine that can reach the old site, before DNS is switched):
@@ -52,15 +53,15 @@ logs). Have the owner read them before going live.
 
 ## 2. Architecture
 
-| Part | Choice | Why |
-| --- | --- | --- |
-| App | **Next.js 16** (App Router, React 19, TypeScript, `output: 'standalone'`) | Server rendering, server actions with built-in CSRF origin checks, small client JS |
-| Styling | Tailwind CSS 4, self-hosted variable fonts (Fraunces, Instrument Sans) | No requests to Google Fonts (privacy, speed) |
-| Database | **PostgreSQL 16** + Drizzle ORM, SQL migrations in `drizzle/` | Real constraints, foreign keys, indexes, exclusion constraint for overlapping holiday rules |
-| Images | **sharp** on the server; files on a local volume | Validation by file signature + decoder, EXIF/GPS removed, responsive WebP sizes + social JPEG generated once on upload; served with immutable caching |
-| E-mail | **Resend** HTTP API (server only) | Login codes, new-device alerts, password reset, contact notifications, replies |
-| Spam protection | Honeypot + timing token + rate limits; optional **Cloudflare Turnstile** | Low friction for customers |
-| Hosting | **One small EU VPS** with Docker Compose: `app` + `db` + **Caddy** | Automatic HTTPS (Let's Encrypt), HTTP→HTTPS redirect, compression, no vendor lock-in |
+| Part            | Choice                                                                    | Why                                                                                                                                                   |
+| --------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| App             | **Next.js 16** (App Router, React 19, TypeScript, `output: 'standalone'`) | Server rendering, server actions with built-in CSRF origin checks, small client JS                                                                    |
+| Styling         | Tailwind CSS 4, self-hosted variable fonts (Fraunces, Instrument Sans)    | No requests to Google Fonts (privacy, speed)                                                                                                          |
+| Database        | **PostgreSQL 16** + Drizzle ORM, SQL migrations in `drizzle/`             | Real constraints, foreign keys, indexes, exclusion constraint for overlapping holiday rules                                                           |
+| Images          | **sharp** on the server; files on a local volume                          | Validation by file signature + decoder, EXIF/GPS removed, responsive WebP sizes + social JPEG generated once on upload; served with immutable caching |
+| E-mail          | **Resend** HTTP API (server only)                                         | Login codes, new-device alerts, password reset, contact notifications, replies                                                                        |
+| Spam protection | Honeypot + timing token + rate limits; optional **Cloudflare Turnstile**  | Low friction for customers                                                                                                                            |
+| Hosting         | **One small EU VPS** with Docker Compose: `app` + `db` + **Caddy**        | Automatic HTTPS (Let's Encrypt), HTTP→HTTPS redirect, compression, no vendor lock-in                                                                  |
 
 Alternatives considered and rejected:
 
@@ -74,13 +75,13 @@ are visible at once.
 
 ### Costs (check current prices before ordering)
 
-| Item | Cost |
-| --- | --- |
-| VPS, 2 vCPU / 2–4 GB RAM, EU (e.g. Hetzner CX23 / CAX11, Netcup, TransIP) | ≈ €5–8 per month. Prices changed several times in 2026, so check before ordering |
-| Off-site backup space (e.g. Hetzner Storage Box, Backblaze B2) | ≈ €1–4 per month (optional but recommended) |
-| Resend | Free: 3,000 e-mails/month, max 100/day (as of Sept 2026). This site sends a handful per day |
-| Cloudflare Turnstile / DNS | Free |
-| Domain `pizzaria-sarah.nl` | Stays at the current registrar; only DNS records change |
+| Item                                                                      | Cost                                                                                        |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| VPS, 2 vCPU / 2–4 GB RAM, EU (e.g. Hetzner CX23 / CAX11, Netcup, TransIP) | ≈ €5–8 per month. Prices changed several times in 2026, so check before ordering            |
+| Off-site backup space (e.g. Hetzner Storage Box, Backblaze B2)            | ≈ €1–4 per month (optional but recommended)                                                 |
+| Resend                                                                    | Free: 3,000 e-mails/month, max 100/day (as of Sept 2026). This site sends a handful per day |
+| Cloudflare Turnstile / DNS                                                | Free                                                                                        |
+| Domain `pizzaria-sarah.nl`                                                | Stays at the current registrar; only DNS records change                                     |
 
 ### Project layout
 
@@ -223,7 +224,7 @@ Safari on an iPhone, Firefox and Edge.
      records** untouched (the hotmail address is unaffected).
 5. **E-mail (Resend):** create an account, add the domain `pizzaria-sarah.nl`, add the
    SPF/DKIM (and optionally DMARC) records Resend shows to the DNS, wait for
-   "Verified", create an API key with *sending* permission only. Use for example
+   "Verified", create an API key with _sending_ permission only. Use for example
    `EMAIL_FROM="Pizzeria Sarah <website@pizzaria-sarah.nl>"`. Replies to customers
    use `Reply-To` = the restaurant's e-mail address, so customer answers arrive in
    the normal mailbox.
@@ -256,7 +257,7 @@ spoofed.
 
 Permanent (308) redirects are configured in `next.config.ts` for common old paths
 (`/menu`, `/contact-2`, `/privacybeleid`, `/openingstijden`, the old PDF menu URLs,
-…). After launch, check Search Console → *Pages → Not found (404)* and add any
+…). After launch, check Search Console → _Pages → Not found (404)_ and add any
 remaining old URLs to the `legacyRedirects` list. `/wp-admin` and `/wp-login.php`
 intentionally return 404.
 
@@ -267,11 +268,11 @@ HTML, one H1 per page, unique titles/descriptions, canonical URLs, Open Graph,
 `/sitemap.xml`, `/robots.txt`, and `Restaurant` + `BreadcrumbList` + `Menu`
 structured data.
 
-1. Go to <https://search.google.com/search-console> → *Add property* → **Domain**
+1. Go to <https://search.google.com/search-console> → _Add property_ → **Domain**
    → `pizzaria-sarah.nl`.
-2. Add the TXT record Google shows at the registrar; click *Verify*.
-3. *Sitemaps* → submit `https://pizzaria-sarah.nl/sitemap.xml`.
-4. *URL inspection* → test `https://pizzaria-sarah.nl/` → *Request indexing*.
+2. Add the TXT record Google shows at the registrar; click _Verify_.
+3. _Sitemaps_ → submit `https://pizzaria-sarah.nl/sitemap.xml`.
+4. _URL inspection_ → test `https://pizzaria-sarah.nl/` → _Request indexing_.
 5. Check the structured data with <https://search.google.com/test/rich-results>.
 6. Also claim/update the **Google Business Profile** (address, hours, phone, link
    to the site); it matters more for local searches than the website itself.

@@ -15,13 +15,13 @@ foto's kun je nog 30 dagen terugzetten.
 Je wordt pas uitgelogd als je een maand lang niet in het beheer bent geweest, of als je zelf op
 **Uitloggen** drukt.
 
-**Wachtwoord vergeten?** Klik op het inlogscherm op *Wachtwoord vergeten?* en volg de link in de e-mail.
+**Wachtwoord vergeten?** Klik op het inlogscherm op _Wachtwoord vergeten?_ en volg de link in de e-mail.
 
 ## Dashboard
 
-- **Vandaag**: de klok, of de zaak nu open is en hoe lang nog (*sluit over 1 u 12 min*), en een balk
+- **Vandaag**: de klok, of de zaak nu open is en hoe lang nog (_sluit over 1 u 12 min_), en een balk
   met de openingstijden van vandaag.
-- **Vandaag sluiten**: ben je onverwacht dicht? Eén tik, en op de website staat meteen *Vandaag gesloten*.
+- **Vandaag sluiten**: ben je onverwacht dicht? Eén tik, en op de website staat meteen _Vandaag gesloten_.
   Toch open? Tik op **Toch open vandaag**. Morgen gelden vanzelf weer de vaste tijden.
 - Kerncijfers (nieuwe berichten, gerechten, foto's, aanbiedingen), de **komende 7 dagen**, een grafiek
   met berichten per dag, en **Is alles goed?**: een geel uitroepteken betekent even naar kijken.
@@ -29,7 +29,7 @@ Je wordt pas uitgelogd als je een maand lang niet in het beheer bent geweest, of
 ## Meldingen en bolletjes
 
 - Een **rood bolletje met een getal** in het menu betekent: er wacht iets op je, bijvoorbeeld
-  *Berichten 3* = drie ongelezen berichten. Het getal staat ook in het tabblad van je browser: *(3) Beheer*.
+  _Berichten 3_ = drie ongelezen berichten. Het getal staat ook in het tabblad van je browser: _(3) Beheer_.
 - **Geel**: iets kan beter (bijvoorbeeld foto's zonder beschrijving, gerechten zonder prijs).
   **Blauw**: ter info (bijvoorbeeld een sluiting deze week). **Grijs**: hoeveel er actief is.
 - De **bel** rechtsboven toont alle meldingen op een rij. Ze verdwijnen vanzelf zodra ze zijn opgelost.
@@ -38,7 +38,7 @@ Je wordt pas uitgelogd als je een maand lang niet in het beheer bent geweest, of
 ## Zoeken en snel naar
 
 Druk op **Ctrl + K** (op een Mac **⌘ + K**) of tik op het vergrootglas. Typ bijvoorbeeld een gerecht,
-een naam uit een bericht of *vandaag sluiten*, en druk op Enter.
+een naam uit een bericht of _vandaag sluiten_, en druk op Enter.
 
 ## Activiteit
 
@@ -48,8 +48,8 @@ Onder **Activiteit** zie je alle wijzigingen aan de website, per dag, en kun je 
 
 - **+ Foto toevoegen**: kies foto's uit je fotobibliotheek, maak direct een foto, of sleep foto's
   vanaf je computer naar de pagina.
-- Vul bij **Wat staat er op de foto?** een korte beschrijving in, bijvoorbeeld *Pizza margherita uit
-  de oven*. Dat helpt blinde bezoekers en Google.
+- Vul bij **Wat staat er op de foto?** een korte beschrijving in, bijvoorbeeld _Pizza margherita uit
+  de oven_. Dat helpt blinde bezoekers en Google.
 - Tik op een foto om hem te bewerken, te **vervangen** of te **verwijderen**.
 - **Vervangen**: de nieuwe foto komt op precies dezelfde plekken te staan (bijvoorbeeld als
   hoofdfoto van de homepage of bij een gerecht).
@@ -58,12 +58,14 @@ Onder **Activiteit** zie je alle wijzigingen aan de website, per dag, en kun je 
 - **Volgorde aanpassen**: sleep foto's naar de goede plek (op de telefoon: foto even vasthouden),
   of gebruik de pijltjes.
 - De hoofdfoto van de homepage kan niet per ongeluk worden verwijderd. Wil je een andere? Gebruik
-  *Vervangen*, of kies bij een foto *Gebruik als hoofdfoto van de homepage*.
+  _Vervangen_, of kies bij een foto _Gebruik als hoofdfoto van de homepage_.
 
 ## Menukaart
 
-- Maak eerst **categorieën** (bijvoorbeeld Pizza's, Schotels, Snacks), daarna de **gerechten**.
-- Prijs invullen als *12,50*. Zijn er meerdere formaten? Gebruik **Prijs per formaat** (bijvoorbeeld
+- De menukaart van november 2025 staat er al in (72 gerechten). Controleer de prijzen en pas aan wat
+  veranderd is. Bij _Fantasia_ staat geen prijs, omdat die op de kaart ook ontbreekt.
+- Nieuwe **categorieën** (bijvoorbeeld Pizza's, Schotels) en **gerechten** voeg je zelf toe.
+- Prijs invullen als _12,50_. Zijn er meerdere formaten? Gebruik **Prijs per formaat** (bijvoorbeeld
   Klein / Groot).
 - **Allergeneninformatie**: vul alleen in wat je zeker weet.
 - De **ster** zet een gerecht op de homepage. Het **oogje** verbergt een gerecht tijdelijk, bijvoorbeeld
@@ -74,9 +76,9 @@ Onder **Activiteit** zie je alle wijzigingen aan de website, per dag, en kun je 
 ## Openingstijden
 
 - Kies per dag **Open** of **Gesloten** en vul de tijden in. Op een dag met een pauze gebruik je
-  *Extra tijdvak*.
+  _Extra tijdvak_.
 - Druk op **Openingstijden opslaan**. Bovenaan zie je direct wat bezoekers te zien krijgen
-  (bijvoorbeeld *Nu geopend · Vandaag geopend tot 20:00*).
+  (bijvoorbeeld _Nu geopend · Vandaag geopend tot 20:00_).
 - **Feestdagen en afwijkingen**: voor vakantie, tijdelijke sluiting of andere tijden op een speciale
   dag. Deze verschijnen automatisch op de website en verdwijnen als de datum voorbij is.
 
@@ -90,12 +92,12 @@ Reageert de klant, dan komt dat in je eigen mailbox. Klaar met een bericht? **Ar
 ## Aanbiedingen
 
 Voeg een aanbieding toe met een titel, eventueel een prijs of korting, een foto en een periode.
-Een aanbieding staat alleen op de website binnen die periode (en als *Zichtbaar* aan staat).
+Een aanbieding staat alleen op de website binnen die periode (en als _Zichtbaar_ aan staat).
 
 ## Website
 
-Hier pas je de teksten aan: bovenaan de homepage (met hoofdfoto), de welkomsttekst, *Over ons*,
-*Waarom wij*, reserveren, wachtruimte, allergeneninformatie en de tekst onderaan. Elk onderdeel heeft
+Hier pas je de teksten aan: bovenaan de homepage (met hoofdfoto), de welkomsttekst, _Over ons_,
+_Waarom wij_, reserveren, wachtruimte, allergeneninformatie en de tekst onderaan. Elk onderdeel heeft
 een eigen knop **Opslaan**. Onderaan stel je in hoe elke pagina in **Google** verschijnt.
 
 ## Ingelogde apparaten
