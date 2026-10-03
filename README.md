@@ -159,7 +159,36 @@ executables and anything else are refused.
 
 ---
 
-## 4. Local development
+## 4. Try it: local demo (one command)
+
+Needs [Node.js 22](https://nodejs.org) and [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running).
+
+```bash
+git clone https://github.com/gutskrd/pizzeria-sarah.git
+cd pizzeria-sarah
+git checkout claude/wonderful-goodall-i7be12
+npm install
+npm run demo
+```
+
+Then open **http://localhost:3000** (website) and **http://localhost:3000/admin** (beheer).
+
+| Demo login |                            |
+| ---------- | -------------------------- |
+| E-mail     | `demo@pizzeria-sarah.test` |
+| Wachtwoord | `Sarah-demo-2026!`         |
+
+After the password the admin asks for a **6-digit code**. In the demo no e-mail
+is sent: the code appears in the terminal where `npm run demo` runs. The demo
+contains the real menu and folder; changes you make stay in the demo database.
+Stop with Ctrl + C; remove the demo database with
+`docker compose -f docker-compose.demo.yml down -v`.
+No Docker? Point it at your own PostgreSQL:
+`DEMO_DATABASE_URL=postgres://user:pass@localhost:5432/dbname npm run demo`.
+The demo account and password are for this local demo only; the script refuses
+to run in production.
+
+## 4b. Local development
 
 Requirements: Node.js 22+, PostgreSQL 16.
 

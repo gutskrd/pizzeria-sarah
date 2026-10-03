@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "demo": "tsx scripts/demo.ts",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",

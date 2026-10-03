@@ -25,6 +25,10 @@ export async function sendEmail(message: EmailMessage): Promise<void> {
     await mkdir(dir, { recursive: true });
     const file = path.join(dir, `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`);
     await writeFile(file, JSON.stringify(message, null, 2), { mode: 0o600 });
+    // Development only: show the e-mail in the terminal too, so a login code can be read there.
+    console.info(
+      `\n──── E-mail (niet verstuurd, ontwikkelmodus) ────\nAan: ${message.to}\nOnderwerp: ${message.subject}\n\n${message.text}\n─────────────────────────────────────────────────\n`,
+    );
     return;
   }
 
