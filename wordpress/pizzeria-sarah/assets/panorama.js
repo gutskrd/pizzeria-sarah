@@ -205,7 +205,7 @@
 	PanoView.prototype.fieldOfView = function () {
 		var aspect = this.aspect();
 		var vSaved = vfovFor( this.data.hfov, 16 / 9 );
-		var vfov = Math.min( 100, Math.max( aspect < 1 ? 80 : 60, vSaved ) );
+		var vfov = Math.min( 100, Math.max( aspect < 1 ? 95 : 60, vSaved ) );
 		return {
 			start: Math.min( 120, hfovFor( vfov, aspect ) ),
 			min: Math.max( 8, hfovFor( 25, aspect ) ),

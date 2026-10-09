@@ -16,6 +16,8 @@ Beide werken op telefoon, tablet en computer, en met elk WordPress-thema. Er kom
   - `menukaart-binnenkant.jpg`
   - `menukaart-buitenkant.jpg`
 - Je **360°-foto**: de originele foto van de 360°-camera of telefoon. Een 360°-foto is twee keer zo breed als hoog, bijvoorbeeld 6000 × 3000 pixels.
+  - De huidige foto staat ook in de map `afbeeldingen`: `pizzeria-sarah-360.jpg` (2576 × 1288). Dat is genoeg voor telefoons. Op een groot scherm is hij wat zacht.
+  - Heb je de foto ergens in een groter formaat, bijvoorbeeld rechtstreeks uit de app van de camera? Gebruik dan die.
 
 ## 1. Plugin installeren (eenmalig, 2 minuten)
 
@@ -43,7 +45,8 @@ Links in het menu staat nu **Folder & 360°**.
 
 1. Klik bij *360°-foto* op **Kies een 360°-foto** en upload je foto.
 2. De foto wordt meteen klaargemaakt voor telefoon, tablet en computer. **Laat de pagina open** tot er „Klaar voor telefoon, tablet en computer” staat (meestal 10 à 30 seconden).
-3. Kijk rond in het voorbeeld: sleep met de muis en scroll om te zoomen. Staat het mooiste beeld in beeld (bijvoorbeeld de toonbank of de oven)? Klik dan op **Gebruik dit als beginbeeld**.
+3. Kijk rond in het voorbeeld: sleep met de muis en scroll om te zoomen. Draai naar het mooiste beeld en klik op **Gebruik dit als beginbeeld**.
+   - Bij de huidige foto werkt de toonbank het best: de koelkast met drinken, het menubord en de letters SARAH, met een plant links in beeld.
 4. Pas eventueel de tekst op de foto aan (standaard: *Kijk binnen bij Pizzeria Sarah*).
 5. Klik op **Wijzigingen opslaan**.
 
