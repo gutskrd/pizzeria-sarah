@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "pizzeria-sarah/folder",
+	"title": "Menukaart-folder",
+	"category": "media",
+	"icon": "book-alt",
+	"description": "De menukaart als folder die in 3D openvouwt. Kies de afbeeldingen bij Folder & 360°.",
+	"keywords": [ "menukaart", "folder", "menu", "pizzeria", "flyer" ],
+	"textdomain": "pizzeria-sarah",
+	"attributes": {
+		"uitlijning": { "type": "string", "default": "midden", "enum": [ "midden", "links", "rechts" ] },
+		"kleur": { "type": "string", "default": "licht", "enum": [ "licht", "donker" ] }
+	},
+	"supports": { "html": false },
+	"editorScript": "psarah-blocks",
+	"style": "psarah-folder",
+	"viewScript": "psarah-folder"
+}

@@ -106,7 +106,19 @@ drizzle/               SQL migrations
 scripts/               migrate, seed, create-admin, import-legacy-media
 deploy/                Caddyfile, backup.sh
 tests/e2e/             Playwright end-to-end tests
+wordpress/             WordPress plugin: menu folder + 360° photo for an existing WordPress site
 ```
+
+### WordPress plugin (folder + 360°)
+
+For a site that stays on WordPress, `wordpress/pizzeria-sarah/` is a standalone
+plugin with the 3D menu folder and a 360° photo viewer (Pannellum 2.5.7, loaded
+only when opened). The owner sets it up under **Folder & 360°**, and it is used
+with the blocks or the shortcodes `[sarah_folder]` and `[sarah_360]`.
+
+- Install file: `wordpress/pizzeria-sarah.zip` (rebuild with `npm run wordpress:zip`).
+- Ready-to-upload menu images: `wordpress/afbeeldingen/`.
+- Dutch step-by-step guide: [`wordpress/HANDLEIDING.md`](wordpress/HANDLEIDING.md).
 
 ---
 

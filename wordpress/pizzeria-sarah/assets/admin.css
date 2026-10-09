@@ -1,0 +1,438 @@
+/* Pizzeria Sarah – settings page "Folder & 360°". */
+
+.ps-admin {
+	max-width: 1180px;
+}
+.ps-admin__intro {
+	max-width: 760px;
+	font-size: 14px;
+}
+.ps-admin .ps-muted {
+	color: #646970;
+}
+.ps-card {
+	margin: 20px 0;
+	padding: 20px 24px 24px;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+}
+.ps-card__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+}
+.ps-card h2 {
+	margin: 0;
+	font-size: 20px;
+}
+.ps-card__intro {
+	max-width: 820px;
+	margin: 8px 0 0;
+	font-size: 14px;
+}
+.ps-badge {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	background: #f0f0f1;
+	color: #50575e;
+}
+.ps-badge[data-tone='ok'] {
+	background: #e7f5e9;
+	color: #1a6b2b;
+}
+.ps-badge[data-tone='warning'] {
+	background: #fcf0d9;
+	color: #8a5a00;
+}
+
+/* The two sides of the folder. */
+.ps-sides {
+	display: grid;
+	gap: 28px;
+	margin-top: 20px;
+}
+@media (min-width: 1100px) {
+	.ps-sides {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+.ps-side h3 {
+	margin: 0;
+	font-size: 15px;
+}
+.ps-side > .ps-muted {
+	margin: 2px 0 10px;
+}
+.ps-drop {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	width: 100%;
+	aspect-ratio: 1.41;
+	padding: 16px;
+	border: 2px dashed #c3c4c7;
+	border-radius: 8px;
+	background: #f6f7f7;
+	color: #50575e;
+	font: inherit;
+	cursor: pointer;
+	transition:
+		border-color 150ms ease,
+		color 150ms ease;
+}
+.ps-drop--wide {
+	aspect-ratio: 2.4;
+	max-height: 340px;
+}
+.ps-drop:hover,
+.ps-drop:focus-visible {
+	border-color: #2271b1;
+	color: #1d2327;
+}
+.ps-drop .dashicons {
+	width: 32px;
+	height: 32px;
+	font-size: 32px;
+}
+.ps-drop strong {
+	font-size: 15px;
+}
+
+.ps-sheet {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #111;
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: none;
+}
+.ps-sheet img {
+	display: block;
+	width: 100%;
+	height: auto;
+	pointer-events: none;
+}
+.ps-sheet__labels {
+	position: absolute;
+	top: 8px;
+	left: 0;
+	right: 0;
+	display: flex;
+	pointer-events: none;
+}
+.ps-sheet__labels > span {
+	display: flex;
+	justify-content: center;
+}
+.ps-sheet__labels > span > span {
+	padding: 1px 8px;
+	border-radius: 999px;
+	background: rgb(0 0 0 / 0.72);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+}
+.ps-line {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 28px;
+	margin-left: -14px;
+	display: flex;
+	justify-content: center;
+	cursor: ew-resize;
+	touch-action: none;
+}
+.ps-line__bar {
+	width: 2px;
+	height: 100%;
+	background: #ffd400;
+	box-shadow: 0 0 0 1px rgb(0 0 0 / 0.6);
+}
+.ps-line__knob {
+	position: absolute;
+	top: 50%;
+	width: 22px;
+	height: 22px;
+	margin-top: -11px;
+	border: 2px solid rgb(0 0 0 / 0.6);
+	border-radius: 50%;
+	background: #ffd400;
+	transition: transform 150ms ease;
+}
+.ps-line:hover .ps-line__knob,
+.ps-line.is-dragging .ps-line__knob {
+	transform: scale(1.2);
+}
+.ps-detect {
+	min-height: 18px;
+	margin: 6px 0 0;
+	font-size: 13px;
+}
+.ps-ranges {
+	display: grid;
+	gap: 12px;
+	margin-top: 6px;
+}
+@media (min-width: 600px) {
+	.ps-ranges {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+.ps-range {
+	display: block;
+	font-size: 13px;
+}
+.ps-range__head {
+	display: flex;
+	justify-content: space-between;
+	font-weight: 600;
+}
+.ps-range input[type='range'] {
+	width: 100%;
+	margin-top: 4px;
+	accent-color: #d81f26;
+}
+.ps-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+	margin-top: 12px;
+}
+.ps-admin .button-link.ps-remove {
+	color: #b32d2e;
+	text-decoration: underline;
+}
+.ps-admin .button-link.ps-remove:hover {
+	color: #8a2424;
+}
+
+/* Fields under the images. */
+.ps-fields {
+	display: grid;
+	gap: 18px 32px;
+	margin-top: 24px;
+	padding-top: 20px;
+	border-top: 1px solid #f0f0f1;
+}
+@media (min-width: 900px) {
+	.ps-fields {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+.ps-field {
+	margin: 0;
+}
+.ps-field label,
+.ps-field .ps-label {
+	display: block;
+	margin-bottom: 4px;
+	font-weight: 600;
+}
+.ps-field .regular-text {
+	width: 100%;
+	max-width: 480px;
+}
+.ps-help {
+	display: block;
+	margin-top: 4px;
+	color: #646970;
+	font-size: 13px;
+}
+.ps-pdf {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+}
+.ps-file {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-weight: 600;
+}
+.ps-file .dashicons {
+	color: #b32d2e;
+}
+
+/* On/off switch. */
+.ps-toggle {
+	position: relative;
+	display: inline-flex;
+	align-items: flex-start;
+	gap: 12px;
+	cursor: pointer;
+}
+.ps-toggle input[type='checkbox'] {
+	position: absolute;
+	opacity: 0;
+	width: 1px;
+	height: 1px;
+}
+.ps-toggle__track {
+	position: relative;
+	display: block;
+	flex: none;
+	width: 40px;
+	height: 24px;
+	margin-top: 1px;
+	border-radius: 999px;
+	background: #8c8f94;
+	transition: background-color 150ms ease;
+}
+.ps-toggle__thumb {
+	position: absolute;
+	display: block;
+	top: 3px;
+	left: 3px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+	transition: transform 150ms ease;
+}
+.ps-toggle input:checked + .ps-toggle__track {
+	background: #1a7f37;
+}
+.ps-toggle input:checked + .ps-toggle__track .ps-toggle__thumb {
+	transform: translateX(16px);
+}
+.ps-toggle input:focus-visible + .ps-toggle__track {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+.ps-toggle__text {
+	display: flex;
+	flex-direction: column;
+}
+.ps-toggle__label {
+	font-weight: 600;
+}
+.ps-toggle__desc {
+	color: #646970;
+	font-size: 13px;
+}
+
+.ps-actions {
+	margin-top: 24px;
+}
+
+/* 360° editor. */
+.ps-pano-editor {
+	margin-top: 18px;
+}
+.ps-viewer {
+	width: 100%;
+	max-width: 900px;
+	aspect-ratio: 16 / 9;
+	border-radius: 6px;
+	overflow: hidden;
+	background: #111;
+}
+.ps-row--view {
+	max-width: 900px;
+}
+.ps-variants {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	max-width: 900px;
+	margin: 14px 0 0;
+	padding: 10px 12px;
+	border-radius: 6px;
+	background: #f6f7f7;
+	font-size: 13px;
+}
+.ps-variants:empty {
+	display: none;
+}
+.ps-variants[data-tone='ok'] {
+	background: #e7f5e9;
+	color: #1a4d26;
+}
+.ps-variants[data-tone='ok'] .dashicons {
+	color: #1a7f37;
+}
+.ps-variants[data-tone='error'] {
+	background: #fcf0d9;
+	color: #6b4500;
+}
+.ps-variants .spinner {
+	float: none;
+	margin: 0;
+}
+.ps-inline-spinner {
+	float: none !important;
+	margin: 0 6px 0 0 !important;
+}
+.ps-notice {
+	max-width: 900px;
+	margin: 0 0 12px;
+	padding: 10px 12px;
+	border-left: 4px solid #dba617;
+	background: #fcf9e8;
+}
+
+/* Save button stays in reach while scrolling. */
+.ps-savebar {
+	position: sticky;
+	bottom: 0;
+	z-index: 10;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 16px;
+	margin: 0 -2px;
+	padding: 12px 2px;
+	background: linear-gradient(to top, #f0f0f1 70%, rgb(240 240 241 / 0));
+}
+.ps-savebar__note {
+	color: #8a5a00;
+	font-weight: 600;
+}
+
+.ps-howto ol {
+	margin: 12px 0 12px 20px;
+	font-size: 14px;
+}
+.ps-howto li {
+	margin-bottom: 6px;
+}
+.ps-codes {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: 10px 0;
+}
+.ps-code {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 6px 6px 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	background: #f6f7f7;
+}
+.ps-code code {
+	background: none;
+	padding: 0;
+	font-size: 14px;
+}
+
+@media (max-width: 782px) {
+	.ps-card {
+		padding: 16px;
+	}
+}

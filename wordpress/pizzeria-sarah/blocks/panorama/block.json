@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "pizzeria-sarah/panorama",
+	"title": "360° rondkijken",
+	"category": "media",
+	"icon": "visibility",
+	"description": "Een 360°-foto waarin bezoekers rondkijken in de pizzeria. Kies de foto bij Folder & 360°.",
+	"keywords": [ "360", "panorama", "rondkijken", "foto", "binnen", "virtual tour" ],
+	"textdomain": "pizzeria-sarah",
+	"attributes": {
+		"titel": { "type": "string", "default": "" },
+		"hoogte": { "type": "string", "default": "normaal", "enum": [ "laag", "normaal", "hoog" ] }
+	},
+	"supports": { "html": false, "align": [ "wide", "full" ] },
+	"editorScript": "psarah-blocks",
+	"style": "psarah-pano",
+	"viewScript": "psarah-pano"
+}

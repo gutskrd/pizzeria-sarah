@@ -6,3 +6,5 @@ drizzle
 test-results
 playwright-report
 package-lock.json
+# WordPress-plugin volgt de WordPress-codestijl
+wordpress

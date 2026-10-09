@@ -10,5 +10,17 @@ export default defineConfig([
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
     },
   },
-  globalIgnores(['.next/**', '.next-test/**', 'scripts-dist/**', 'out/**', 'build/**', 'next-env.d.ts', 'data/**', 'drizzle/**', 'test-results/**', 'playwright-report/**']),
+  globalIgnores([
+    '.next/**',
+    '.next-test/**',
+    'scripts-dist/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+    'data/**',
+    'drizzle/**',
+    'test-results/**',
+    'playwright-report/**',
+    'wordpress/**',
+  ]),
 ]);

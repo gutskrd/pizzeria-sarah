@@ -1,0 +1,394 @@
+/* Pizzeria Sarah – the 360° photo. */
+
+/* ── On the page: a wide photo that slowly drifts around and asks to be opened ── */
+.ps-pano {
+	--ps-red: #d81f26;
+	margin: 0;
+	-webkit-tap-highlight-color: transparent;
+}
+.ps-pano *,
+.ps-pano *::before,
+.ps-pano *::after {
+	box-sizing: border-box;
+}
+.ps-pano .ps-pano__poster {
+	position: relative;
+	isolation: isolate;
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 5;
+	max-height: 78vh;
+	overflow: hidden;
+	border: 0;
+	border-radius: 6px;
+	background: #1b1b1b;
+	box-shadow: none;
+	color: #fff;
+	text-decoration: none;
+	cursor: pointer;
+	outline-offset: 4px;
+}
+@media (min-width: 600px) {
+	.ps-pano .ps-pano__poster {
+		aspect-ratio: 16 / 10;
+	}
+}
+@media (min-width: 1024px) {
+	.ps-pano .ps-pano__poster {
+		aspect-ratio: 21 / 9;
+	}
+}
+.ps-pano--laag .ps-pano__poster {
+	aspect-ratio: 16 / 10;
+}
+@media (min-width: 600px) {
+	.ps-pano--laag .ps-pano__poster {
+		aspect-ratio: 21 / 8;
+	}
+}
+.ps-pano--hoog .ps-pano__poster {
+	aspect-ratio: 3 / 4;
+}
+@media (min-width: 600px) {
+	.ps-pano--hoog .ps-pano__poster {
+		aspect-ratio: 4 / 3;
+	}
+}
+@media (min-width: 1024px) {
+	.ps-pano--hoog .ps-pano__poster {
+		aspect-ratio: 16 / 9;
+	}
+}
+.ps-pano .ps-pano__poster:focus:not(:focus-visible) {
+	outline: none;
+	box-shadow: none;
+}
+.ps-pano .ps-pano__poster:focus-visible {
+	outline: 3px solid var(--ps-red);
+}
+
+/* Two copies of the photo side by side; sliding one width makes an endless turn. */
+.ps-pano__strip {
+	position: absolute;
+	top: -40%;
+	left: 0;
+	z-index: -2;
+	display: flex;
+	height: 180%;
+	aspect-ratio: 4 / 1;
+	will-change: transform;
+}
+.ps-pano__strip > span {
+	display: block;
+	flex: none;
+	width: 50%;
+	height: 100%;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+}
+@media (prefers-reduced-motion: no-preference) {
+	.ps-pano__strip {
+		animation: ps-pano-drift 90s linear infinite;
+	}
+	.ps-pano[data-offscreen] .ps-pano__strip {
+		animation-play-state: paused;
+	}
+}
+@keyframes ps-pano-drift {
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+.ps-pano__shade {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background:
+		linear-gradient(to top, rgb(0 0 0 / 0.78) 0%, rgb(0 0 0 / 0.25) 45%, rgb(0 0 0 / 0.05) 70%, rgb(0 0 0 / 0.3) 100%);
+	transition: background-color 300ms ease;
+}
+@media (hover: hover) {
+	.ps-pano__poster:hover .ps-pano__shade {
+		background-color: rgb(0 0 0 / 0.08);
+	}
+}
+
+.ps-pano__badge {
+	position: absolute;
+	top: 16px;
+	left: 16px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px 6px 9px;
+	border-radius: 999px;
+	background: rgb(0 0 0 / 0.55);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	line-height: 1;
+	color: #fff;
+}
+.ps-pano__badge svg {
+	display: block;
+}
+
+.ps-pano__text {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 20px;
+}
+@media (min-width: 600px) {
+	.ps-pano__text {
+		padding: 28px 32px;
+	}
+}
+.ps-pano__title {
+	max-width: 22ch;
+	font-size: clamp(1.5rem, 1.1rem + 2vw, 2.6rem);
+	font-weight: 800;
+	line-height: 1.02;
+	letter-spacing: -0.005em;
+	text-transform: uppercase;
+	text-wrap: balance;
+	color: #fff;
+	text-shadow: 0 2px 18px rgb(0 0 0 / 0.35);
+}
+.ps-pano__sub {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 44px;
+	padding: 0 20px 0 6px;
+	border-radius: 999px;
+	background: var(--ps-red);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-size: 15px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	line-height: 1;
+	text-transform: uppercase;
+	color: #fff;
+	box-shadow: 0 12px 26px -12px rgb(216 31 38 / 0.8);
+	transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ps-pano__play {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: #fff;
+	color: var(--ps-red);
+}
+.ps-pano__play svg {
+	display: block;
+	margin-left: 2px;
+}
+@media (hover: hover) {
+	.ps-pano__poster:hover .ps-pano__sub {
+		transform: translateY(-2px);
+	}
+}
+@media (prefers-reduced-motion: no-preference) {
+	.ps-pano__play {
+		animation: ps-pano-pulse 2.4s ease-in-out infinite;
+	}
+}
+@keyframes ps-pano-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 rgb(255 255 255 / 0.55);
+	}
+	60% {
+		box-shadow: 0 0 0 10px rgb(255 255 255 / 0);
+	}
+}
+
+/* ── Full screen: look around ── */
+.ps-pano-dialog {
+	background: #0a0a0a;
+}
+.ps-pano-dialog .ps-pano-dialog__viewer {
+	position: absolute;
+	inset: 0;
+	background: #0a0a0a;
+}
+.ps-pano-dialog .ps-pano-dialog__viewer:focus {
+	outline: none;
+}
+.ps-pano-dialog .ps-pano-dialog__viewer:focus-visible {
+	outline: 3px solid #fff;
+	outline-offset: -3px;
+}
+/* Pannellum's own buttons and messages are replaced by ours. */
+.ps-pano-dialog .pnlm-controls-container,
+.ps-pano-dialog .pnlm-load-box,
+.ps-pano-dialog .pnlm-load-button,
+.ps-pano-dialog .pnlm-about-msg,
+.ps-pano-dialog .pnlm-compass,
+.ps-pano-dialog .pnlm-panorama-info,
+.ps-pano-dialog .pnlm-error-msg {
+	display: none !important;
+}
+.ps-pano-dialog .pnlm-container {
+	background: #0a0a0a;
+	font-family: inherit;
+}
+.ps-pano-dialog .pnlm-ui {
+	cursor: grab;
+}
+.ps-pano-dialog .pnlm-grabbing,
+.ps-pano-dialog .pnlm-grabbing .pnlm-ui {
+	cursor: grabbing;
+}
+
+.ps-pano-dialog .ps-dialog__bar {
+	position: absolute;
+	inset: 0 0 auto;
+	padding-bottom: 28px;
+	background: linear-gradient(to bottom, rgb(0 0 0 / 0.55), transparent);
+	pointer-events: none;
+}
+.ps-pano-dialog .ps-dialog__bar > * {
+	pointer-events: auto;
+}
+.ps-pano-dialog .ps-pano-dialog__tools {
+	position: absolute;
+	right: max(12px, env(safe-area-inset-right));
+	bottom: max(14px, env(safe-area-inset-bottom));
+	z-index: 5;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.ps-pano-dialog .ps-pano-dialog__tools .ps-btn--icon {
+	background: rgb(0 0 0 / 0.5);
+}
+@media (hover: hover) {
+	.ps-pano-dialog .ps-pano-dialog__tools .ps-btn--icon:not(:disabled):hover {
+		background: rgb(0 0 0 / 0.75);
+	}
+}
+.ps-pano-dialog .ps-btn[aria-pressed='true'] {
+	background: #fff;
+	color: #151515;
+}
+.ps-pano-dialog .ps-pano-dialog__hint {
+	position: absolute;
+	left: 50%;
+	bottom: max(22px, env(safe-area-inset-bottom));
+	z-index: 4;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	max-width: calc(100% - 140px);
+	padding: 10px 16px;
+	border-radius: 999px;
+	background: rgb(0 0 0 / 0.6);
+	color: #fff;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.25;
+	text-align: left;
+	transform: translateX(-50%);
+	pointer-events: none;
+	transition: opacity 500ms ease;
+}
+.ps-pano-dialog .ps-pano-dialog__hint[data-used='true'] {
+	opacity: 0;
+}
+.ps-pano-dialog .ps-pano-dialog__hint svg {
+	flex: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+	.ps-pano-dialog .ps-pano-dialog__hint svg {
+		animation: ps-pano-swipe 1.8s ease-in-out infinite;
+	}
+}
+@keyframes ps-pano-swipe {
+	0%,
+	100% {
+		transform: translateX(-4px);
+	}
+	50% {
+		transform: translateX(4px);
+	}
+}
+
+/* Loading and error messages in the middle of the screen. */
+.ps-pano-dialog .ps-pano-dialog__status {
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 14px;
+	padding: 24px;
+	text-align: center;
+	background-color: #0a0a0a;
+	background-size: cover;
+	background-position: center;
+	transition: opacity 450ms ease;
+}
+.ps-pano-dialog .ps-pano-dialog__status::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: rgb(10 10 10 / 0.6);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+}
+.ps-pano-dialog .ps-pano-dialog__status[hidden] {
+	display: flex;
+	opacity: 0;
+	pointer-events: none;
+}
+.ps-pano-dialog .ps-pano-dialog__status p {
+	margin: 0;
+	max-width: 32ch;
+	font-size: 16px;
+	font-weight: 600;
+}
+.ps-pano-dialog .ps-spinner {
+	width: 38px;
+	height: 38px;
+	border: 3px solid rgb(255 255 255 / 0.25);
+	border-top-color: #fff;
+	border-radius: 50%;
+	animation: ps-spin 0.9s linear infinite;
+}
+.ps-pano-dialog .ps-pano-dialog__status[data-state='error'] .ps-spinner {
+	display: none;
+}
+@keyframes ps-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.ps-pano-dialog .ps-spinner {
+		animation-duration: 2.5s;
+	}
+}
+@media (max-height: 420px) {
+	.ps-pano-dialog .ps-pano-dialog__tools {
+		flex-direction: row;
+	}
+	.ps-pano-dialog .ps-pano-dialog__hint {
+		bottom: max(16px, env(safe-area-inset-bottom));
+		max-width: calc(100% - 260px);
+	}
+}

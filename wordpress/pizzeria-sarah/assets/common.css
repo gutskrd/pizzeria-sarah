@@ -1,0 +1,208 @@
+/* Pizzeria Sarah – shared styles for the full-screen views of the folder and the 360° photo.
+   Everything is prefixed with "ps-" so it does not clash with the WordPress theme. */
+
+.ps-dialog {
+	--ps-red: #d81f26;
+	--ps-red-dark: #a9161c;
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	max-height: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: #fff;
+	overflow: hidden;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.4;
+	text-align: left;
+	-webkit-tap-highlight-color: transparent;
+	overscroll-behavior: contain;
+}
+.ps-dialog:not([open]) {
+	display: none;
+}
+.ps-dialog::backdrop {
+	background: rgb(12 12 12 / 0.96);
+}
+.ps-dialog *,
+.ps-dialog *::before,
+.ps-dialog *::after {
+	box-sizing: border-box;
+}
+.ps-dialog[open] {
+	animation: ps-fade-in 260ms ease-out both;
+}
+.ps-dialog[open]::backdrop {
+	animation: ps-fade-in 260ms ease-out both;
+}
+
+/* Buttons: undo whatever the theme does to buttons, then style our own. */
+.ps-dialog .ps-btn {
+	all: unset;
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 0 16px;
+	border-radius: 999px;
+	font: inherit;
+	font-size: 14px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	line-height: 1;
+	color: #fff;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+	transition:
+		background-color 160ms ease,
+		color 160ms ease,
+		opacity 160ms ease;
+}
+.ps-dialog .ps-btn[hidden] {
+	display: none;
+}
+.ps-dialog .ps-btn:disabled {
+	opacity: 0.45;
+	cursor: default;
+}
+.ps-dialog .ps-btn--icon {
+	width: 44px;
+	padding: 0;
+	background: rgb(255 255 255 / 0.12);
+}
+@media (hover: hover) {
+	.ps-dialog .ps-btn--icon:not(:disabled):hover {
+		background: rgb(255 255 255 / 0.24);
+	}
+}
+.ps-dialog .ps-btn svg {
+	display: block;
+	flex: none;
+}
+.ps-dialog a.ps-link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	padding: 0 12px;
+	border: 0;
+	font-size: 14px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: #fff;
+	text-decoration: underline;
+	text-decoration-color: var(--ps-red);
+	text-decoration-thickness: 2px;
+	text-underline-offset: 5px;
+	box-shadow: none;
+	background: none;
+}
+@media (hover: hover) {
+	.ps-dialog a.ps-link:hover {
+		color: #fff;
+		text-decoration-color: #fff;
+	}
+}
+.ps-dialog :focus-visible {
+	outline: 3px solid #fff;
+	outline-offset: 2px;
+}
+
+/* Top bar with the title and the close button. Keeps clear of the notch. */
+.ps-dialog__bar {
+	position: relative;
+	z-index: 5;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+}
+.ps-dialog__title {
+	margin: 0;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	font-size: 14px;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: #fff;
+}
+
+/* Small hint text that fades away once it has been used. */
+.ps-hint {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.35;
+	color: rgb(255 255 255 / 0.7);
+	text-align: center;
+	transition: opacity 400ms ease;
+}
+.ps-hint[data-used='true'] {
+	opacity: 0;
+}
+
+.ps-sr-only {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+}
+
+/* "Tap" on phones and tablets, "click" with a mouse. */
+@media (hover: hover) and (pointer: fine) {
+	.ps-only-touch {
+		display: none !important;
+	}
+}
+@media (hover: none), (pointer: coarse) {
+	.ps-only-mouse {
+		display: none !important;
+	}
+}
+
+/* Shown only to the owner in the editor while something is not set up yet. */
+.ps-editor-notice {
+	padding: 16px 20px;
+	border: 2px dashed #c3bdb3;
+	border-radius: 6px;
+	background: #f5f3ef;
+	color: #3a3a3a;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-size: 15px;
+}
+
+@keyframes ps-fade-in {
+	from {
+		opacity: 0;
+	}
+}
+@keyframes ps-fade-out {
+	to {
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ps-dialog[open],
+	.ps-dialog[open]::backdrop {
+		animation: none;
+	}
+}

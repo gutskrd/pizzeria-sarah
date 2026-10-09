@@ -1,0 +1,468 @@
+/* Pizzeria Sarah – the menu as a trifold leaflet that unfolds in 3D. */
+
+/* ── On the page: the folded leaflet that asks to be opened ── */
+.ps-folder {
+	--ps-red: #d81f26;
+	display: flex;
+	justify-content: center;
+	margin: 0;
+	padding: 24px 0 8px;
+	-webkit-tap-highlight-color: transparent;
+}
+.ps-folder.ps-align-links {
+	justify-content: flex-start;
+}
+.ps-folder.ps-align-rechts {
+	justify-content: flex-end;
+}
+.ps-folder *,
+.ps-folder *::before,
+.ps-folder *::after {
+	box-sizing: border-box;
+}
+.ps-folder .ps-folder__trigger {
+	position: relative;
+	isolation: isolate;
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 22px;
+	padding: 8px 18px 6px 8px;
+	border: 0;
+	background: none;
+	box-shadow: none;
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+	outline-offset: 6px;
+}
+.ps-folder .ps-folder__trigger:focus:not(:focus-visible) {
+	outline: none;
+	box-shadow: none;
+}
+.ps-folder .ps-folder__trigger:focus-visible {
+	outline: 3px solid var(--ps-red);
+	border-radius: 4px;
+}
+.ps-folder__cover {
+	position: relative;
+	display: block;
+	width: 11.5rem;
+	transform: rotate(-3deg);
+	transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (min-width: 640px) {
+	.ps-folder__cover {
+		width: 13rem;
+	}
+}
+@media (min-width: 1024px) {
+	.ps-folder__cover {
+		width: 15rem;
+	}
+}
+/* Two sheets of paper under the cover. */
+.ps-folder__cover::before,
+.ps-folder__cover::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	border-radius: 2px;
+	transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ps-folder__cover::before {
+	transform: translate(5px, 4px);
+	background: #2a2a2a;
+}
+.ps-folder__cover::after {
+	transform: translate(10px, 8px);
+	background: #3a3a3a;
+	box-shadow: 0 30px 45px -15px rgb(0 0 0 / 0.6);
+}
+.ps-folder__cover-inner {
+	position: absolute;
+	inset: 0;
+	display: block;
+	perspective: 900px;
+}
+.ps-folder__under,
+.ps-folder__front {
+	position: absolute;
+	inset: 0;
+	display: block;
+	border-radius: 2px;
+	background-color: #111;
+	background-repeat: no-repeat;
+}
+.ps-folder__under {
+	filter: brightness(0.75);
+}
+.ps-folder__front {
+	transform-origin: 0 50%;
+	box-shadow: 0 0 0 transparent;
+}
+@media (hover: hover) {
+	.ps-folder__trigger:hover .ps-folder__cover {
+		transform: rotate(-1deg) translateY(-4px);
+	}
+}
+
+.ps-folder__cta {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	line-height: 1.2;
+	text-transform: uppercase;
+	color: #151515;
+}
+.ps-tone-donker .ps-folder__cta {
+	color: #fff;
+}
+.ps-folder__line {
+	display: inline-block;
+	width: 24px;
+	height: 2px;
+	background: var(--ps-red);
+	transition: width 300ms ease;
+}
+.ps-folder__trigger:hover .ps-folder__line {
+	width: 36px;
+}
+.ps-folder__arrow {
+	color: var(--ps-red);
+	flex: none;
+}
+
+/* Every few seconds the cover lifts a little, showing the menu inside. */
+@media (prefers-reduced-motion: no-preference) {
+	.ps-folder__front {
+		animation: ps-folder-peek 5.5s cubic-bezier(0.45, 0, 0.2, 1) 1.6s infinite;
+	}
+	.ps-folder__arrow {
+		animation: ps-hint-nudge 1.6s ease-in-out infinite;
+	}
+	.ps-folder__trigger::before {
+		content: '';
+		position: absolute;
+		inset: 8% -10% 22%;
+		z-index: -2;
+		border-radius: 50%;
+		background: radial-gradient(closest-side, rgb(216 31 38 / 0.45), transparent);
+		animation: ps-folder-glow 5.5s ease-in-out 1.6s infinite;
+		pointer-events: none;
+	}
+	/* Pause off screen. */
+	.ps-folder[data-offscreen] .ps-folder__front,
+	.ps-folder[data-offscreen] .ps-folder__arrow,
+	.ps-folder[data-offscreen] .ps-folder__trigger::before {
+		animation-play-state: paused;
+	}
+}
+@media (hover: hover) {
+	.ps-folder__trigger:hover .ps-folder__front {
+		animation: none;
+		transform: rotateY(-32deg);
+		box-shadow: 18px 0 30px rgb(0 0 0 / 0.55);
+		transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+}
+@keyframes ps-folder-peek {
+	0%,
+	62%,
+	100% {
+		transform: rotateY(0deg);
+		box-shadow: 0 0 0 transparent;
+	}
+	72% {
+		transform: rotateY(-28deg);
+		box-shadow: 18px 0 30px rgb(0 0 0 / 0.55);
+	}
+	80% {
+		transform: rotateY(-4deg);
+	}
+	86% {
+		transform: rotateY(-14deg);
+		box-shadow: 10px 0 20px rgb(0 0 0 / 0.4);
+	}
+	94% {
+		transform: rotateY(0deg);
+	}
+}
+@keyframes ps-folder-glow {
+	0%,
+	58%,
+	100% {
+		opacity: 0.35;
+	}
+	74% {
+		opacity: 1;
+	}
+}
+@keyframes ps-hint-nudge {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	50% {
+		transform: translateX(5px);
+	}
+}
+
+/* ── Full screen: the leaflet unfolds ── */
+/* The dark background sits on the view itself (not only behind it), so text on it always has contrast. */
+.ps-dialog.ps-folder-dialog {
+	background: rgb(12 12 12 / 0.96);
+}
+.ps-dialog.ps-folder-dialog::backdrop {
+	background: transparent;
+}
+.ps-folder-dialog[data-closing='true'] {
+	animation: ps-fade-out 260ms ease-in 900ms both;
+}
+.ps-folder-dialog[data-closing='true']::backdrop {
+	animation: ps-fade-out 260ms ease-in 900ms both;
+}
+.ps-folder-dialog .ps-folder-dialog__inner {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+.ps-folder-dialog .ps-folder-dialog__stage {
+	position: relative;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: hidden;
+	touch-action: none;
+	user-select: none;
+	-webkit-user-select: none;
+	cursor: default;
+}
+.ps-folder-dialog[data-zoomed='true'] .ps-folder-dialog__stage {
+	cursor: grab;
+}
+.ps-folder-dialog[data-panning='true'] .ps-folder-dialog__stage {
+	cursor: grabbing;
+}
+/* Zoom and pan happen on this layer; the 3D folding happens inside it. */
+.ps-folder-dialog .ps-folder-dialog__zoom {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transform-origin: 0 0;
+	will-change: transform;
+}
+.ps-folder-dialog[data-zoom-anim='true'] .ps-folder-dialog__zoom {
+	transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ps-folder-dialog .ps-folder-dialog__perspective {
+	perspective: 2600px;
+}
+.ps-folder-dialog .ps-folder-dialog__box {
+	position: relative;
+}
+.ps-folder-dialog .ps-leaf {
+	--fold-ms: 950ms;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	transform-style: preserve-3d;
+	transform: scale(var(--ps-closed-scale, 1));
+	transition: transform var(--fold-ms) cubic-bezier(0.65, 0, 0.25, 1) 0ms;
+	cursor: pointer;
+}
+.ps-folder-dialog .ps-leaf[data-open='true'] {
+	transform: scale(1);
+	transition-delay: 0ms;
+	cursor: inherit;
+}
+.ps-folder-dialog .ps-leaf[data-open='true'][data-side='buiten'] {
+	transform: scale(1) rotateY(180deg);
+}
+.ps-folder-dialog .ps-leaf[data-open='false'] {
+	transition-delay: 380ms;
+}
+.ps-folder-dialog .ps-panel {
+	position: absolute;
+	top: 0;
+	width: calc(100% / 3);
+	height: 100%;
+	transform-style: preserve-3d;
+	transition: transform var(--fold-ms) cubic-bezier(0.65, 0, 0.25, 1);
+}
+.ps-folder-dialog .ps-panel[data-panel='links'] {
+	left: 0;
+	transform-origin: 100% 50%;
+	transform: rotateY(180deg) translateZ(-2px);
+}
+.ps-folder-dialog .ps-panel[data-panel='midden'] {
+	left: calc(100% / 3);
+}
+.ps-folder-dialog .ps-panel[data-panel='rechts'] {
+	left: calc(200% / 3);
+	transform-origin: 0 50%;
+	transform: rotateY(-180deg) translateZ(-1px);
+}
+/* Opening: the cover first, then the inner flap. Closing: the reverse. */
+.ps-folder-dialog .ps-leaf[data-open='true'] .ps-panel[data-panel='links'] {
+	transform: rotateY(0deg);
+	transition-delay: 0ms;
+}
+.ps-folder-dialog .ps-leaf[data-open='true'] .ps-panel[data-panel='rechts'] {
+	transform: rotateY(0deg);
+	transition-delay: 380ms;
+}
+.ps-folder-dialog .ps-leaf[data-open='false'] .ps-panel[data-panel='links'] {
+	transition-delay: 380ms;
+}
+.ps-folder-dialog .ps-face {
+	position: absolute;
+	inset: 0;
+	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	background-color: #111;
+	background-repeat: no-repeat;
+	overflow: hidden;
+}
+.ps-folder-dialog .ps-face[data-face='achter'] {
+	transform: rotateY(180deg);
+}
+/* Shade the inside while it is folded, so it lights up as it opens. */
+.ps-folder-dialog .ps-face::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity var(--fold-ms) ease;
+}
+.ps-folder-dialog .ps-panel[data-panel='links'] .ps-face[data-face='voor']::after {
+	background: linear-gradient(to left, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.15));
+}
+.ps-folder-dialog .ps-panel[data-panel='rechts'] .ps-face[data-face='voor']::after {
+	background: linear-gradient(to right, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.15));
+}
+.ps-folder-dialog .ps-leaf[data-open='false'] .ps-face[data-face='voor']::after {
+	opacity: 1;
+}
+/* The fold lines of the open leaflet. */
+.ps-folder-dialog .ps-panel[data-panel='midden'] .ps-face::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+	background: linear-gradient(
+		to right,
+		rgb(0 0 0 / 0.35) 0,
+		rgb(255 255 255 / 0.06) 1.5%,
+		transparent 6%,
+		transparent 94%,
+		rgb(255 255 255 / 0.06) 98.5%,
+		rgb(0 0 0 / 0.35) 100%
+	);
+}
+.ps-folder-dialog .ps-leaf-shadow {
+	position: absolute;
+	left: 50%;
+	bottom: -3%;
+	width: calc(100% / 3 * var(--ps-closed-scale, 1));
+	height: 8%;
+	transform: translateX(-50%);
+	border-radius: 50%;
+	background: rgb(0 0 0 / 0.55);
+	filter: blur(18px);
+	transition: width 950ms cubic-bezier(0.65, 0, 0.25, 1) 380ms;
+}
+.ps-folder-dialog .ps-leaf-shadow[data-open='true'] {
+	width: 100%;
+	transition-delay: 0ms;
+}
+.ps-folder-dialog .ps-instant,
+.ps-folder-dialog .ps-instant * {
+	transition: none !important;
+}
+
+/* Controls under the leaflet. */
+.ps-folder-dialog .ps-folder-dialog__foot {
+	position: relative;
+	z-index: 5;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 8px 12px;
+	padding: 10px max(12px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+.ps-folder-dialog .ps-seg {
+	display: inline-flex;
+	padding: 4px;
+	border-radius: 999px;
+	background: rgb(255 255 255 / 0.12);
+}
+.ps-folder-dialog .ps-seg .ps-btn {
+	min-height: 40px;
+	color: rgb(255 255 255 / 0.85);
+}
+.ps-folder-dialog .ps-seg .ps-btn[aria-pressed='true'] {
+	background: #fff;
+	color: #151515;
+}
+.ps-folder-dialog .ps-zoom-controls {
+	display: inline-flex;
+	gap: 6px;
+}
+.ps-folder-dialog .ps-links {
+	display: inline-flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+.ps-folder-dialog .ps-hint {
+	flex-basis: 100%;
+	min-height: 18px;
+}
+/* Very low screens (a phone held sideways): keep everything compact. */
+@media (max-height: 480px) {
+	/* Only the close button, in the corner; the leaflet keeps clear of it. */
+	.ps-folder-dialog .ps-dialog__bar {
+		position: absolute;
+		top: 0;
+		right: 0;
+		padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 0 0;
+	}
+	.ps-folder-dialog .ps-dialog__title {
+		display: none;
+	}
+	.ps-folder-dialog .ps-folder-dialog__foot {
+		padding-top: 4px;
+		padding-bottom: max(6px, env(safe-area-inset-bottom));
+	}
+	.ps-folder-dialog .ps-hint {
+		display: none;
+	}
+	.ps-folder-dialog .ps-btn,
+	.ps-folder-dialog a.ps-link {
+		min-height: 40px;
+	}
+	.ps-folder-dialog .ps-seg .ps-btn {
+		min-height: 36px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ps-folder-dialog *,
+	.ps-folder-dialog *::before,
+	.ps-folder-dialog *::after {
+		transition-duration: 1ms !important;
+		transition-delay: 0ms !important;
+	}
+	.ps-folder-dialog[data-closing='true'],
+	.ps-folder-dialog[data-closing='true']::backdrop {
+		animation: none;
+	}
+}

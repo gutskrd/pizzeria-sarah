@@ -20,6 +20,7 @@
     "db:seed": "tsx --env-file-if-exists=.env scripts/seed.ts",
     "admin:create": "tsx --env-file-if-exists=.env scripts/create-admin.ts",
     "media:import-legacy": "tsx --env-file-if-exists=.env scripts/import-legacy-media.ts",
+    "wordpress:zip": "sh scripts/wordpress-zip.sh",
     "build:scripts": "esbuild scripts/migrate.ts scripts/seed.ts scripts/create-admin.ts scripts/import-legacy-media.ts --bundle --platform=node --format=esm --target=node22 --outdir=scripts-dist --out-extension:.js=.mjs --external:sharp --external:@node-rs/argon2 --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\""
   },
   "dependencies": {
