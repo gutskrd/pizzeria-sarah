@@ -91,9 +91,11 @@ function psarah_render_pano( $atts = array() ) {
 	$height = in_array( $atts['hoogte'], array( 'laag', 'hoog' ), true ) ? $atts['hoogte'] : 'normaal';
 
 	psarah_enqueue_pano_assets();
+	$late_css = psarah_late_styles( 'psarah-pano' );
 
 	$poster = 'background-image:url("' . psarah_css_url( $data['poster'] ) . '")';
 	ob_start();
+	echo $late_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- <link> tags printed by WordPress
 	?>
 	<div class="ps-pano ps-pano--<?php echo esc_attr( $height ); ?>" data-ps-pano="<?php echo esc_attr( wp_json_encode( $data ) ); ?>">
 		<a class="ps-pano__poster" href="<?php echo esc_url( end( $data['sources'] )['url'] ); ?>" aria-haspopup="dialog">

@@ -80,6 +80,7 @@ function psarah_render_folder( $atts = array() ) {
 	}
 
 	psarah_enqueue_folder_assets();
+	$late_css = psarah_late_styles( 'psarah-folder' );
 
 	$outside = $data['sides']['buiten'];
 	$cuts    = $outside['cuts'];
@@ -95,6 +96,7 @@ function psarah_render_folder( $atts = array() ) {
 		: __( 'Bekijk de menukaart-folder', 'pizzeria-sarah' );
 
 	ob_start();
+	echo $late_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- <link> tags printed by WordPress
 	?>
 	<div class="ps-folder ps-align-<?php echo esc_attr( $align ); ?> ps-tone-<?php echo esc_attr( $tone ); ?>" data-ps-folder="<?php echo esc_attr( wp_json_encode( $data ) ); ?>">
 		<a class="ps-folder__trigger" href="<?php echo esc_url( $inside_full['url'] ); ?>" aria-label="<?php echo esc_attr( $aria ); ?>" aria-haspopup="dialog">
