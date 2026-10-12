@@ -528,16 +528,36 @@
 		data.append( 'file', blob, '360-' + width + ( blob.type === 'image/webp' ? '.webp' : '.jpg' ) );
 		return fetch( cfg.ajaxUrl, { method: 'POST', body: data, credentials: 'same-origin' } )
 			.then( function ( res ) {
-				return res.json().catch( function () {
-					return { success: false };
+				return res.text().then( function ( body ) {
+					var json = null;
+					try {
+						json = JSON.parse( body );
+					} catch ( e ) {
+						json = null;
+					}
+					if ( json && json.success ) {
+						return json.data.variants;
+					}
+					throw new Error( ( json && json.data && json.data.message ) || uploadProblem( res.status, body.trim() ) );
 				} );
-			} )
-			.then( function ( json ) {
-				if ( ! json || ! json.success ) {
-					throw new Error( ( json && json.data && json.data.message ) || 'De foto kon niet worden opgeslagen.' );
-				}
-				return json.data.variants;
 			} );
+	}
+
+	/** Explains in plain words why the server refused an upload. */
+	function uploadProblem( status, body ) {
+		if ( status === 413 || ( status === 400 && body === '0' ) ) {
+			return 'De foto is groter dan de hosting toestaat (uploadlimiet). Vraag de hoster om upload_max_filesize en post_max_size te verhogen, bijvoorbeeld naar 64 MB.';
+		}
+		if ( status === 403 && body === '-1' ) {
+			return 'Je sessie is verlopen. Vernieuw deze pagina en probeer het opnieuw.';
+		}
+		if ( status === 403 || status === 406 || status === 418 ) {
+			return 'De beveiliging van de website of de hoster (firewall) hield het uploaden tegen. Vraag de hoster om uploads naar admin-ajax.php toe te staan.';
+		}
+		if ( status >= 500 ) {
+			return 'De server gaf een fout (' + status + '). Probeer het later opnieuw of vraag de hoster om het foutenlogboek te bekijken.';
+		}
+		return 'De foto kon niet worden opgeslagen.';
 	}
 
 	var preparing = false;
@@ -554,6 +574,7 @@
 		} );
 		setVariantStatus( 'busy', 'De foto wordt klaargemaakt voor telefoon, tablet en computer… Laat deze pagina even open.' );
 		var source = null;
+		var lastError = '';
 		fetch( att.originalImageURL || att.url, { credentials: 'same-origin' } )
 			.then( function ( res ) {
 				if ( ! res.ok ) {
@@ -582,8 +603,9 @@
 								state.variants = variants;
 								done++;
 							} )
-							.catch( function () {
+							.catch( function ( err ) {
 								failed.push( w );
+								lastError = err && err.message;
 							} );
 					} );
 				} );
@@ -606,7 +628,13 @@
 				}
 			} )
 			.catch( function () {
-				setVariantStatus( 'error', 'Het klaarmaken lukte niet in deze browser. De foto werkt wel, maar laadt op telefoons trager. Probeer het opnieuw op een computer met Chrome, Edge of Firefox.', true );
+				setVariantStatus(
+					'error',
+					lastError && lastError !== 'De foto kon niet worden opgeslagen.'
+						? lastError + ' De foto werkt intussen wel, maar laadt op telefoons trager.'
+						: 'Het klaarmaken lukte niet in deze browser. De foto werkt wel, maar laadt op telefoons trager. Probeer het opnieuw op een computer met Chrome, Edge of Firefox.',
+					true
+				);
 			} )
 			.then( function () {
 				if ( source && source.close ) {
