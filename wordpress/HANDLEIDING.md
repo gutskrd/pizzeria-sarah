@@ -21,12 +21,28 @@ Beide werken op telefoon, tablet en computer, en met elk WordPress-thema. Er kom
 
 ## 1. Plugin installeren (eenmalig, 2 minuten)
 
-1. Log in op WordPress.
-2. Ga naar **Plugins → Nieuwe plugin** en klik bovenaan op **Plugin uploaden**.
-3. Kies `pizzeria-sarah.zip` en klik op **Nu installeren**.
-4. Klik op **Plugin activeren**.
+Het maakt niet uit vanaf welke computer: WordPress draait op de server van de hoster. Iedereen met een **beheerdersaccount** kan de plugin vanaf zijn eigen computer installeren, via de browser.
 
-Links in het menu staat nu **Folder & 360°**.
+**Makkelijkst en veilig:** de eigenaar maakt een eigen account voor de ontwikkelaar aan. Dan hoeft hij nooit zijn wachtwoord te delen.
+
+1. De eigenaar gaat naar **Gebruikers → Nieuwe gebruiker**.
+2. Hij vult de naam en het e-mailadres van de ontwikkelaar in en kiest de rol **Beheerder**. Alleen een beheerder mag plugins installeren.
+3. Het vinkje bij *Gebruikersmelding versturen* blijft aan. De ontwikkelaar krijgt dan zelf een mail om een wachtwoord te kiezen.
+4. Na afloop verwijdert de eigenaar dit account weer via **Gebruikers → Alle gebruikers**.
+
+**De plugin uploaden** (eigenaar of ontwikkelaar):
+
+1. Bewaar `pizzeria-sarah.zip` op de computer, maar **pak hem niet uit**.
+   - Op een Mac pakt Safari zips vanzelf uit. Zet dat uit bij Safari → Instellingen → Algemeen → "Open 'veilige' bestanden na downloaden", of download met Chrome.
+   - Opsturen gaat via WhatsApp (als *Document*), WeTransfer of Google Drive. **Niet via Gmail**: Gmail weigert deze zip.
+2. Log in op WordPress via **pizzaria-sarah.nl/wp-admin**.
+3. Ga naar **Plugins → Plugin toevoegen**. In oudere versies heet dit *Nieuwe plugin*; in het Engels *Add Plugin* of *Add New*.
+4. Klik bovenaan op **Plugin uploaden**, kies `pizzeria-sarah.zip` en klik op **Nu installeren**.
+5. Klik op **Plugin activeren**.
+
+Links in het menu staat nu **Folder & 360°**. Voor bezoekers verandert er nog niets, tot je de folder of de foto op een pagina zet (stap 4).
+
+> Vooraf: maak een back-up, bij de hoster of met de gratis plugin UpdraftPlus. Controleer onder **Gereedschap → Sitediagnose → Info** dat de site minstens WordPress 6.5 en PHP 7.4 heeft. WordPress 7 heeft dat altijd.
 
 ## 2. De folder instellen
 
@@ -74,6 +90,21 @@ Links in het menu staat nu **Folder & 360°**.
 | `[sarah_360]` | de 360°-foto |
 | `[sarah_360 hoogte="laag"]` of `[sarah_360 hoogte="hoog"]` | een lagere of hogere 360°-foto |
 | `[sarah_360 titel="Kom binnen!"]` | andere tekst op de foto |
+
+## Als er iets misgaat
+
+| Wat je ziet | Wat je doet |
+| --- | --- |
+| Geen knop *Plugin uploaden* | Je account is geen Beheerder, of de hoster heeft installeren uitgezet. Vraag het de hoster, of zet de map `pizzeria-sarah` via het bestandsbeheer van de hoster in `wp-content/plugins` en activeer hem daarna. |
+| WordPress vraagt om FTP-gegevens | De hoster heeft de rechten op de bestanden verkeerd staan. Vraag de hoster dat recht te zetten. |
+| "Geen geldige plugins gevonden" | Je uploadde een uitgepakte of dubbel ingepakte zip. Gebruik de originele `pizzeria-sarah.zip`. |
+| "De gevolgde link is verlopen" bij een grote 360°-foto | De uploadlimiet van de hoster is te laag. Vraag om `upload_max_filesize` en `post_max_size` van bijvoorbeeld 64 MB. |
+| De folder reageert pas na een tijdje | Een caching-plugin houdt scripts tegen. Sluit `/wp-content/plugins/pizzeria-sarah/` uit bij het uitstellen of combineren van JavaScript, en leeg de cache. |
+| "Er is een kritieke fout" | Zet de plugin uit via de herstel-link in de mail van WordPress. Of geef de map `wp-content/plugins/pizzeria-sarah` via het bestandsbeheer een andere naam. |
+
+## Bijwerken
+
+Upload de nieuwe `pizzeria-sarah.zip` op dezelfde manier en kies **Vervang huidige door geüploade** (*Replace current with uploaded*). Je instellingen, afbeeldingen en de 360°-foto blijven bewaard.
 
 ## Iets veranderen
 
