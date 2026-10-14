@@ -15,6 +15,8 @@
 		return;
 	}
 	var esc = window.PSarah.escapeHtml;
+	// Load images over https when the admin runs on https (see PSarah.secure).
+	window.PSarah.secureData( cfg );
 	var limits = cfg.limits;
 	var state = {
 		binnen: cfg.media.binnen,
@@ -69,7 +71,7 @@
 			multiple: false,
 		} );
 		frame.on( 'select', function () {
-			done( frame.state().get( 'selection' ).first().toJSON() );
+			done( window.PSarah.secureData( frame.state().get( 'selection' ).first().toJSON() ) );
 		} );
 		frame.open();
 	}
@@ -536,7 +538,7 @@
 						json = null;
 					}
 					if ( json && json.success ) {
-						return json.data.variants;
+						return window.PSarah.secureData( json.data.variants );
 					}
 					throw new Error( ( json && json.data && json.data.message ) || uploadProblem( res.status, body.trim() ) );
 				} );

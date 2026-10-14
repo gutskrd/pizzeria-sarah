@@ -449,7 +449,7 @@
 	PS.each( '[data-ps-pano]', function ( root ) {
 		var data;
 		try {
-			data = JSON.parse( root.getAttribute( 'data-ps-pano' ) );
+			data = PS.secureData( JSON.parse( root.getAttribute( 'data-ps-pano' ) ) );
 		} catch ( e ) {
 			return;
 		}

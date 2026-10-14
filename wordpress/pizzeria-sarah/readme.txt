@@ -4,7 +4,7 @@ Tags: menukaart, folder, 360, panorama, restaurant
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,9 @@ De menukaart als folder die in 3D openvouwt, en een 360°-foto waarin bezoekers 
 De 360°-viewer is Pannellum 2.5.7 (MIT-licentie, © Matthew Petroff), zie `assets/vendor/pannellum/LICENSE.txt`.
 
 == Changelog ==
+
+= 1.0.2 =
+* Werkt ook als het WordPress-adres nog op http:// staat terwijl de site op https:// draait (360°-foto en folder werden dan door de browser geblokkeerd).
 
 = 1.0.1 =
 * Werkt nu ook netjes met paginabouwers (Elementor, Divi, Beaver Builder, Bricks): de opmaak staat er meteen.

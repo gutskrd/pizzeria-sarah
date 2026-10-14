@@ -187,6 +187,32 @@
 		}
 	}
 
+	/**
+	 * Some sites still have http:// as their WordPress address while the site
+	 * itself runs on https://. The browser then refuses to load those files
+	 * from a secure page, so links to this same site are switched to https.
+	 */
+	function secure( url ) {
+		if ( typeof url !== 'string' || window.location.protocol !== 'https:' ) {
+			return url;
+		}
+		var prefix = 'http://' + window.location.host + '/';
+		return url.indexOf( prefix ) === 0 ? 'https://' + url.slice( 7 ) : url;
+	}
+
+	/** secure() for every link inside a settings object. */
+	function secureData( value ) {
+		if ( typeof value === 'string' ) {
+			return secure( value );
+		}
+		if ( value && typeof value === 'object' ) {
+			Object.keys( value ).forEach( function ( key ) {
+				value[ key ] = secureData( value[ key ] );
+			} );
+		}
+		return value;
+	}
+
 	var icons = {
 		close: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
 		plus: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
@@ -199,6 +225,8 @@
 		escapeHtml: escapeHtml,
 		loadImage: loadImage,
 		each: each,
+		secure: secure,
+		secureData: secureData,
 		icons: icons,
 	};
 } )();

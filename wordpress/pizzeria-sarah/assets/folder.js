@@ -592,7 +592,7 @@
 			if ( preview ) {
 				preview.dialog.el.remove();
 			}
-			preview = new FolderView( data );
+			preview = new FolderView( PS.secureData( data ) );
 			preview.show();
 			return preview;
 		},
@@ -614,7 +614,7 @@
 	PS.each( '[data-ps-folder]', function ( root ) {
 		var data;
 		try {
-			data = JSON.parse( root.getAttribute( 'data-ps-folder' ) );
+			data = PS.secureData( JSON.parse( root.getAttribute( 'data-ps-folder' ) ) );
 		} catch ( e ) {
 			return;
 		}
